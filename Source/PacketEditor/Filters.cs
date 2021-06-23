@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace PacketEditor
@@ -30,15 +25,15 @@ namespace PacketEditor
                 dgridFilters.Rows[i].Cells["enabled"].Value = dr["enabled"];
                 foreach (byte f in (byte[])dr["MsgFunction"])
                 {
-                    funs += si.msg(f) + " ";
+                    funs += si.Msg(f) + " ";
                 }
                 foreach (byte f in (byte[])dr["APIFunction"])
                 {
-                    funs += si.api(f) + " ";
+                    funs += si.Api(f) + " ";
                 }
                 foreach (byte f in (byte[])dr["DNSFunction"])
                 {
-                    funs += si.api(f) + " ";
+                    funs += si.Api(f) + " ";
                 }
                 if (funs != string.Empty)
                 {
@@ -46,6 +41,7 @@ namespace PacketEditor
                 }
             }
         }
+
         private void frmFilters_Activated(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -53,6 +49,7 @@ namespace PacketEditor
                 this.Opacity = 1;
             }
         }
+
         private void frmFilters_Deactivate(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -60,6 +57,7 @@ namespace PacketEditor
                 this.Opacity = .5;
             }
         }
+
         private void dgridFilters_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 27)
@@ -80,6 +78,7 @@ namespace PacketEditor
                 }
             }
         }
+
         private void btnDel_Click(object sender, EventArgs e)
         {
             DataRow drsock; // = dsMain.Tables["sockets"].Rows.Find(strPipeMsgIn.sockid);
@@ -93,6 +92,7 @@ namespace PacketEditor
                 dgridFilters.Rows.Remove(srow);
             }
         }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
             DataRow dr = dtFilters.NewRow();
@@ -101,10 +101,12 @@ namespace PacketEditor
                 frmChReplay.TopMost = true;
             frmChReplay.Show();
         }
+
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
         }
+
         private void dgridFilters_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if ((e.ColumnIndex != 0) && (e.RowIndex != -1))
@@ -116,6 +118,7 @@ namespace PacketEditor
                 frmChReplay.Show();
             }
         }
+
         private void dgridFilters_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if ((e.ColumnIndex == 0) && (e.RowIndex != -1))

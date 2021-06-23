@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -12,7 +7,6 @@ namespace PacketEditor
 {
     public partial class EditFilter : Form
     {
-      
         public bool retval;
 
         DataRow drFilters;
@@ -24,12 +18,12 @@ namespace PacketEditor
 
         void UpdateUI(DataRow dr)
         {
-            this.txtMsgReplace.TextChanged -= new System.EventHandler(this.txtMsgReplace_TextChanged);
-            this.txtAPIReplace.TextChanged -= new System.EventHandler(this.txtAPIReplace_TextChanged);
-            this.txtDNSReplace.TextChanged -= new System.EventHandler(this.txtMsgReplace_TextChanged);
-            this.cmbMsgActionE.SelectedIndexChanged -= new System.EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
-            this.cmbAPIActionE.SelectedIndexChanged -= new System.EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
-            this.cmbDNSActionE.SelectedIndexChanged -= new System.EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
+            this.txtMsgReplace.TextChanged -= new EventHandler(this.txtMsgReplace_TextChanged);
+            this.txtAPIReplace.TextChanged -= new EventHandler(this.txtAPIReplace_TextChanged);
+            this.txtDNSReplace.TextChanged -= new EventHandler(this.txtMsgReplace_TextChanged);
+            this.cmbMsgActionE.SelectedIndexChanged -= new EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
+            this.cmbAPIActionE.SelectedIndexChanged -= new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
+            this.cmbDNSActionE.SelectedIndexChanged -= new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
 
             if (dr["id"].ToString() != String.Empty)
             {
@@ -37,7 +31,7 @@ namespace PacketEditor
                 chkEnabled.Checked = (bool)dr["enabled"];
                 foreach (byte b in (byte[])dr["MsgFunction"])
                 {
-                    chkMsg.SetItemChecked(chkMsg.FindStringExact(sinfo.msg(b)), true);
+                    chkMsg.SetItemChecked(chkMsg.FindStringExact(sinfo.Msg(b)), true);
                 }
                 txtMsgCatch.Text = dr["MsgCatch"].ToString();
                 switch ((byte)dr["MsgAction"])
@@ -58,10 +52,10 @@ namespace PacketEditor
                         break;
                 }
                 txtMsgReplace.Text = dr["MsgReplace"].ToString();
-                cmbMsgActionE.Text = sinfo.error((int)dr["MsgError"]);
+                cmbMsgActionE.Text = sinfo.Error((int)dr["MsgError"]);
                 foreach (byte b in (byte[])dr["APIFunction"])
                 {
-                    chkAPI.SetItemChecked(chkAPI.FindStringExact(sinfo.api(b)), true);
+                    chkAPI.SetItemChecked(chkAPI.FindStringExact(sinfo.Api(b)), true);
                 }
                 txtAPICatch.Text = dr["APICatch"].ToString();
                 switch ((byte)dr["APIAction"])
@@ -82,10 +76,10 @@ namespace PacketEditor
                         break;
                 }
                 txtAPIReplace.Text = dr["APIReplace"].ToString();
-                cmbAPIActionE.Text = sinfo.error((int)dr["APIError"]);
+                cmbAPIActionE.Text = sinfo.Error((int)dr["APIError"]);
                 foreach (byte b in (byte[])dr["DNSFunction"])
                 {
-                    chkDNS.SetItemChecked(chkDNS.FindStringExact(sinfo.api(b)), true);
+                    chkDNS.SetItemChecked(chkDNS.FindStringExact(sinfo.Api(b)), true);
                 }
                 txtDNSCatch.Text = dr["DNSCatch"].ToString();
                 switch ((byte)dr["DNSAction"])
@@ -106,7 +100,7 @@ namespace PacketEditor
                         break;
                 }
                 txtDNSReplace.Text = dr["DNSReplace"].ToString();
-                cmbDNSActionE.Text = sinfo.error((int)dr["DNSError"]);
+                cmbDNSActionE.Text = sinfo.Error((int)dr["DNSError"]);
             }
             else
             {
@@ -114,13 +108,14 @@ namespace PacketEditor
                 cmbAPIActionE.Text = "NO_ERROR";
                 cmbDNSActionE.Text = "NO_ERROR";
             }
-            this.txtMsgReplace.TextChanged += new System.EventHandler(this.txtMsgReplace_TextChanged);
-            this.txtAPIReplace.TextChanged += new System.EventHandler(this.txtAPIReplace_TextChanged);
-            this.txtDNSReplace.TextChanged += new System.EventHandler(this.txtMsgReplace_TextChanged);
-            this.cmbMsgActionE.SelectedIndexChanged += new System.EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
-            this.cmbAPIActionE.SelectedIndexChanged += new System.EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
-            this.cmbDNSActionE.SelectedIndexChanged += new System.EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
+            this.txtMsgReplace.TextChanged += new EventHandler(this.txtMsgReplace_TextChanged);
+            this.txtAPIReplace.TextChanged += new EventHandler(this.txtAPIReplace_TextChanged);
+            this.txtDNSReplace.TextChanged += new EventHandler(this.txtMsgReplace_TextChanged);
+            this.cmbMsgActionE.SelectedIndexChanged += new EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
+            this.cmbAPIActionE.SelectedIndexChanged += new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
+            this.cmbDNSActionE.SelectedIndexChanged += new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
         }
+
         void UpdateDR(DataRow dr)
         {
             byte t;
@@ -129,7 +124,7 @@ namespace PacketEditor
             byte[] b = new byte[chkMsg.CheckedItems.Count];
             for (int i = 0; i < chkMsg.CheckedItems.Count; i++) 
             {
-                b[i] = sinfo.msgnum(chkMsg.CheckedItems[i].ToString());
+                b[i] = sinfo.Msgnum(chkMsg.CheckedItems[i].ToString());
             }
             dr["MsgFunction"] = b;
             dr["MsgCatch"] = txtMsgCatch.Text;
@@ -141,11 +136,11 @@ namespace PacketEditor
                 t++;
             dr["MsgAction"] = t;
             dr["MsgReplace"] = txtMsgReplace.Text;
-            dr["MsgError"] = sinfo.errornum(cmbMsgActionE.Text);
+            dr["MsgError"] = sinfo.ErrorNum(cmbMsgActionE.Text);
             b = new byte[chkAPI.CheckedItems.Count];
             for (int i = 0; i < chkAPI.CheckedItems.Count; i++)
             {
-                b[i] = sinfo.apinum(chkAPI.CheckedItems[i].ToString());
+                b[i] = sinfo.ApiNum(chkAPI.CheckedItems[i].ToString());
             }
             dr["APIFunction"] = b;
             dr["APICatch"] = txtAPICatch.Text;
@@ -157,11 +152,11 @@ namespace PacketEditor
                 t++;
             dr["APIAction"] = t;
             dr["APIReplace"] = txtAPIReplace.Text;
-            dr["APIError"] = sinfo.errornum(cmbAPIActionE.Text);
+            dr["APIError"] = sinfo.ErrorNum(cmbAPIActionE.Text);
             b = new byte[chkDNS.CheckedItems.Count];
             for (int i = 0; i < chkDNS.CheckedItems.Count; i++)
             {
-                b[i] = sinfo.apinum(chkDNS.CheckedItems[i].ToString());
+                b[i] = sinfo.ApiNum(chkDNS.CheckedItems[i].ToString());
             }
             dr["DNSFunction"] = b;
             dr["DNSCatch"] = txtDNSCatch.Text;
@@ -173,7 +168,7 @@ namespace PacketEditor
                 t++;
             dr["DNSAction"] = t;
             dr["DNSReplace"] = txtDNSReplace.Text;
-            dr["DNSError"] = sinfo.errornum(cmbDNSActionE.Text);
+            dr["DNSError"] = sinfo.ErrorNum(cmbDNSActionE.Text);
 
             funcUpdate(dr);
         }
@@ -190,6 +185,7 @@ namespace PacketEditor
 
             UpdateUI(dr);
         }
+
         private void frmEditFilters_Activated(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -197,6 +193,7 @@ namespace PacketEditor
                 this.Opacity = 1;
             }
         }
+
         private void frmEditFilters_Deactivate(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -204,6 +201,7 @@ namespace PacketEditor
                 this.Opacity = .5;
             }
         }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
             txtName.Text = txtName.Text.Trim();
@@ -256,36 +254,43 @@ namespace PacketEditor
                 txtName.Focus();
             }
         }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             retval = false;
             this.Close();
         }
+
         private void txtMsgReplace_TextChanged(object sender, EventArgs e)
         {
             if (rdoMsgActionR.Checked == false)
                 rdoMsgActionR.Checked = true;
         }
+
         private void txtAPIReplace_TextChanged(object sender, EventArgs e)
         {
             if (rdoAPIActionR.Checked == false)
                 rdoAPIActionR.Checked = true;
         }
+
         private void txtDNSReplace_TextChanged(object sender, EventArgs e)
         {
             if (rdoDNSActionR.Checked == false)
                 rdoDNSActionR.Checked = true;
         }
+
         private void cmbMsgActionE_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (rdoMsgActionE.Checked == false)
                 rdoMsgActionE.Checked = true;
         }
+
         private void cmbAPIActionE_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (rdoAPIActionE.Checked == false)
                 rdoAPIActionE.Checked = true;
         }
+
         private void cmbDNSActionE_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (rdoDNSActionE.Checked == false)
@@ -305,15 +310,15 @@ namespace PacketEditor
             dgF.Rows[i].Cells["enabled"].Value = dr["enabled"];
             foreach (byte f in (byte[])dr["MsgFunction"])
             {
-                funs += sinfo.msg(f) + " ";
+                funs += sinfo.Msg(f) + " ";
             }
             foreach (byte f in (byte[])dr["APIFunction"])
             {
-                funs += sinfo.api(f) + " ";
+                funs += sinfo.Api(f) + " ";
             }
             foreach (byte f in (byte[])dr["DNSFunction"])
             {
-                funs += sinfo.api(f) + " ";
+                funs += sinfo.Api(f) + " ";
             }
             if (funs != string.Empty)
             {

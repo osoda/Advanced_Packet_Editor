@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.IO.Pipes;
@@ -27,7 +22,7 @@ namespace PacketEditor
                 i = dgridSockets.Rows.Add();
                 dgridSockets.Rows[i].Cells["socket"].Value = ((int)drow["socket"]).ToString("X4");
                 if (drow["proto"].ToString() != String.Empty)
-                    dgridSockets.Rows[i].Cells["proto"].Value = sinfo.proto((int)drow["proto"]);
+                    dgridSockets.Rows[i].Cells["proto"].Value = sinfo.Proto((int)drow["proto"]);
                 if (drow["fam"].ToString() != String.Empty)
                     if (((int)drow["fam"] >= 0) && ((int)drow["fam"] <= sinfo.afamily.Length - 1))
                         dgridSockets.Rows[i].Cells["fam"].Value = sinfo.afamily[(int)drow["fam"]];
@@ -35,13 +30,14 @@ namespace PacketEditor
                     if (((int)drow["type"] >= 0) && ((int)drow["type"] <= sinfo.atype.Length - 1))
                         dgridSockets.Rows[i].Cells["type"].Value = sinfo.atype[(int)drow["type"]];
                 if (drow["lastapi"].ToString() != String.Empty)
-                    dgridSockets.Rows[i].Cells["lastapi"].Value = sinfo.api((int)drow["lastapi"]);
+                    dgridSockets.Rows[i].Cells["lastapi"].Value = sinfo.Api((int)drow["lastapi"]);
                 if (drow["lastmsg"].ToString() != String.Empty)
-                    dgridSockets.Rows[i].Cells["lastmsg"].Value = sinfo.msg((int) drow["lastmsg"]);
+                    dgridSockets.Rows[i].Cells["lastmsg"].Value = sinfo.Msg((int) drow["lastmsg"]);
                 dgridSockets.Rows[i].Cells["local"].Value = drow["local"].ToString();
                 dgridSockets.Rows[i].Cells["remote"].Value = drow["remote"].ToString();
             }
         }
+
         private void frmSockets_Activated(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -49,6 +45,7 @@ namespace PacketEditor
                 this.Opacity = 1;
             }
         }
+
         private void frmSockets_Deactivate(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -56,6 +53,7 @@ namespace PacketEditor
                 this.Opacity = .5;
             }
         }
+
         private void sDRECVToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dgridSockets.SelectedRows.Count != 0)
@@ -68,6 +66,7 @@ namespace PacketEditor
                 pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
             }
         }
+
         private void sDSENDToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dgridSockets.SelectedRows.Count != 0)
@@ -80,6 +79,7 @@ namespace PacketEditor
                 pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
             }
         }
+
         private void sDBOTHToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dgridSockets.SelectedRows.Count != 0)
@@ -93,6 +93,7 @@ namespace PacketEditor
 
             }
         }
+
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dgridSockets.SelectedRows.Count != 0)
@@ -104,6 +105,7 @@ namespace PacketEditor
                 pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
             }
         }
+
         private void replayEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dgridSockets.SelectedRows.Count != 0)
@@ -115,6 +117,7 @@ namespace PacketEditor
                 frmChReplay.Show();
             }
         }
+
         private void dgridSockets_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 27)

@@ -1,17 +1,5 @@
 ﻿using System;
-//using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.Data;
-//using System.Diagnostics;
-//using System.Drawing;
-//using System.IO;
-//using System.IO.Pipes;
-//using System.Linq;
 using System.Runtime.InteropServices;
-//using System.Text;
-//using System.Threading;
-//using System.Windows.Forms;
-
 
 namespace PacketEditor
 {
@@ -29,7 +17,7 @@ namespace PacketEditor
             public int extra;
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-        public struct sockaddr_in
+        public struct Sockaddr_in
         {
             [MarshalAs(UnmanagedType.I2)]
             public short sin_family;
@@ -53,6 +41,7 @@ namespace PacketEditor
             handle.Free();
             return rawdatas;
         }
+
         public static object RawDeserializeEx(byte[] rawdatas, Type anytype)
         {
             int rawsize = Marshal.SizeOf(anytype);

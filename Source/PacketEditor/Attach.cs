@@ -68,10 +68,12 @@ namespace PacketEditor
             
             dgridAttach.Sort(dgridAttach.Columns["name"], ListSortDirection.Descending);
         }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();
         }
+
         private void btnAttach_Click(object sender, EventArgs e)
         {
             if (dgridAttach.SelectedRows.Count != 0)
@@ -85,6 +87,7 @@ namespace PacketEditor
                 MessageBox.Show(this, "You must select a process.","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
         }
+
         private void dgridAttach_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 27)
@@ -104,6 +107,7 @@ namespace PacketEditor
                 }
             }
         }
+
         private void frmAttach_Activated(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -111,6 +115,7 @@ namespace PacketEditor
                 this.Opacity = 1;
             }
         }
+
         private void frmAttach_Deactivate(object sender, EventArgs e)
         {
             if (this.TopMost == true)

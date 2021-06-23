@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Threading;
 
 namespace PacketEditor
 {
@@ -54,7 +47,9 @@ namespace PacketEditor
                 txbFilter.Text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\Scripts\\filter.py");
             }
         }
+
         private const int CP_NOCLOSE_BUTTON = 0x200;
+
         protected override CreateParams CreateParams
         {
             get

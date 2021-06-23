@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO.Pipes;
@@ -30,11 +24,13 @@ namespace PacketEditor
             pipeOut = pipe;
             txtSockID.Text = socket.ToString("X4");
         }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             isocket = 0;
             this.Close();
         }
+
         private void btnSend_Click(object sender, EventArgs e)
         {
             DynamicByteProvider BytePro = hexBox1.ByteProvider as DynamicByteProvider;
@@ -61,6 +57,7 @@ namespace PacketEditor
                 pipeOut.Write(bcBytes.GetBytes(), 0, strPipeMsgOut.datasize);
             }
         }
+
         private void frmReplayEditor_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 27)
@@ -68,6 +65,7 @@ namespace PacketEditor
                 this.Close();
             }
         }
+
         private void hexBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 27)
@@ -75,6 +73,7 @@ namespace PacketEditor
                 this.Close();
             }
         }
+
         private void frmReplayEditor_Activated(object sender, EventArgs e)
         {
             if (this.TopMost == true)
@@ -82,6 +81,7 @@ namespace PacketEditor
                 this.Opacity = 1;
             }
         }
+
         private void frmReplayEditor_Deactivate(object sender, EventArgs e)
         {
             if (this.TopMost == true)

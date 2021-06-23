@@ -213,3 +213,32 @@ N:\AppSec\PacketEditor\PacketEditor\PacketEditor\bin\Release\Be.Windows.Forms.He
 N:\AppSec\PacketEditor\PacketEditor\PacketEditor\obj\x86\Release\PacketEditor.TrustInfo.xml
 N:\AppSec\PacketEditor\PacketEditor\PacketEditor\obj\x86\Release\PacketEditor.exe.manifest
 N:\AppSec\PacketEditor\PacketEditor\PacketEditor\obj\x86\Release\PacketEditor.application
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\WSPE.dat
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\Scripts\external_filter_server.py
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\Scripts\filter.py
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\Scripts\mirror_server.py
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\PacketEditor.exe.config
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\PacketEditor.exe.manifest
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\PacketEditor.application
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\PacketEditor.exe
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\PacketEditor.pdb
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\bin\Release\Be.Windows.Forms.HexBox.dll
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.csprojAssemblyReference.cache
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.EditFilter.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.Attach.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.Filters.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.frmAbout.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.FrmBurpCode.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.FrmPython.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.Main.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.ReplayEditor.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.Sockets.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.Properties.Resources.resources
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.csproj.GenerateResource.cache
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.csproj.CoreCompileInputs.cache
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.TrustInfo.xml
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.exe.manifest
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.application
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.csproj.CopyComplete
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.exe
+E:\Tony L\Documents\GitHub\Advanced_Packet_Editor\source\PacketEditor\obj\x86\Release\PacketEditor.pdb

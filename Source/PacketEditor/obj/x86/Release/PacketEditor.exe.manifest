@@ -56,14 +56,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="PacketEditor.exe" size="184320">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="PacketEditor.exe" size="183296">
       <assemblyIdentity name="PacketEditor" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>kvWtOZtIqEFBJ71gtIIi940zLCE=</dsig:DigestValue>
+        <dsig:DigestValue>Fe5etQwhDbKYL01xImSnClRMoac=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -94,13 +94,13 @@
       <dsig:DigestValue>bp4ScguJUQuZP14hWYU/V1hOkPg=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Scripts\filter.py" size="170">
+  <file name="Scripts\filter.py" size="177">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>MuK5qq9+Et82947yrnLJ+xDy7HU=</dsig:DigestValue>
+      <dsig:DigestValue>iNeeg7R3EQQfTzoX5/zsNPnqV4U=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Scripts\mirror_server.py" size="951">
