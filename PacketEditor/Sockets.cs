@@ -10,37 +10,44 @@ namespace PacketEditor
     public partial class Sockets : Form
     {
         Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader();
-        NamedPipeClientStream pipeOut;
+        readonly NamedPipeClientStream pipeOut;
 
-        public Sockets(DataTable dtSockets, Main.SockInfo sinfo, NamedPipeClientStream pout)
+        public Sockets(DataTable dtSockets, SocketInfo sInfo, NamedPipeClientStream pOut)
         {
-            int i;
             InitializeComponent();
-            pipeOut = pout;
-            foreach (DataRow drow in dtSockets.Rows)
+            
+            pipeOut = pOut;
+
+            foreach (DataRow row in dtSockets.Rows)
             {
-                i = dgridSockets.Rows.Add();
-                dgridSockets.Rows[i].Cells["socket"].Value = ((int)drow["socket"]).ToString("X4");
-                if (drow["proto"].ToString() != String.Empty)
-                    dgridSockets.Rows[i].Cells["proto"].Value = sinfo.Proto((int)drow["proto"]);
-                if (drow["fam"].ToString() != String.Empty)
-                    if (((int)drow["fam"] >= 0) && ((int)drow["fam"] <= sinfo.afamily.Length - 1))
-                        dgridSockets.Rows[i].Cells["fam"].Value = sinfo.afamily[(int)drow["fam"]];
-                if (drow["type"].ToString() != String.Empty)
-                    if (((int)drow["type"] >= 0) && ((int)drow["type"] <= sinfo.atype.Length - 1))
-                        dgridSockets.Rows[i].Cells["type"].Value = sinfo.atype[(int)drow["type"]];
-                if (drow["lastapi"].ToString() != String.Empty)
-                    dgridSockets.Rows[i].Cells["lastapi"].Value = sinfo.Api((int)drow["lastapi"]);
-                if (drow["lastmsg"].ToString() != String.Empty)
-                    dgridSockets.Rows[i].Cells["lastmsg"].Value = sinfo.Msg((int) drow["lastmsg"]);
-                dgridSockets.Rows[i].Cells["local"].Value = drow["local"].ToString();
-                dgridSockets.Rows[i].Cells["remote"].Value = drow["remote"].ToString();
+                int i = dgridSockets.Rows.Add();
+                dgridSockets.Rows[i].Cells["socket"].Value = ((int)row["socket"]).ToString("X4");
+
+                if (row["proto"].ToString() != string.Empty)
+                    dgridSockets.Rows[i].Cells["proto"].Value = sInfo.Proto((int)row["proto"]);
+
+                if (row["fam"].ToString() != string.Empty
+                    && ((int)row["fam"] >= 0) && ((int)row["fam"] <= sInfo.afamily.Length - 1))
+                        dgridSockets.Rows[i].Cells["fam"].Value = sInfo.afamily[(int)row["fam"]];
+
+                if (row["type"].ToString() != string.Empty
+                    && ((int)row["type"] >= 0) && ((int)row["type"] <= sInfo.atype.Length - 1))
+                        dgridSockets.Rows[i].Cells["type"].Value = sInfo.atype[(int)row["type"]];
+
+                if (row["lastapi"].ToString() != string.Empty)
+                    dgridSockets.Rows[i].Cells["lastapi"].Value = sInfo.Api((int)row["lastapi"]);
+
+                if (row["lastmsg"].ToString() != string.Empty)
+                    dgridSockets.Rows[i].Cells["lastmsg"].Value = sInfo.Msg((int) row["lastmsg"]);
+
+                dgridSockets.Rows[i].Cells["local"].Value = row["local"].ToString();
+                dgridSockets.Rows[i].Cells["remote"].Value = row["remote"].ToString();
             }
         }
 
         private void frmSockets_Activated(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = 1;
             }
@@ -48,7 +55,7 @@ namespace PacketEditor
 
         private void frmSockets_Deactivate(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = .5;
             }
@@ -59,7 +66,7 @@ namespace PacketEditor
             if (dgridSockets.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Receive;
                 strPipeMsgOut.datasize = 0;
@@ -72,7 +79,7 @@ namespace PacketEditor
             if (dgridSockets.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Send;
                 strPipeMsgOut.datasize = 0;
@@ -85,7 +92,7 @@ namespace PacketEditor
             if (dgridSockets.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Both;
                 strPipeMsgOut.datasize = 0;
@@ -99,7 +106,7 @@ namespace PacketEditor
             if (dgridSockets.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_CLOSESOCKET;
                 strPipeMsgOut.datasize = 0;
                 pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
@@ -110,9 +117,8 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                byte[] zero = new byte[] { 0 };
-                ReplayEditor frmChReplay = new ReplayEditor(new byte[0], Int32.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier), pipeOut);
-                if (this.TopMost == true)
+                var frmChReplay = new ReplayEditor(new byte[0], int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier), pipeOut);
+                if (this.TopMost)
                     frmChReplay.TopMost = true;
                 frmChReplay.Show();
             }

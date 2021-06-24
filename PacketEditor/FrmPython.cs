@@ -1,50 +1,26 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Diagnostics;
 
 namespace PacketEditor
 {
     public partial class FrmPython : Form
     {  
-      
-        string _path;
-        public FrmPython(string PathToFile)
+        private readonly string _path;
+
+        public FrmPython(string pathToFile)
         {
             InitializeComponent();
-            _path = PathToFile;
-           
-           
-       
-       
 
+            _path = pathToFile;
             timer1.Start();
-           
-
-
-            
-            
-            
-            
-        }
-       
-        void _pythonProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            try
-            {
-              //  txbOutput.AppendText(PythonOutput.ReadToEnd());
-               
-            }
-            catch (Exception) { }
-        }
-
-     
+        }     
 
         private void FrmPython_Load(object sender, EventArgs e)
         {
-            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\Scripts\\filter.py"))
+            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\Scripts\filter.py"))
             {
-                txbFilter.Text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\Scripts\\filter.py");
+                txbFilter.Text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\Scripts\filter.py");
             }
         }
 
@@ -55,7 +31,7 @@ namespace PacketEditor
             get
             {
                 CreateParams myCp = base.CreateParams;
-                myCp.ClassStyle = myCp.ClassStyle | CP_NOCLOSE_BUTTON;
+                myCp.ClassStyle |= CP_NOCLOSE_BUTTON;
                 return myCp;
             }
         }
@@ -86,7 +62,6 @@ namespace PacketEditor
             {
                 txbOutput.Text = ex.Message;
             }
-          
         }
     }
 }

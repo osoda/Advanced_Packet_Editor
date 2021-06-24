@@ -35,18 +35,18 @@
             // 
             // txbBurpCode
             // 
-            this.txbBurpCode.Location = new System.Drawing.Point(0, 38);
+            this.txbBurpCode.Location = new System.Drawing.Point(0, 35);
             this.txbBurpCode.Multiline = true;
             this.txbBurpCode.Name = "txbBurpCode";
-            this.txbBurpCode.Size = new System.Drawing.Size(284, 194);
+            this.txbBurpCode.Size = new System.Drawing.Size(284, 179);
             this.txbBurpCode.TabIndex = 0;
             // 
             // btnContinue
             // 
             this.btnContinue.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnContinue.Location = new System.Drawing.Point(0, 238);
+            this.btnContinue.Location = new System.Drawing.Point(0, 220);
             this.btnContinue.Name = "btnContinue";
-            this.btnContinue.Size = new System.Drawing.Size(284, 23);
+            this.btnContinue.Size = new System.Drawing.Size(284, 21);
             this.btnContinue.TabIndex = 1;
             this.btnContinue.Text = "Continue";
             this.btnContinue.UseVisualStyleBackColor = true;
@@ -56,21 +56,20 @@
             // 
             this.label1.Location = new System.Drawing.Point(0, 6);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(284, 29);
+            this.label1.Size = new System.Drawing.Size(284, 27);
             this.label1.TabIndex = 2;
             this.label1.Text = "Copy the following code into the repeater feature in burp and press continue:\r\n";
             // 
             // FrmBurpCode
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(284, 241);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnContinue);
             this.Controls.Add(this.txbBurpCode);
             this.Name = "FrmBurpCode";
             this.Text = "Burp Code";
-            this.Load += new System.EventHandler(this.FrmBurpCode_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -16,6 +16,7 @@ namespace PacketEditor
             public int datasize;
             public int extra;
         }
+
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
         public struct Sockaddr_in
         {
@@ -33,8 +34,8 @@ namespace PacketEditor
 
         public static byte[] RawSerializeEx(object anything)
         {
-            int rawsize = Marshal.SizeOf(anything);
-            byte[] rawdatas = new byte[rawsize];
+            int rawSize = Marshal.SizeOf(anything);
+            byte[] rawdatas = new byte[rawSize];
             GCHandle handle = GCHandle.Alloc(rawdatas, GCHandleType.Pinned);
             IntPtr buffer = handle.AddrOfPinnedObject();
             Marshal.StructureToPtr(anything, buffer, false);
@@ -42,18 +43,20 @@ namespace PacketEditor
             return rawdatas;
         }
 
-        public static object RawDeserializeEx(byte[] rawdatas, Type anytype)
+        public static object RawDeserializeEx(byte[] rawData, Type anyType)
         {
-            int rawsize = Marshal.SizeOf(anytype);
-            if (rawsize > rawdatas.Length)
+            int rawSize = Marshal.SizeOf(anyType);
+            if (rawSize > rawData.Length)
                 return null;
-            GCHandle handle = GCHandle.Alloc(rawdatas, GCHandleType.Pinned);
+
+            GCHandle handle = GCHandle.Alloc(rawData, GCHandleType.Pinned);
             IntPtr buffer = handle.AddrOfPinnedObject();
-            object retobj = Marshal.PtrToStructure(buffer, anytype);
+            object retObj = Marshal.PtrToStructure(buffer, anyType);
             handle.Free();
-            return retobj;
+            return retObj;
         }
 
+        #region Constant
         public const byte CMD_DEINIT = 9;
         public const byte CMD_INIT = 8;
         public const byte CMD_DNS_STRUCTDATA = 7;
@@ -121,6 +124,6 @@ namespace PacketEditor
         public const byte ActionReplaceStringH = 1;
         public const byte ActionError = 2;
         public const byte ActionErrorH = 3;
-
+        #endregion
     }
 }

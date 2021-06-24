@@ -1,50 +1,53 @@
 ﻿using System;
 using System.Data;
+using System.Text;
 using System.Windows.Forms;
 
 namespace PacketEditor
 {
     public partial class Filters : Form
     {
-        DataTable dtFilters;
-        Main.SockInfo sinfo;
+        readonly DataTable dtFilters;
+        readonly SocketInfo sInfo;
 
-        public Filters(DataTable dt, Main.SockInfo si)
+        public Filters(DataTable dt, SocketInfo si)
         {
             InitializeComponent();
-            dtFilters = dt;
-            sinfo = si;
-            int i;
-            string funs;
 
+            dtFilters = dt;
+            sInfo = si;
+
+            StringBuilder funs = new StringBuilder();
             foreach (DataRow dr in dt.Rows)
             {
-                i = dgridFilters.Rows.Add();
-                funs = "";
+                int i = dgridFilters.Rows.Add();
+                funs.Clear();
                 dgridFilters.Rows[i].Cells["name"].Value = dr["id"].ToString();
                 dgridFilters.Rows[i].Cells["enabled"].Value = dr["enabled"];
+
                 foreach (byte f in (byte[])dr["MsgFunction"])
                 {
-                    funs += si.Msg(f) + " ";
+                    funs.Append(si.Msg(f) + " ");
                 }
                 foreach (byte f in (byte[])dr["APIFunction"])
                 {
-                    funs += si.Api(f) + " ";
+                    funs.Append(si.Api(f) + " ");
                 }
                 foreach (byte f in (byte[])dr["DNSFunction"])
                 {
-                    funs += si.Api(f) + " ";
+                    funs.Append(si.Api(f) + " ");
                 }
-                if (funs != string.Empty)
+
+                if (funs.ToString() != string.Empty)
                 {
-                    dgridFilters.Rows[i].Cells["function"].Value = funs.TrimEnd();
+                    dgridFilters.Rows[i].Cells["function"].Value = funs.ToString().TrimEnd();
                 }
             }
         }
 
         private void frmFilters_Activated(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = 1;
             }
@@ -52,7 +55,7 @@ namespace PacketEditor
 
         private void frmFilters_Deactivate(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = .5;
             }
@@ -81,10 +84,9 @@ namespace PacketEditor
 
         private void btnDel_Click(object sender, EventArgs e)
         {
-            DataRow drsock; // = dsMain.Tables["sockets"].Rows.Find(strPipeMsgIn.sockid);
             foreach (DataGridViewRow srow in dgridFilters.SelectedRows)
             {
-                drsock = dtFilters.Rows.Find(srow.Cells["name"].Value);
+                DataRow drsock = dtFilters.Rows.Find(srow.Cells["name"].Value);
                 if (drsock != null)
                 {
                     drsock.Delete();
@@ -96,8 +98,8 @@ namespace PacketEditor
         private void btnAdd_Click(object sender, EventArgs e)
         {
             DataRow dr = dtFilters.NewRow();
-            EditFilter frmChReplay = new EditFilter(dr, sinfo, dtFilters, dgridFilters, 0);
-            if (this.TopMost == true)
+            EditFilter frmChReplay = new EditFilter(dr, sInfo, dtFilters, dgridFilters, 0);
+            if (this.TopMost)
                 frmChReplay.TopMost = true;
             frmChReplay.Show();
         }
@@ -112,8 +114,8 @@ namespace PacketEditor
             if ((e.ColumnIndex != 0) && (e.RowIndex != -1))
             {
                 DataRow dr = dtFilters.Rows[e.RowIndex];
-                EditFilter frmChReplay = new EditFilter(dr, sinfo, dtFilters, dgridFilters, e.RowIndex);
-                if (this.TopMost == true)
+                EditFilter frmChReplay = new EditFilter(dr, sInfo, dtFilters, dgridFilters, e.RowIndex);
+                if (this.TopMost)
                     frmChReplay.TopMost = true;
                 frmChReplay.Show();
             }

@@ -33,16 +33,16 @@
             this.tabLog = new System.Windows.Forms.TabControl();
             this.tabOutput = new System.Windows.Forms.TabPage();
             this.txbOutput = new System.Windows.Forms.TextBox();
+            this.tabFilter = new System.Windows.Forms.TabPage();
+            this.txbFilter = new System.Windows.Forms.RichTextBox();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.tabFilter = new System.Windows.Forms.TabPage();
-            this.txbFilter = new System.Windows.Forms.RichTextBox();
             this.tabLog.SuspendLayout();
             this.tabOutput.SuspendLayout();
-            this.menuMain.SuspendLayout();
             this.tabFilter.SuspendLayout();
+            this.menuMain.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabLog
@@ -53,7 +53,7 @@
             this.tabLog.Location = new System.Drawing.Point(0, 24);
             this.tabLog.Name = "tabLog";
             this.tabLog.SelectedIndex = 0;
-            this.tabLog.Size = new System.Drawing.Size(524, 367);
+            this.tabLog.Size = new System.Drawing.Size(524, 337);
             this.tabLog.TabIndex = 0;
             // 
             // tabOutput
@@ -62,7 +62,7 @@
             this.tabOutput.Location = new System.Drawing.Point(4, 22);
             this.tabOutput.Name = "tabOutput";
             this.tabOutput.Padding = new System.Windows.Forms.Padding(3);
-            this.tabOutput.Size = new System.Drawing.Size(516, 341);
+            this.tabOutput.Size = new System.Drawing.Size(516, 311);
             this.tabOutput.TabIndex = 0;
             this.tabOutput.Text = "Output";
             this.tabOutput.UseVisualStyleBackColor = true;
@@ -74,8 +74,28 @@
             this.txbOutput.Multiline = true;
             this.txbOutput.Name = "txbOutput";
             this.txbOutput.ReadOnly = true;
-            this.txbOutput.Size = new System.Drawing.Size(510, 335);
+            this.txbOutput.Size = new System.Drawing.Size(510, 305);
             this.txbOutput.TabIndex = 0;
+            // 
+            // tabFilter
+            // 
+            this.tabFilter.Controls.Add(this.txbFilter);
+            this.tabFilter.Location = new System.Drawing.Point(4, 22);
+            this.tabFilter.Name = "tabFilter";
+            this.tabFilter.Padding = new System.Windows.Forms.Padding(3);
+            this.tabFilter.Size = new System.Drawing.Size(516, 311);
+            this.tabFilter.TabIndex = 1;
+            this.tabFilter.Text = "Filter";
+            this.tabFilter.UseVisualStyleBackColor = true;
+            // 
+            // txbFilter
+            // 
+            this.txbFilter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txbFilter.Location = new System.Drawing.Point(3, 3);
+            this.txbFilter.Name = "txbFilter";
+            this.txbFilter.Size = new System.Drawing.Size(510, 305);
+            this.txbFilter.TabIndex = 0;
+            this.txbFilter.Text = "";
             // 
             // menuMain
             // 
@@ -92,13 +112,13 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveFilterToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(38, 20);
             this.fileToolStripMenuItem.Text = "&File";
             // 
             // saveFilterToolStripMenuItem
             // 
             this.saveFilterToolStripMenuItem.Name = "saveFilterToolStripMenuItem";
-            this.saveFilterToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.saveFilterToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.saveFilterToolStripMenuItem.Text = "&Save Filter...";
             this.saveFilterToolStripMenuItem.Click += new System.EventHandler(this.saveFilterToolStripMenuItem_Click);
             // 
@@ -107,32 +127,12 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // tabFilter
-            // 
-            this.tabFilter.Controls.Add(this.txbFilter);
-            this.tabFilter.Location = new System.Drawing.Point(4, 22);
-            this.tabFilter.Name = "tabFilter";
-            this.tabFilter.Padding = new System.Windows.Forms.Padding(3);
-            this.tabFilter.Size = new System.Drawing.Size(516, 341);
-            this.tabFilter.TabIndex = 1;
-            this.tabFilter.Text = "Filter";
-            this.tabFilter.UseVisualStyleBackColor = true;
-            // 
-            // txbFilter
-            // 
-            this.txbFilter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txbFilter.Location = new System.Drawing.Point(3, 3);
-            this.txbFilter.Name = "txbFilter";
-            this.txbFilter.Size = new System.Drawing.Size(510, 335);
-            this.txbFilter.TabIndex = 0;
-            this.txbFilter.Text = "";
-            // 
             // FrmPython
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(524, 391);
+            this.ClientSize = new System.Drawing.Size(524, 361);
             this.Controls.Add(this.tabLog);
             this.Controls.Add(this.menuMain);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -142,9 +142,9 @@
             this.tabLog.ResumeLayout(false);
             this.tabOutput.ResumeLayout(false);
             this.tabOutput.PerformLayout();
+            this.tabFilter.ResumeLayout(false);
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
-            this.tabFilter.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

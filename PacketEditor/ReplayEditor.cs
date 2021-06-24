@@ -9,31 +9,30 @@ namespace PacketEditor
     public partial class ReplayEditor : Form
     {
         ByteCollection bcBytes = new ByteCollection();
-        NamedPipeClientStream pipeOut;
-        int isocket = new int();
+        readonly NamedPipeClientStream pipeOut;
         Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader();
 
-        public ReplayEditor(byte[] ReplayData, int socket, NamedPipeClientStream pipe)
+        public ReplayEditor(byte[] replayData, int socket, NamedPipeClientStream pipe)
         {
             InitializeComponent();
             
-            DynamicByteProvider BytePro = new DynamicByteProvider(ReplayData);
+            DynamicByteProvider bytePro = new DynamicByteProvider(replayData);
 
-            hexBox1.ByteProvider = BytePro;
-            isocket = socket;
+            hexBox1.ByteProvider = bytePro;
+            //isocket = socket;
             pipeOut = pipe;
             txtSockID.Text = socket.ToString("X4");
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            isocket = 0;
+            //isocket = 0;
             this.Close();
         }
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            DynamicByteProvider BytePro = hexBox1.ByteProvider as DynamicByteProvider;
+            DynamicByteProvider bytePro = hexBox1.ByteProvider as DynamicByteProvider;
             try
             {
                 strPipeMsgOut.sockid = int.Parse(txtSockID.Text, System.Globalization.NumberStyles.HexNumber);
@@ -46,7 +45,7 @@ namespace PacketEditor
                 return;
             }
 
-            bcBytes = BytePro.Bytes;
+            bcBytes = bytePro.Bytes;
             strPipeMsgOut.command = Glob.CMD_INJECT;
             strPipeMsgOut.function = Glob.FUNC_SEND;
             strPipeMsgOut.datasize = bcBytes.Count;
@@ -76,7 +75,7 @@ namespace PacketEditor
 
         private void frmReplayEditor_Activated(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = 1;
             }
@@ -84,7 +83,7 @@ namespace PacketEditor
 
         private void frmReplayEditor_Deactivate(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = .5;
             }

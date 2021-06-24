@@ -11,15 +11,9 @@ namespace PacketEditor
             txbBurpCode.Text = code;
         }
 
-        private void FrmBurpCode_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnContinue_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-
     }
 }

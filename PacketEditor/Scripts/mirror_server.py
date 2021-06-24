@@ -18,17 +18,13 @@ class mirrorHTTPServer(BaseHTTPRequestHandler):
 		self.end_headers()
 
 		self.wfile.write(data)
-		#self.wfile.write('<HTML><body>Get!</body></HTML>')
-		
-	#def	log_message(self, format, *args):
-	#	return
 		
 def main():
 	try:
 		address = '127.0.0.1'
 		port = 8088
 		server = HTTPServer((address, port), mirrorHTTPServer)
-		print 'Mirror server started at port', port, 'and listen to', address
+		print ('Mirror server started at port', port, 'and listen to', address)
 		server.serve_forever()
 	except KeyboardInterrupt:
 		server.socket.close() 

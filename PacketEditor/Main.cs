@@ -26,7 +26,7 @@ namespace PacketEditor
         int intTargetpID = 0;
         Glob.PipeHeader strPipeMsgOut;
         Glob.PipeHeader strPipeMsgIn;
-        readonly SockInfo sinfo = new SockInfo();
+        readonly SocketInfo sinfo = new SocketInfo();
         bool filter = true;
         bool monitor = true;
         bool DNStrap = false;
@@ -160,6 +160,7 @@ DATA_TO_SEND";
         static extern bool OpenProcessToken(IntPtr ProcessHandle,
             UInt32 DesiredAccess, out IntPtr TokenHandle);
 
+        #region Useless
         private const uint STANDARD_RIGHTS_REQUIRED = 0x000F0000;
         private const uint STANDARD_RIGHTS_READ = 0x00020000;
         private const uint TOKEN_ASSIGN_PRIMARY = 0x0001;
@@ -176,6 +177,7 @@ DATA_TO_SEND";
             TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_QUERY_SOURCE |
             TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT |
             TOKEN_ADJUST_SESSIONID;
+        #endregion
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern IntPtr GetCurrentProcess();
@@ -261,401 +263,10 @@ DATA_TO_SEND";
            IntPtr Null1,
            IntPtr Null2);
 
-        //Classes
-        public class SockInfo
-        {
-            public string[] afamily = new string[] { "UNSPEC", "UNIX", "INET", "IMPLINK", "PUP", "CHAOS", "NS", "ISO", "ECMA", "DATAKIT", "CCITT", "SNA", "DECnet", "DLI", "LAT", "HYLINK", "APPLETALK", "NETBIOS", "MAX" };
-            public string[] atype = new string[] { "", "STREAM", "DGRAM", "RAW", "RDM", "SEQPACKET" };
-            public string[] sdhow = new string[] { "RECEIVE", "SEND", "BOTH" };
-            public string sockidfmt = "X4";
-
-            public string Proto(int proto)
-            {
-                switch (proto)
-                {
-                    case 0:
-                        return "IP";
-                    case 1:
-                        return "ICMP";
-                    case 2:
-                        return "GGP";
-                    case 6:
-                        return "TCP";
-                    case 12:
-                        return "PUP";
-                    case 17:
-                        return "UDP";
-                    case 22:
-                        return "IDP";
-                    case 77:
-                        return "ND";
-                    case 255:
-                        return "RAW";
-                    case 256:
-                        return "MAX";
-                    default:
-                        return "UNKNOWN";
-                }
-            }
-
-            public string Type(int type)
-            {
-                switch (type)
-                {
-                    case 0:
-                        return "IP";
-                    case 1:
-                        return "ICMP";
-                    case 2:
-                        return "GGP";
-                    case 6:
-                        return "TCP";
-                    case 12:
-                        return "PUP";
-                    case 17:
-                        return "UDP";
-                    case 22:
-                        return "IDP";
-                    case 77:
-                        return "ND";
-                    case 255:
-                        return "RAW";
-                    case 256:
-                        return "MAX";
-                    default:
-                        return "UNKNOWN";
-                }
-            }
-
-            public string Msg(int function)
-            {
-                switch (function)
-                {
-                    case Glob.FUNC_SEND:
-                        return "send()";
-                    case Glob.FUNC_SENDTO:
-                        return "sendto()";
-                    case Glob.FUNC_WSASEND:
-                        return "WSASend()";
-                    case Glob.FUNC_WSASENDTO:
-                        return "WSASendTo()";
-                    case Glob.FUNC_WSASENDDISCONNECT:
-                        return "WSASendDisconnect()";
-                    case Glob.FUNC_RECV:
-                        return "recv()";
-                    case Glob.FUNC_RECVFROM:
-                        return "recvfrom()";
-                    case Glob.FUNC_WSARECV:
-                        return "WSARecv()";
-                    case Glob.FUNC_WSARECVFROM:
-                        return "WSARecvFrom()";
-                    case Glob.FUNC_WSARECVDISCONNECT:
-                        return "WSARecvDisconnect()";
-                    default:
-                        return "";
-                }
-            }
-
-            public string Api(int function)
-            {
-                switch (function)
-                {
-                    case Glob.FUNC_WSAACCEPT:
-                        return "WSAAccept()";
-                    case Glob.FUNC_ACCEPT:
-                        return "accept()";
-                    case Glob.FUNC_WSACONNECT:
-                        return "WSAConnect()";
-                    case Glob.FUNC_CONNECT:
-                        return "connect()";
-                    case Glob.FUNC_WSASOCKETW_IN:
-                    case Glob.FUNC_WSASOCKETW_OUT:
-                        return "WSASocket()";
-                    case Glob.FUNC_BIND:
-                        return "bind()";
-                    case Glob.CONN_WSASENDTO:
-                        return "WSASendTo()";
-                    case Glob.CONN_WSARECVFROM:
-                        return "WSARecvFrom()";
-                    case Glob.CONN_SENDTO:
-                        return "sendto()";
-                    case Glob.CONN_RECVFROM:
-                        return "recvfrom()";
-                    case Glob.FUNC_SOCKET_IN:
-                    case Glob.FUNC_SOCKET_OUT:
-                        return "socket()";
-                    case Glob.FUNC_CLOSESOCKET:
-                        return "closesocket()";
-                    case Glob.FUNC_LISTEN:
-                        return "listen()";
-                    case Glob.FUNC_SHUTDOWN:
-                        return "shutdown()";
-                    case Glob.FUNC_WSASENDDISCONNECT:
-                        return "WSASendDisconnect()";
-                    case Glob.FUNC_WSARECVDISCONNECT:
-                        return "WSARecvDisconnect()";
-                    case Glob.DNS_GETHOSTNAME:
-                        return "gethostname()";
-                    case Glob.DNS_GETHOSTBYADDR_IN:
-                    case Glob.DNS_GETHOSTBYADDR_OUT:
-                        return "gethostbyaddr()";
-                    case Glob.DNS_GETHOSTBYNAME_IN:
-                    case Glob.DNS_GETHOSTBYNAME_OUT:
-                        return "gethostbyname()";
-                    default:
-                        return "";
-                }
-            }
-
-            public byte Msgnum(string name)
-            {
-                switch (name)
-                {
-                    case "send()":
-                        return Glob.FUNC_SEND;
-                    case "sendto()":
-                        return Glob.FUNC_SENDTO;
-                    case "WSASend()":
-                        return Glob.FUNC_WSASEND;
-                    case "WSASendTo()":
-                        return Glob.FUNC_WSASENDTO;
-                    case "WSASendDisconnect()":
-                        return Glob.FUNC_WSASENDDISCONNECT;
-                    case "recv()":
-                        return Glob.FUNC_RECV;
-                    case "recvfrom()":
-                        return Glob.FUNC_RECVFROM;
-                    case "WSARecv()":
-                        return Glob.FUNC_WSARECV;
-                    case "WSARecvFrom()":
-                        return Glob.FUNC_WSARECVFROM;
-                    case "WSARecvDisconnect()":
-                        return Glob.FUNC_WSARECVDISCONNECT;
-                    default:
-                        return 0;
-                }
-            }
-
-            public byte ApiNum(string name)
-            {
-                switch (name)
-                {
-                    case "WSAAccept()":
-                        return Glob.FUNC_WSAACCEPT;
-                    case "accept()":
-                        return Glob.FUNC_ACCEPT;
-                    case "WSAConnect()":
-                        return Glob.FUNC_WSACONNECT;
-                    case "connect()":
-                        return Glob.FUNC_CONNECT;
-                    case "WSASocket()":
-                        return Glob.FUNC_WSASOCKETW_IN;
-                    case "bind()":
-                        return Glob.FUNC_BIND;
-                    case "WSASendTo()":
-                        return Glob.CONN_WSASENDTO;
-                    case "WSARecvFrom()":
-                        return Glob.CONN_WSARECVFROM;
-                    case "sendto()":
-                        return Glob.CONN_SENDTO;
-                    case "recvfrom()":
-                        return Glob.CONN_RECVFROM;
-                    case "socket()":
-                        return Glob.FUNC_SOCKET_IN;
-                    case "closesocket()":
-                        return Glob.FUNC_CLOSESOCKET;
-                    case "listen()":
-                        return Glob.FUNC_LISTEN;
-                    case "shutdown()":
-                        return Glob.FUNC_SHUTDOWN;
-                    case "gethostname()":
-                        return Glob.DNS_GETHOSTNAME;
-                    case "gethostbyname()":
-                        return Glob.DNS_GETHOSTBYNAME_OUT;
-                    case "gethostbyaddr()":
-                        return Glob.DNS_GETHOSTBYADDR_OUT;
-                    default:
-                        return 0;
-                }
-            }
-
-            public int ErrorNum(string name)
-            {
-                switch (name)
-                {
-                    case "WSA_IO_PENDING":
-                        return 10035;
-                    case "WSA_OPERATION_ABORTED":
-                        return 10004;
-                    case "WSAEACCES":
-                        return 10013;
-                    case "WSAEADDRINUSE":
-                        return 10048;
-                    case "WSAEADDRNOTAVAIL":
-                        return 10049;
-                    case "WSAEAFNOSUPPORT":
-                        return 10047;
-                    case "WSAEALREADY":
-                        return 10037;
-                    case "WSAECONNABORTED":
-                        return 10053;
-                    case "WSAECONNREFUSED":
-                        return 10061;
-                    case "WSAECONNRESET":
-                        return 10054;
-                    case "WSAEDESTADDRREQ":
-                        return 10039;
-                    case "WSAEDISCON":
-                        return 10101;
-                    case "WSAEFAULT":
-                        return 10014;
-                    case "WSAEHOSTUNREACH":
-                        return 10065;
-                    case "WSAEINPROGRESS":
-                        return 10036;
-                    case "WSAEINTR":
-                        return 10004;
-                    case "WSAEINVAL":
-                        return 10022;
-                    case "WSAEISCONN":
-                        return 10056;
-                    case "WSAEMFILE":
-                        return 10024;
-                    case "WSAEMSGSIZE":
-                        return 10040;
-                    case "WSAENETDOWN":
-                        return 10050;
-                    case "WSAENETRESET":
-                        return 10052;
-                    case "WSAENETUNREACH":
-                        return 10051;
-                    case "WSAENOBUFS":
-                        return 10055;
-                    case "WSAENOPROTOOPT":
-                        return 10042;
-                    case "WSAENOTCONN":
-                        return 10057;
-                    case "WSAENOTSOCK":
-                        return 10038;
-                    case "WSAEOPNOTSUPP":
-                        return 10045;
-                    case "WSAEPROTONOSUPPORT":
-                        return 10043;
-                    case "WSAEPROTOTYPE":
-                        return 10041;
-                    case "WSAESHUTDOWN":
-                        return 10058;
-                    case "WSAESOCKTNOSUPPORT":
-                        return 10044;
-                    case "WSAETIMEDOUT":
-                        return 10060;
-                    case "WSAEWOULDBLOCK":
-                        return 10035;
-                    case "WSAHOST_NOT_FOUND":
-                        return 11001;
-                    case "WSANO_DATA":
-                        return 11004;
-                    case "WSANO_RECOVERY":
-                        return 11003;
-                    case "WSANOTINITIALISED":
-                        return 10093;
-                    case "WSATRY_AGAIN":
-                        return 11002;
-                    case "NO_ERROR":
-                    default:
-                        return 0;
-                }
-            }
-
-            public string Error(int error)
-            {
-                switch (error)
-                {
-                    case 10013:
-                        return "WSAEACCES";
-                    case 10048:
-                        return "WSAEADDRINUSE";
-                    case 10049:
-                        return "WSAEADDRNOTAVAIL";
-                    case 10047:
-                        return "WSAEAFNOSUPPORT";
-                    case 10037:
-                        return "WSAEALREADY";
-                    case 10053:
-                        return "WSAECONNABORTED";
-                    case 10061:
-                        return "WSAECONNREFUSED";
-                    case 10054:
-                        return "WSAECONNRESET";
-                    case 10039:
-                        return "WSAEDESTADDRREQ";
-                    case 10101:
-                        return "WSAEDISCON";
-                    case 10014:
-                        return "WSAEFAULT";
-                    case 10065:
-                        return "WSAEHOSTUNREACH";
-                    case 10036:
-                        return "WSAEINPROGRESS";
-                    case 10004:
-                        return "WSAEINTR";
-                    case 10022:
-                        return "WSAEINVAL";
-                    case 10056:
-                        return "WSAEISCONN";
-                    case 10024:
-                        return "WSAEMFILE";
-                    case 10040:
-                        return "WSAEMSGSIZE";
-                    case 10050:
-                        return "WSAENETDOWN";
-                    case 10052:
-                        return "WSAENETRESET";
-                    case 10051:
-                        return "WSAENETUNREACH";
-                    case 10055:
-                        return "WSAENOBUFS";
-                    case 10042:
-                        return "WSAENOPROTOOPT";
-                    case 10057:
-                        return "WSAENOTCONN";
-                    case 10038:
-                        return "WSAENOTSOCK";
-                    case 10045:
-                        return "WSAEOPNOTSUPP";
-                    case 10043:
-                        return "WSAEPROTONOSUPPORT";
-                    case 10041:
-                        return "WSAEPROTOTYPE";
-                    case 10058:
-                        return "WSAESHUTDOWN";
-                    case 10044:
-                        return "WSAESOCKTNOSUPPORT";
-                    case 10060:
-                        return "WSAETIMEDOUT";
-                    case 10035:
-                        return "WSAEWOULDBLOCK";
-                    case 11001:
-                        return "WSAHOST_NOT_FOUND";
-                    case 11004:
-                        return "WSANO_DATA";
-                    case 11003:
-                        return "WSANO_RECOVERY";
-                    case 10093:
-                        return "WSANOTINITIALISED";
-                    case 11002:
-                        return "WSATRY_AGAIN";
-                    case 0:
-                    default:
-                        return "NO_ERROR";
-                }
-            }
-        }
-
         // Functions
         bool InvokeDLL()
         {
-            //Named Pipes
+            // Named Pipes
             pipeOut = new NamedPipeClientStream(".", "wspe.send." + intTargetpID.ToString("X8"), PipeDirection.Out, PipeOptions.Asynchronous);
             try
             {
@@ -663,40 +274,45 @@ DATA_TO_SEND";
             }
             catch
             {
-                MessageBox.Show("Cannot attach to process!\n\nA previous instance could still be loaded in the targets memory waiting to unload.\nTry flushing sockets by sending/receiving data to clear blocking sockets.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Cannot attach to process!\n\nA previous instance could still be loaded in the targets memory waiting to unload.\nTry flushing sockets by sending/receiving data to clear blocking sockets.",
+                    "Error!",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
                 intTargetpID = 0;
                 return false;
             }
+
             // Inject WSPE.dat from current directory
             IntPtr hProc = OpenProcess(ProcessAccessFlags.All, false, intTargetpID);
-            IntPtr ptrLoadLib = GetProcAddress(GetModuleHandle("KERNEL32.DLL"), "LoadLibraryA");
 
             if (hProc == IntPtr.Zero)
             {
                 MessageBox.Show("Cannot open process.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+
             IntPtr ptrMem = VirtualAllocEx(hProc, (IntPtr)0, (uint)strDLL.Length, AllocationType.COMMIT, MemoryProtection.EXECUTE_READ);
             if (ptrMem == IntPtr.Zero)
             {
                 MessageBox.Show("Cannot allocate process memory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-            byte[] dbDLL = latin.GetBytes(strDLL);
 
+            byte[] dbDLL = latin.GetBytes(strDLL);
             if (!WriteProcessMemory(hProc, ptrMem, dbDLL, (uint)dbDLL.Length, out int ipTmp))
             {
                 MessageBox.Show("Cannot write to process memory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
+            IntPtr ptrLoadLib = GetProcAddress(GetModuleHandle("KERNEL32.DLL"), "LoadLibraryA");
             CreateRemoteThread(hProc, IntPtr.Zero, 0, ptrLoadLib, ptrMem, 0, IntPtr.Zero);
 
             pipeIn.WaitForConnection();
             pipeOut.Connect();
 
-            string RegName = "PacketEditor.com";
-            string RegKey = "7007C8466C99901EF555008BF90D0C0F11C2005CE042C84B7C1E2C0050DF305647026513";
+            const string RegName = "PacketEditor.com";
+            const string RegKey = "7007C8466C99901EF555008BF90D0C0F11C2005CE042C84B7C1E2C0050DF305647026513";
 
             pipeOut.Write(BitConverter.GetBytes(RegName.Length), 0, 1);
             pipeOut.Write(latin.GetBytes(RegName), 0, RegName.Length);
@@ -707,14 +323,16 @@ DATA_TO_SEND";
                 IsBackground = true
             };
             trdPipeRead.Start();
+
             return true;
         }
 
         byte[] TrimZeros(byte[] bytes)
         {
             int i;
-            for (i = bytes.Length - 1; i != 0 && bytes[i] == 0; i--)
+            for (i = bytes.Length - 1; i > 0 && bytes[i] == 0; i--)
             { }
+
             if (i != bytes.Length - 1)
             {
                 byte[] b = new byte[++i];
@@ -724,11 +342,11 @@ DATA_TO_SEND";
                 }
                 return b;
             }
-            else
-                return bytes;
+
+            return bytes;
         }
 
-        string HexStringToAddy(string s)
+        string HexStringToAddr(string s)
         {
             string r = "";
 
@@ -741,7 +359,7 @@ DATA_TO_SEND";
             return r;
         }
 
-        string BytesToAddy(byte[] bytes)
+        string BytesToAddr(byte[] bytes)
         {
             string r = "";
             for (int i = 0; i < bytes.Length; i++)
@@ -755,15 +373,15 @@ DATA_TO_SEND";
 
         string BytesToHexString(byte[] bytes)
         {
-            string result = "";
+            var hex = new StringBuilder(bytes.Length * 2);
             foreach (byte b in bytes)
             {
-                result += b.ToString("X2");
+                hex.AppendFormat("{0:X2}", b);
             }
-            return result;
+            return hex.ToString();
         }
 
-        byte[] HexStringToByte(string s)
+        byte[] HexStringToBytes(string s)
         {
             byte[] b = new byte[s.Length / 2];
 
@@ -782,7 +400,7 @@ DATA_TO_SEND";
             sa.s_b2 = ipb[1];
             sa.s_b3 = ipb[2];
             sa.s_b4 = ipb[3];
-            sa.sin_port = UInt16.Parse(s.Substring(s.IndexOf(":") + 1, s.Length - s.IndexOf(":") - 1));
+            sa.sin_port = ushort.Parse(s.Substring(s.IndexOf(":") + 1, s.Length - s.IndexOf(":") - 1));
             return sa;
         }
 
@@ -823,7 +441,7 @@ DATA_TO_SEND";
             DataGridViewCellStyle dvs = new DataGridViewCellStyle();
 
             // If ExternalFilter is true, it will added the line later, after verify the monitor flag
-            if ((externalFilter == false || filter == false) && monitor == true)
+            if ((!externalFilter || !filter) && monitor)
                 i = dgridMain.Rows.Add();
 
             // External filter run only if also the filter option in menu is true
@@ -832,7 +450,7 @@ DATA_TO_SEND";
                 try
                 {
                     // send to external filter
-                    req = WebRequest.Create("http://127.0.0.1:" + prefixes2 + "/?func=" + sinfo.Msg(strPipeMsgIn.function).ToString() + "&sockid=" + strPipeMsgIn.sockid);
+                    req = WebRequest.Create($"http://127.0.0.1:{prefixes2}/?func={sinfo.Msg(strPipeMsgIn.function)}&sockid={strPipeMsgIn.sockid}");
                     //req.Proxy = WebProxy.GetDefaultProxy(); // Enable if using proxy
                     req.Method = "POST";        // Post method
                                                 //req.ContentType = "text/html";     // content type
@@ -849,7 +467,7 @@ DATA_TO_SEND";
                     rsptext = reader.ReadToEnd();
 
                     // check monitor (the first) flag
-                    if (rsptext[0] == '0' || monitor == false)
+                    if (rsptext[0] == '0' || !monitor)
                         monitor = false;
                     else
                     {
@@ -889,13 +507,12 @@ DATA_TO_SEND";
                 }
                 catch (Exception ex)
                 {
-                    // handle error
                     MessageBox.Show(ex.Message);
                 }
             }
 
             // Internal filter
-            if (filter == true)
+            if (filter)
             {
                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -919,7 +536,7 @@ DATA_TO_SEND";
                                         catch
                                         {
                                             dvs.ForeColor = Color.Red;
-                                            if (monitor == true)
+                                            if (monitor)
                                                 dgridMain.Rows[i].Cells["data"].Style = dvs;
                                         }
                                     }
@@ -929,13 +546,13 @@ DATA_TO_SEND";
                                     {
                                         try
                                         {
-                                            data = HexStringToByte(Regex.Replace(BytesToHexString(data), rows[x]["MsgCatch"].ToString(), rows[x]["MsgReplace"].ToString(), RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnoreCase));
+                                            data = HexStringToBytes(Regex.Replace(BytesToHexString(data), rows[x]["MsgCatch"].ToString(), rows[x]["MsgReplace"].ToString(), RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnoreCase));
                                             changed_by_internal_filter = true;
                                         }
                                         catch
                                         {
                                             dvs.ForeColor = Color.Red;
-                                            if (monitor == true)
+                                            if (monitor)
                                                 dgridMain.Rows[i].Cells["data"].Style = dvs;
                                         }
                                     }
@@ -947,7 +564,7 @@ DATA_TO_SEND";
                                         strPipeMsgOut.datasize = 0;
                                         WritePipe();
                                         dvs.ForeColor = Color.DarkGray;
-                                        if (monitor == true)
+                                        if (monitor)
                                             dgridMain.Rows[i].Cells["data"].Style = dvs;
                                         goto skipfilter;
                                     }
@@ -959,7 +576,7 @@ DATA_TO_SEND";
                                         strPipeMsgOut.datasize = 0;
                                         WritePipe();
                                         dvs.ForeColor = Color.DarkGray;
-                                        if (monitor == true)
+                                        if (monitor)
                                             dgridMain.Rows[i].Cells["data"].Style = dvs;
                                         goto skipfilter;
                                     }
@@ -970,7 +587,7 @@ DATA_TO_SEND";
                 }
             }
 
-            if (changed_by_internal_filter == false && changed_by_external_filter == false)
+            if (!changed_by_internal_filter && !changed_by_external_filter)
             {
                 strPipeMsgOut.datasize = 0;
                 strPipeMsgOut.extra = 0; // Error
@@ -985,7 +602,7 @@ DATA_TO_SEND";
                 if (changed_by_internal_filter)
                 {
                     dvs.ForeColor = Color.Green;
-                    if (monitor == true)
+                    if (monitor)
                         dgridMain.Rows[i].Cells["data"].Style = dvs;
                 }
             }
@@ -994,7 +611,7 @@ DATA_TO_SEND";
             DataRow drsock = dsMain.Tables["sockets"].Rows.Find(strPipeMsgIn.sockid);
             if (drsock != null)
             {
-                if ((drsock["proto"].ToString() != string.Empty) && (monitor == true))
+                if ((drsock["proto"].ToString() != string.Empty) && monitor)
                     dgridMain.Rows[i].Cells["proto"].Value = sinfo.Proto((int)drsock["proto"]);
                 drsock["lastmsg"] = strPipeMsgIn.function;
             }
@@ -1008,10 +625,10 @@ DATA_TO_SEND";
 
             if (monitor)
             {
-                string method = sinfo.Msg(strPipeMsgIn.function).ToString();
+                string method = sinfo.Msg(strPipeMsgIn.function);
                 // "ecv" catch recv & Recv, "end" catch send & Send. to catch all methods (like sendto).
-                if (method.Contains("ecv") && showrecvRecvAllToolStripMenuItem.Checked == true ||
-                                    method.Contains("end") && showToolStripMenuItem.Checked == true)
+                if (method.Contains("ecv") && showrecvRecvAllToolStripMenuItem.Checked
+                    || method.Contains("end") && showToolStripMenuItem.Checked)
                 {
                 }
                 else
@@ -1033,7 +650,7 @@ DATA_TO_SEND";
 
         void UpdateTree(byte[] data)
         {
-            TreeNode basenode = new TreeNode();
+            _ = new TreeNode();
             TreeNode rootnode;
             Glob.Sockaddr_in sockaddr;
             DataRow drsock = dsMain.Tables["sockets"].Rows.Find(strPipeMsgIn.sockid);
@@ -1044,15 +661,12 @@ DATA_TO_SEND";
             {
                 drsock["lastapi"] = strPipeMsgIn.function;
             }
-            else
+            else if (strPipeMsgIn.sockid != 0)
             {
-                if (strPipeMsgIn.sockid != 0)
-                {
-                    drsock = dsMain.Tables["sockets"].NewRow();
-                    drsock["socket"] = strPipeMsgIn.sockid;
-                    drsock["lastapi"] = strPipeMsgIn.function;
-                    dsMain.Tables["sockets"].Rows.Add(drsock);
-                }
+                drsock = dsMain.Tables["sockets"].NewRow();
+                drsock["socket"] = strPipeMsgIn.sockid;
+                drsock["lastapi"] = strPipeMsgIn.function;
+                dsMain.Tables["sockets"].Rows.Add(drsock);
             }
 
             //Glob.RawDeserializeEx();
@@ -1064,7 +678,7 @@ DATA_TO_SEND";
                     {
                         case Glob.FUNC_WSAACCEPT:
                         case Glob.FUNC_ACCEPT:
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeAPI.Nodes.Add(DateTime.Now.ToLongTimeString() + " " + sinfo.Api(strPipeMsgIn.function));
                             else
                                 rootnode = new TreeNode();
@@ -1075,15 +689,12 @@ DATA_TO_SEND";
                             {
                                 drsock2["lastapi"] = strPipeMsgIn.function;
                             }
-                            else
+                            else if (strPipeMsgIn.extra != 0)
                             {
-                                if (strPipeMsgIn.extra != 0)
-                                {
-                                    drsock2 = dsMain.Tables["sockets"].NewRow();
-                                    drsock2["socket"] = strPipeMsgIn.extra;
-                                    drsock2["lastapi"] = strPipeMsgIn.function;
-                                    dsMain.Tables["sockets"].Rows.Add(drsock2);
-                                }
+                                drsock2 = dsMain.Tables["sockets"].NewRow();
+                                drsock2["socket"] = strPipeMsgIn.extra;
+                                drsock2["lastapi"] = strPipeMsgIn.function;
+                                dsMain.Tables["sockets"].Rows.Add(drsock2);
                             }
                             goto sockaddrl;
                         case Glob.FUNC_BIND:
@@ -1101,7 +712,7 @@ DATA_TO_SEND";
                             string addrport = "";
                             string hexaddrport = "";
                             byte tempbyte;
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeAPI.Nodes.Add(DateTime.Now.ToLongTimeString() + " " + sinfo.Api(strPipeMsgIn.function));
                             else
                                 rootnode = new TreeNode();
@@ -1140,7 +751,7 @@ DATA_TO_SEND";
                             }
 
 
-                            if (filter == true)
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1158,7 +769,8 @@ DATA_TO_SEND";
                                                     {
                                                         if (Regex.IsMatch(addrport, rows[x]["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                         {
-                                                            sockaddr = AddyPortToSockAddy(Regex.Replace(addrport, rows[x]["APICatch"].ToString(), rows[x]["APIReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase), sockaddr);
+                                                            sockaddr = AddyPortToSockAddy(Regex.Replace(addrport, rows[x]["APICatch"].ToString(), rows[x]["APIReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase),
+                                                                sockaddr);
                                                             data = Glob.RawSerializeEx(sockaddr);
                                                             tempbyte = data[2];
                                                             data[2] = data[3];
@@ -1200,7 +812,7 @@ DATA_TO_SEND";
                                                 case Glob.ActionError:
                                                     try
                                                     {
-                                                        if (Regex.IsMatch(BytesToAddy(data), rows[x]["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
+                                                        if (Regex.IsMatch(BytesToAddr(data), rows[x]["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                         {
                                                             strPipeMsgOut.extra = (int)rows[x]["APIError"];
                                                             strPipeMsgOut.datasize = 0;
@@ -1237,7 +849,7 @@ DATA_TO_SEND";
                                         }
                                     }
                                 }
-                                if (changed_by_internal_filter == false)
+                                if (!changed_by_internal_filter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
@@ -1257,7 +869,7 @@ DATA_TO_SEND";
                             break;
                         case Glob.FUNC_WSASOCKETW_IN:
                         case Glob.FUNC_SOCKET_IN:
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeAPI.Nodes.Add(DateTime.Now.ToLongTimeString() + " " + sinfo.Api(strPipeMsgIn.function));
                             else
                                 rootnode = new TreeNode();
@@ -1323,11 +935,11 @@ DATA_TO_SEND";
                     {
                         case Glob.FUNC_WSAACCEPT:
                         case Glob.FUNC_ACCEPT:
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeAPI.Nodes.Add(DateTime.Now.ToLongTimeString() + " " + sinfo.Api(strPipeMsgIn.function));
                             else
                                 rootnode = new TreeNode();
-                            if (filter == true)
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1364,26 +976,24 @@ DATA_TO_SEND";
                             {
                                 drsock2["lastapi"] = strPipeMsgIn.function;
                             }
-                            else
+                            else if (strPipeMsgIn.extra != 0)
                             {
-                                if (strPipeMsgIn.extra != 0)
-                                {
-                                    drsock2 = dsMain.Tables["sockets"].NewRow();
-                                    drsock2["socket"] = strPipeMsgIn.extra;
-                                    drsock2["lastapi"] = strPipeMsgIn.function;
-                                    dsMain.Tables["sockets"].Rows.Add(drsock2);
-                                }
+                                drsock2 = dsMain.Tables["sockets"].NewRow();
+                                drsock2["socket"] = strPipeMsgIn.extra;
+                                drsock2["lastapi"] = strPipeMsgIn.function;
+                                dsMain.Tables["sockets"].Rows.Add(drsock2);
                             }
                             break;
                         case Glob.FUNC_CLOSESOCKET:
                         case Glob.FUNC_LISTEN:
                         case Glob.FUNC_WSASENDDISCONNECT:
                         case Glob.FUNC_WSARECVDISCONNECT:
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeAPI.Nodes.Add(DateTime.Now.ToLongTimeString() + " " + sinfo.Api(strPipeMsgIn.function));
                             else
                                 rootnode = new TreeNode();
-                            if (filter == true)
+
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1416,11 +1026,12 @@ DATA_TO_SEND";
                             rootnode.Nodes.Add("socket: " + strPipeMsgIn.sockid.ToString(sinfo.sockidfmt));
                             break;
                         case Glob.FUNC_SHUTDOWN:
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeAPI.Nodes.Add(DateTime.Now.ToLongTimeString() + " " + sinfo.Api(strPipeMsgIn.function));
                             else
                                 rootnode = new TreeNode();
-                            if (filter == true)
+
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1466,13 +1077,14 @@ DATA_TO_SEND";
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.DNS_GETHOSTBYNAME_IN:
-                            if (DNStrap == true)
+                            if (DNStrap)
                             {
                                 rootnode = treeDNS.Nodes[treeDNS.Nodes.Count - 1];
                                 DNStrap = false;
                             }
                             else
                                 rootnode = new TreeNode();
+
                             for (int i = 0; i < data.Length; i += 4)
                             {
                                 addr = data[i].ToString() + "." + data[i + 1].ToString() + "." + data[i + 2].ToString() + "." + data[i + 3].ToString();
@@ -1492,13 +1104,10 @@ DATA_TO_SEND";
                             }
                             break;
                         case Glob.DNS_GETHOSTBYADDR_IN:
-                            if (data.Length > 4)
+                            if (data.Length > 4 && DNStrap)
                             {
-                                if (DNStrap == true)
-                                {
-                                    treeDNS.Nodes[treeDNS.Nodes.Count - 1].Nodes.Add("name: " + latin.GetString(data));
-                                    DNStrap = false;
-                                }
+                                treeDNS.Nodes[treeDNS.Nodes.Count - 1].Nodes.Add("name: " + latin.GetString(data));
+                                DNStrap = false;
                             }
                             break;
                     }
@@ -1507,16 +1116,17 @@ DATA_TO_SEND";
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.DNS_GETHOSTBYNAME_OUT:
-                            if (monitor == true)
+                            if (monitor)
                             {
                                 rootnode = treeDNS.Nodes.Add(DateTime.Now.ToLongTimeString() + " gethostbyname()");
                                 DNStrap = true;
                             }
                             else
                                 rootnode = new TreeNode();
+
                             data = TrimZeros(data);
                             rootnode.Nodes.Add("name: " + latin.GetString(data));
-                            if (filter == true)
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1549,7 +1159,7 @@ DATA_TO_SEND";
                                                     {
                                                         try
                                                         {
-                                                            data = HexStringToByte(Regex.Replace(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase) + "\0");
+                                                            data = HexStringToBytes(Regex.Replace(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase) + "\0");
                                                             rootnode.Nodes.Add("new name: " + latin.GetString(data)).ForeColor = Color.Green;
                                                             changed_by_internal_filter = true;
                                                         }
@@ -1585,7 +1195,7 @@ DATA_TO_SEND";
                                         }
                                     }
                                 }
-                                if (changed_by_internal_filter == false)
+                                if (!changed_by_internal_filter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
@@ -1604,16 +1214,17 @@ DATA_TO_SEND";
                         skipfilterdns1:
                             break;
                         case Glob.DNS_GETHOSTBYADDR_OUT:
-                            if (monitor == true)
+                            if (monitor)
                             {
                                 rootnode = treeDNS.Nodes.Add(DateTime.Now.ToLongTimeString() + " gethostbyaddr()");
                                 DNStrap = true;
                             }
                             else
                                 rootnode = new TreeNode();
-                            rootnode.Nodes.Add("addr: " + BytesToAddy(data));
+
+                            rootnode.Nodes.Add("addr: " + BytesToAddr(data));
                             data = TrimZeros(data);
-                            if (filter == true)
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1629,9 +1240,9 @@ DATA_TO_SEND";
                                                 case Glob.ActionReplaceString:
                                                     try
                                                     {
-                                                        if (Regex.IsMatch(BytesToAddy(data), rows[x]["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
+                                                        if (Regex.IsMatch(BytesToAddr(data), rows[x]["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                         {
-                                                            IPAddress addy = IPAddress.Parse(Regex.Replace(BytesToAddy(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase));
+                                                            IPAddress addy = IPAddress.Parse(Regex.Replace(BytesToAddr(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase));
                                                             data = addy.GetAddressBytes();
                                                             rootnode.Nodes.Add("new addr: " + addy.ToString()).ForeColor = Color.Green;
                                                             changed_by_internal_filter = true;
@@ -1648,7 +1259,7 @@ DATA_TO_SEND";
                                                     {
                                                         if (Regex.IsMatch(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                         {
-                                                            IPAddress addy = IPAddress.Parse(HexStringToAddy(Regex.Replace(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase)));
+                                                            IPAddress addy = IPAddress.Parse(HexStringToAddr(Regex.Replace(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase)));
                                                             data = addy.GetAddressBytes();
                                                             rootnode.Nodes.Add("new addr: " + addy.ToString()).ForeColor = Color.Green;
                                                             changed_by_internal_filter = true;
@@ -1663,7 +1274,7 @@ DATA_TO_SEND";
                                                 case Glob.ActionError:
                                                     try
                                                     {
-                                                        if (Regex.IsMatch(BytesToAddy(data), rows[x]["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
+                                                        if (Regex.IsMatch(BytesToAddr(data), rows[x]["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                         {
                                                             strPipeMsgOut.extra = (int)rows[x]["DNSError"];
                                                             strPipeMsgOut.datasize = 0;
@@ -1700,7 +1311,7 @@ DATA_TO_SEND";
                                         }
                                     }
                                 }
-                                if (changed_by_internal_filter == false)
+                                if (!changed_by_internal_filter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
@@ -1719,13 +1330,14 @@ DATA_TO_SEND";
                         skipfilterdns2:
                             break;
                         case Glob.DNS_GETHOSTNAME:
-                            if (monitor == true)
+                            if (monitor)
                                 rootnode = treeDNS.Nodes.Add(DateTime.Now.ToLongTimeString() + " gethostname()");
                             else
                                 rootnode = new TreeNode();
+
                             data = TrimZeros(data);
                             rootnode.Nodes.Add("name: " + latin.GetString(data));
-                            if (filter == true)
+                            if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
                                 strPipeMsgOut.command = Glob.CMD_FILTER;
@@ -1758,7 +1370,7 @@ DATA_TO_SEND";
                                                     {
                                                         try
                                                         {
-                                                            data = HexStringToByte(Regex.Replace(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase) + "\0");
+                                                            data = HexStringToBytes(Regex.Replace(BytesToHexString(data), rows[x]["DNSCatch"].ToString(), rows[x]["DNSReplace"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase) + "\0");
                                                             rootnode.Nodes.Add("new name: " + latin.GetString(data)).ForeColor = Color.Green;
                                                             changed_by_internal_filter = true;
                                                         }
@@ -1794,7 +1406,7 @@ DATA_TO_SEND";
                                         }
                                     }
                                 }
-                                if (changed_by_internal_filter == false)
+                                if (!changed_by_internal_filter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
@@ -1815,7 +1427,7 @@ DATA_TO_SEND";
                     }
                     break;
             }
-            if ((filter == true) && (changed_by_internal_filter == false))
+            if (filter && !changed_by_internal_filter)
             {
                 strPipeMsgOut.command = Glob.CMD_FILTER;
                 strPipeMsgOut.datasize = 0;
@@ -1865,6 +1477,7 @@ DATA_TO_SEND";
             TreeNode retNode2 = new TreeNode();
 
             byte[] dbPipeMsgInData;
+
         PipeLoop:
             while (pipeIn.Read(dbPipeMsgIn, 0, 14) != 0)
             {
@@ -1939,13 +1552,14 @@ DATA_TO_SEND";
                             else
                             {
                                 strPipeMsgOut.datasize = 0;
-                                if (monitor == true)
+                                if (monitor)
                                 {
                                     strPipeMsgOut.command = Glob.CMD_ENABLE_MONITOR;
                                     strPipeMsgOut.datasize = 0;
                                     WritePipe();
                                 }
-                                if (filter == true)
+
+                                if (filter)
                                 {
                                     strPipeMsgOut.command = Glob.CMD_ENABLE_FILTER;
                                     strPipeMsgOut.datasize = 0;
@@ -1988,7 +1602,7 @@ DATA_TO_SEND";
                                 Invoke(delTree, zero);
                                 break;
                             default: // Useless data call with no data
-                                if (filter == true)
+                                if (filter)
                                 {
                                     strPipeMsgOut.command = Glob.CMD_FILTER;
                                     strPipeMsgOut.datasize = 0;
@@ -2001,6 +1615,7 @@ DATA_TO_SEND";
                 }
             }
             if (pipeIn.IsConnected) goto PipeLoop;
+
             Invoke(delExitProc);
             if (MessageBox.Show("Process Exited.\nTry to reattach?", "Alert", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
             {
@@ -2018,75 +1633,69 @@ DATA_TO_SEND";
             Application.Exit();
         }
 
-        //Global Variables for Attach
+        #region Global Variables for Attach
         string processPath;
         int processID;
-        //End of global variables for attach
+        #endregion
 
         private void mnuFileAttach_Click(object sender, EventArgs e)
         {
             Attach frmChAttach = new Attach();
             if (intTargetpID != 0)
             {
-                if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to detach?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                {
-                    if (pipeOut.IsConnected)
-                    {
-                        strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
-                        try
-                        {
-                            WritePipe();
-                        }
-                        catch { }
-                    }
-                    try
-                    {
-                        if (trdPipeRead.IsAlive)
-                        {
-                            trdPipeRead.Abort();
-                        }
-                    }
-                    catch
-                    {
-                    }
-                    pipeIn.Close();
-                    pipeOut.Close();
-                    intTargetpID = 0;
-                    this.Text = "PacketEditor";
-                    mnuFileDetach.Enabled = false;
-                }
-                else
+                if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to detach?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 {
                     return;
                 }
+
+                if (pipeOut.IsConnected)
+                {
+                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    try
+                    {
+                        WritePipe();
+                    }
+                    catch { }
+                }
+
+                try
+                {
+                    if (trdPipeRead.IsAlive)
+                    {
+                        trdPipeRead.Abort();
+                    }
+                }
+                catch
+                {
+                }
+
+                pipeIn.Close();
+                pipeOut.Close();
+                intTargetpID = 0;
+                this.Text = "PacketEditor";
+                mnuFileDetach.Enabled = false;
             }
             this.Enabled = false;
-            if (this.TopMost == true)
+            if (this.TopMost)
                 frmChAttach.TopMost = true;
+
             frmChAttach.ShowDialog();
-            processID = frmChAttach.pID;
-            processPath = frmChAttach.GetpPath();
+            processID = frmChAttach.PID;
+            processPath = frmChAttach.ProcPath;
             Attach(processID, processPath);
-
-
         }
 
         private bool Attach(int pID, string Path)
         {
             intTargetpID = pID;
             this.Enabled = true;
-            if (intTargetpID != 0)
+            if (intTargetpID != 0 && InvokeDLL())
             {
-                if (InvokeDLL())
-                {
-                    reAttachPath = Path;
-                    this.Text = "PacketEditor - " + reAttachPath;
-                    mnuFileDetach.Enabled = true;
-                    reAttachToolStripMenuItem.Enabled = true;
-                    return true;
-                }
-                else
-                    return false;
+                reAttachPath = Path;
+                this.Text = "PacketEditor - " + reAttachPath;
+                mnuFileDetach.Enabled = true;
+                reAttachToolStripMenuItem.Enabled = true;
+                return true;
             }
             return false;
         }
@@ -2099,9 +1708,9 @@ DATA_TO_SEND";
                 {
                     procExternalFilter.Kill();
                 }
-                catch (Exception)
-                { }
+                catch { }
             }
+
             if (intTargetpID != 0)
             {
                 if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to exit?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
@@ -2115,10 +1724,12 @@ DATA_TO_SEND";
                         }
                         catch { }
                     }
+
                     if (trdPipeRead.IsAlive)
                     {
                         trdPipeRead.Abort();
                     }
+
                     pipeIn.Close();
                     pipeOut.Close();
                 }
@@ -2146,10 +1757,12 @@ DATA_TO_SEND";
                     }
                     catch { }
                 }
+
                 if (trdPipeRead.IsAlive)
                 {
                     trdPipeRead.Abort();
                 }
+
                 pipeIn.Close();
                 pipeOut.Close();
                 intTargetpID = 0;
@@ -2161,7 +1774,7 @@ DATA_TO_SEND";
 
         private void mnuToolsMonitor_CheckedChanged(object sender, EventArgs e)
         {
-            if (mnuToolsMonitor.Checked == true)
+            if (mnuToolsMonitor.Checked)
             {
                 monitor = true;
                 DNStrap = false;
@@ -2211,8 +1824,10 @@ DATA_TO_SEND";
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                ReplayEditor frmChReplay = new ReplayEditor((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value, Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier), pipeOut);
-                if (this.TopMost == true)
+                ReplayEditor frmChReplay = new ReplayEditor((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value,
+                    int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
+                    pipeOut);
+                if (this.TopMost)
                     frmChReplay.TopMost = true;
                 frmChReplay.Show();
             }
@@ -2232,7 +1847,7 @@ DATA_TO_SEND";
             if (dgridMain.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Receive;
                 strPipeMsgOut.datasize = 0;
@@ -2245,7 +1860,7 @@ DATA_TO_SEND";
             if (dgridMain.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Send;
                 strPipeMsgOut.datasize = 0;
@@ -2258,7 +1873,7 @@ DATA_TO_SEND";
             if (dgridMain.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Both;
                 strPipeMsgOut.datasize = 0;
@@ -2271,7 +1886,7 @@ DATA_TO_SEND";
             if (dgridMain.SelectedRows.Count != 0)
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
-                strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_CLOSESOCKET;
                 strPipeMsgOut.datasize = 0;
                 WritePipe();
@@ -2280,33 +1895,31 @@ DATA_TO_SEND";
 
         private void mnuToolsFilter_CheckedChanged(object sender, EventArgs e)
         {
+            if (mnuToolsFilter.Checked)
             {
-                if (mnuToolsFilter.Checked == true)
+                filter = true;
+                if (intTargetpID != 0)
                 {
-                    filter = true;
-                    if (intTargetpID != 0)
-                    {
-                        strPipeMsgOut.command = Glob.CMD_ENABLE_FILTER;
-                        strPipeMsgOut.datasize = 0;
-                        WritePipe();
-                    }
+                    strPipeMsgOut.command = Glob.CMD_ENABLE_FILTER;
+                    strPipeMsgOut.datasize = 0;
+                    WritePipe();
                 }
-                else
+            }
+            else
+            {
+                filter = false;
+                if (intTargetpID != 0)
                 {
-                    filter = false;
-                    if (intTargetpID != 0)
-                    {
-                        strPipeMsgOut.command = Glob.CMD_DISABLE_FILTER;
-                        strPipeMsgOut.datasize = 0;
-                        WritePipe();
-                    }
+                    strPipeMsgOut.command = Glob.CMD_DISABLE_FILTER;
+                    strPipeMsgOut.datasize = 0;
+                    WritePipe();
                 }
             }
         }
 
         private void mnuOptionsOntop_CheckedChanged(object sender, EventArgs e)
         {
-            if (mnuOptionsOntop.Checked == true)
+            if (mnuOptionsOntop.Checked)
             {
                 this.TopMost = true;
             }
@@ -2318,7 +1931,7 @@ DATA_TO_SEND";
 
         private void frmMain_Activated(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = 1;
             }
@@ -2326,7 +1939,7 @@ DATA_TO_SEND";
 
         private void frmMain_Deactivate(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = .5;
             }
@@ -2335,7 +1948,7 @@ DATA_TO_SEND";
         private void mnuToolsSockets_Click(object sender, EventArgs e)
         {
             Sockets frmChReplay = new Sockets(dsMain.Tables["sockets"], sinfo, pipeOut);
-            if (this.TopMost == true)
+            if (this.TopMost)
                 frmChReplay.TopMost = true;
             frmChReplay.Show();
         }
@@ -2346,23 +1959,21 @@ DATA_TO_SEND";
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
                 strPipeMsgOut.function = Glob.FUNC_SEND;
-                strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.datasize = ((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value).Length;
                 WritePipe();
                 try
                 {
                     pipeOut.Write((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value, 0, strPipeMsgOut.datasize);
                 }
-                catch (Exception)
-                { }
-
+                catch { }
             }
         }
 
         private void mnuToolsFilters_Click(object sender, EventArgs e)
         {
             frmChFilters = new Filters(dsMain.Tables["filters"], sinfo);
-            if (this.TopMost == true)
+            if (this.TopMost)
                 frmChFilters.TopMost = true;
             frmChFilters.Show();
         }
@@ -2389,38 +2000,40 @@ DATA_TO_SEND";
         {
             if (intTargetpID != 0)
             {
-                if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to detach?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                {
-                    if (pipeOut.IsConnected)
-                    {
-                        strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
-                        try
-                        {
-                            WritePipe();
-                        }
-                        catch { }
-                    }
-                    if (trdPipeRead.IsAlive)
-                    {
-                        trdPipeRead.Abort();
-                    }
-                    pipeIn.Close();
-                    pipeOut.Close();
-                    intTargetpID = 0;
-                    this.Text = "PacketEditor";
-                    mnuFileDetach.Enabled = false;
-                }
-                else
+                if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to detach?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 {
                     return;
                 }
+
+                if (pipeOut.IsConnected)
+                {
+                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    try
+                    {
+                        WritePipe();
+                    }
+                    catch { }
+                }
+
+                if (trdPipeRead.IsAlive)
+                {
+                    trdPipeRead.Abort();
+                }
+
+                pipeIn.Close();
+                pipeOut.Close();
+                intTargetpID = 0;
+                this.Text = "PacketEditor";
+                mnuFileDetach.Enabled = false;
             }
             OpenFileDialog opn = new OpenFileDialog();
             opn.Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*";
             opn.Title = "Open File";
             opn.CheckFileExists = true;
             opn.Multiselect = false;
+
             if (opn.ShowDialog() != DialogResult.OK) return;
+
             Process proc = new Process();
             proc.StartInfo.FileName = opn.FileName;
             proc.StartInfo.WorkingDirectory = opn.FileName.Substring(0, opn.FileName.LastIndexOf("\\") + 1);
@@ -2434,7 +2047,6 @@ DATA_TO_SEND";
                 this.Text = "Advanced Packet Editor v1.1 - " + opn.FileName;
                 mnuFileDetach.Enabled = true;
             }
-
         }
 
         private void mnuHelpHelp_Click(object sender, EventArgs e)
@@ -2445,7 +2057,7 @@ DATA_TO_SEND";
         private void mnuHelpWebsite_Click(object sender, EventArgs e)
         {
             var frmChAbout = new frmAbout();
-            if (this.TopMost == true)
+            if (this.TopMost)
                 frmChAbout.TopMost = true;
             frmChAbout.Show();
         }
@@ -2470,6 +2082,7 @@ DATA_TO_SEND";
             string data = "";
             for (int i = 0; i < dgridMain.SelectedRows.Count; i++)
                 data += dgridMain.SelectedRows[i].Cells["data"].Value;
+
             if (data != string.Empty)
                 Clipboard.SetData(DataFormats.Text, data.Replace("\0", "\\0"));
         }
@@ -2481,6 +2094,7 @@ DATA_TO_SEND";
             {
                 for (int i = 0; i < dgridMain.SelectedRows.Count; i++)
                     data += BytesToHexString((byte[])dgridMain.SelectedRows[i].Cells["rawdata"].Value);
+
                 if (data != string.Empty)
                     Clipboard.SetData(DataFormats.Text, data);
             }
@@ -2494,63 +2108,60 @@ DATA_TO_SEND";
 
         private void reAttachToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
             reattacheDelay = Microsoft.VisualBasic.Interaction.InputBox("Delay in milliseconds (1000 = 1 second)", "Reattach delay", reattacheDelay);
-            if (reattacheDelay == "")
+            if (reattacheDelay == string.Empty)
                 return;
-            System.Threading.Thread.Sleep(Convert.ToInt32(reattacheDelay));
+
+            Thread.Sleep(Convert.ToInt32(reattacheDelay));
 
             if (intTargetpID != 0)
             {
-                if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to detach?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                {
-                    if (pipeOut.IsConnected)
-                    {
-                        strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
-                        try
-                        {
-                            WritePipe();
-                        }
-                        catch { }
-                    }
-                    if (trdPipeRead.IsAlive)
-                    {
-                        trdPipeRead.Abort();
-                    }
-                    pipeIn.Close();
-                    pipeOut.Close();
-                    intTargetpID = 0;
-                    this.Text = "PacketEditor";
-                    mnuFileDetach.Enabled = false;
-                }
-                else
+                if (MessageBox.Show("You are curently attached to a process. Are you sure you would like to detach?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 {
                     return;
                 }
+
+                if (pipeOut.IsConnected)
+                {
+                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    try
+                    {
+                        WritePipe();
+                    }
+                    catch { }
+                }
+
+                if (trdPipeRead.IsAlive)
+                {
+                    trdPipeRead.Abort();
+                }
+
+                pipeIn.Close();
+                pipeOut.Close();
+                intTargetpID = 0;
+                this.Text = "PacketEditor";
+                mnuFileDetach.Enabled = false;
             }
 
             intTargetpID = 0;
 
-            Process[] processlist = Process.GetProcesses();
-            foreach (Process theprocess in processlist)
+            Process[] processList = Process.GetProcesses();
+            foreach (Process process in processList)
             {
                 try
                 {
-                    if (theprocess.MainModule.FileName == reAttachPath)
+                    if (process.MainModule.FileName == reAttachPath)
                     {
-                        intTargetpID = theprocess.Id;
+                        intTargetpID = process.Id;
                     }
                 }
                 catch { }
             }
 
-            if (intTargetpID != 0)
+            if (intTargetpID != 0 && InvokeDLL())
             {
-                if (InvokeDLL())
-                {
-                    this.Text = "Advanced Packet Editor v1.1 - " + reAttachPath;
-                    mnuFileDetach.Enabled = true;
-                }
+                this.Text = "Advanced Packet Editor v1.1 - " + reAttachPath;
+                mnuFileDetach.Enabled = true;
             }
         }
 
@@ -2559,7 +2170,7 @@ DATA_TO_SEND";
             if (dgridMain.SelectedRows.Count != 0)
             {
                 ReplayEditor frmChReplay = new ReplayEditor(new byte[0], Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier), pipeOut);
-                if (this.TopMost == true)
+                if (this.TopMost)
                     frmChReplay.TopMost = true;
                 frmChReplay.Show();
             }
@@ -2597,10 +2208,10 @@ DATA_TO_SEND";
             listener = new HttpListener();
 
             prefixes = Microsoft.VisualBasic.Interaction.InputBox("On which port you want to listen?", "Start listen for requests", prefixes);
-            if (prefixes == "") // user press cancel
+            if (prefixes == string.Empty) // user press cancel
                 return;
-            else
-                BurpRequest = @"POST /?func=send()&sockid=0D3B HTTP/1.1
+
+            BurpRequest = @"POST /?func=send()&sockid=0D3B HTTP/1.1
 Host: 127.0.0.1:" + prefixes + @"
 Content-Length: 62
 Expect: 100-continue
@@ -2610,7 +2221,7 @@ DATA_TO_SEND";
 
             if (firstRun)
             {
-                listener.Prefixes.Add("http://127.0.0.1:" + (string)prefixes + "/");
+                listener.Prefixes.Add($"http://127.0.0.1:{prefixes}/");
 
                 firstRun = false;
 
@@ -2647,8 +2258,7 @@ DATA_TO_SEND";
                 // *** Immediately set up the next context
                 this.listener.BeginGetContext(new AsyncCallback(ListenerCallback), this.listener);
 
-                if (this.ReceiveWebRequest != null)
-                    this.ReceiveWebRequest(context);
+                this.ReceiveWebRequest?.Invoke(context);
 
                 this.ProcessRequest(context);
             }
@@ -2666,26 +2276,26 @@ DATA_TO_SEND";
         /// </summary>
         /// <param name="Context"></param>
 
-        protected void ProcessRequest(System.Net.HttpListenerContext Context)
+        protected void ProcessRequest(HttpListenerContext Context)
         {
-            HttpListenerRequest Request = Context.Request;
-            HttpListenerResponse Response = Context.Response;
+            HttpListenerRequest request = Context.Request;
+            HttpListenerResponse response = Context.Response;
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(Request.HttpMethod + " " + Request.RawUrl + " Http/" + Request.ProtocolVersion.ToString());
+            sb.AppendLine($"{request.HttpMethod} {request.RawUrl} Http/{request.ProtocolVersion}");
             string error = "";
 
-            if (!Request.HasEntityBody)
+            if (!request.HasEntityBody)
                 error = "Error: Empty body";
 
             // Fetch sock id from request
             string socketNm = null;
             Regex r = new Regex(@"sockid=([0-9a-fA-F]{4,4})", RegexOptions.IgnoreCase);
-            Match m = r.Match(Request.Url.Query);
+            Match m = r.Match(request.Url.Query);
             if (m.Success)
             {
                 Group g = m.Groups[1];
-                socketNm = (string)g.Value;
+                socketNm = g.Value;
             }
             else
             {
@@ -2698,50 +2308,49 @@ DATA_TO_SEND";
             }
             catch
             {
-                error = "Error: Invalid socket ID (" + socketNm + ")";
+                error = $"Error: Invalid socket ID ({socketNm})";
             }
 
 
             // Fetch function from request
             string method = null;
             r = new Regex(@"func=(\w+\(\))&");
-            m = r.Match(Request.Url.Query);
+            m = r.Match(request.Url.Query);
             if (m.Success)
             {
                 Group g = m.Groups[1];
-                method = (string)g.Value;
+                method = g.Value;
             }
             else
             {
                 error = "Error: func is wrong or missing";
             }
 
-            string Details = "";
+            string details = "";
             if (error != "")
-                Details = error;
+                details = error;
             else
             {
-                Stream body = Request.InputStream;
-                Encoding encoding = Request.ContentEncoding;
+                Stream body = request.InputStream;
+                Encoding encoding = request.ContentEncoding;
                 StreamReader reader = new StreamReader(body, encoding);
                 string bodyText = reader.ReadToEnd();
 
-                Details += "Socket: " + socketNm + "\r\n";
-                Details += "Function: " + method + "\r\n";
-                if (Request.ContentType != null)
+                details += $"Socket: {socketNm}\r\n";
+                details += $"Function: {method}\r\n";
+                if (request.ContentType != null)
                 {
-                    Details += "Data content type: " + Request.ContentType + "\r\n";
+                    details += $"Data content type: {request.ContentType}\r\n";
                 }
-                Details += "Data content length: " + Request.ContentLength64 + "\r\n";
-                Details += "Data:\r\n" + bodyText;
+                details += $"Data content length: {request.ContentLength64}\r\n";
+                details += "Data:\r\n" + bodyText;
 
                 try
                 {
-                    //System.Text.ASCIIEncoding encoding2 = new System.Text.ASCIIEncoding();
                     byte[] bcBytes = latin.GetBytes(bodyText);
 
                     strPipeMsgOut.command = Glob.CMD_INJECT;
-                    strPipeMsgOut.function = sinfo.Msgnum(method); // Glob.FUNC_SEND;
+                    strPipeMsgOut.function = sinfo.MsgNum(method); // Glob.FUNC_SEND;
                     //strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                     strPipeMsgOut.datasize = bcBytes.Length;
                     WritePipe();
@@ -2749,25 +2358,23 @@ DATA_TO_SEND";
                     {
                         pipeOut.Write(bcBytes, 0, strPipeMsgOut.datasize);
                     }
-                    catch (Exception)
+                    catch
                     { }
-
 
                     //pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
                     ///pipeOut.Write(bcBytes, 0, strPipeMsgOut.datasize);
                 }
                 catch
                 {
-                    Details += "\r\nAn error occured during perform the message";
+                    details += "\r\nAn error occured during perform the message";
                 }
-
             }
             // print back the details/error
-            byte[] bOutput = Encoding.UTF8.GetBytes(Details);
-            Response.ContentType = "text/html";
-            Response.ContentLength64 = bOutput.Length;
+            byte[] bOutput = Encoding.UTF8.GetBytes(details);
+            response.ContentType = "text/html";
+            response.ContentLength64 = bOutput.Length;
 
-            Stream OutputStream = Response.OutputStream;
+            Stream OutputStream = response.OutputStream;
             OutputStream.Write(bOutput, 0, bOutput.Length);
             OutputStream.Close();
         }
@@ -2776,12 +2383,13 @@ DATA_TO_SEND";
         {
             for (int i = dgridMain.Rows.Count - 1; i >= 0; i--)
             {
-                if (dgridMain.Rows[i].Cells["method"].Value.ToString().Contains("end") &&
-                    showToolStripMenuItem.Checked == true)
-                    dgridMain.Rows[i].Visible = true;
-                if (dgridMain.Rows[i].Cells["method"].Value.ToString().Contains("end") &&
-                    showToolStripMenuItem.Checked == false)
-                    dgridMain.Rows[i].Visible = false;
+                if (dgridMain.Rows[i].Cells["method"].Value.ToString().Contains("end"))
+                {
+                    if (showToolStripMenuItem.Checked)
+                        dgridMain.Rows[i].Visible = true;
+                    else
+                        dgridMain.Rows[i].Visible = false;
+                }
             }
         }
 
@@ -2789,12 +2397,13 @@ DATA_TO_SEND";
         {
             for (int i = dgridMain.Rows.Count - 1; i >= 0; i--)
             {
-                if (dgridMain.Rows[i].Cells["method"].Value.ToString().Contains("ecv") &&
-                    showrecvRecvAllToolStripMenuItem.Checked == true)
-                    dgridMain.Rows[i].Visible = true;
-                if (dgridMain.Rows[i].Cells["method"].Value.ToString().Contains("ecv") &&
-                    showrecvRecvAllToolStripMenuItem.Checked == false)
-                    dgridMain.Rows[i].Visible = false;
+                if (dgridMain.Rows[i].Cells["method"].Value.ToString().Contains("ecv"))
+                {
+                    if (showrecvRecvAllToolStripMenuItem.Checked)
+                        dgridMain.Rows[i].Visible = true;
+                    else
+                        dgridMain.Rows[i].Visible = false;
+                }
             }
         }
 
@@ -2807,7 +2416,6 @@ DATA_TO_SEND";
                 dgridMain.Refresh();
                 dgridMain.CurrentCell = dgridMain.Rows[index].Cells[0];
                 dgridMain.Rows[index].Selected = true;
-
             }
         }
 
@@ -2820,34 +2428,11 @@ DATA_TO_SEND";
                 return -1;
             }
 
-            ////   if (prefixes2.Substring(prefixes2.Length - 1, 1) != "/" && prefixes2.Substring(prefixes2.Length - 1, 1) != "\\")
-            //MessageBox.Show(prefixes2.Substring(prefixes2.Length - 2, 1));
-
-
             externalFilter = true;
-            return Int32.Parse(prefixes2);
+            return int.Parse(prefixes2);
         }
 
-        static bool ArraysEqual(byte[] a1, byte[] a2)
-        {
-            if (a1 == a2)
-                return true;
-
-            if (a1 == null || a2 == null)
-                return false;
-
-            if (a1.Length != a2.Length)
-                return false;
-
-            for (int i = 0; i < a1.Length; i++)
-            {
-                if (a1[i] != a2[i])
-                    return false;
-            }
-            return true;
-        }
-
-        private void UpdateText()
+        private void dgridMain_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
@@ -2855,67 +2440,68 @@ DATA_TO_SEND";
             }
         }
 
-        private void dgridMain_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            UpdateText();
-        }
-
         Process procExternalFilter;
         FrmPython Python;
 
-        private void activateExtenalFilter()
+        private void ActivateExtenalFilter()
         {
-            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\scripts\\external_filter_server.py"))
+            if (!File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\scripts\external_filter_server.py"))
             {
-                int port = mnuToolsExternalFilter();
-                if (port == -1)
+                return;
+            }
+
+            int port = mnuToolsExternalFilter();
+            if (port == -1)
+            {
+                externalFilter = false;
+                return;
+            }
+
+            string file = CreateFile();
+            procExternalFilter = new Process
+            {
+                StartInfo = new ProcessStartInfo()
                 {
-                    externalFilter = false;
-                    return;
-                }
-                string file = CreateFile();
-                procExternalFilter = new Process();
-                procExternalFilter.StartInfo = new ProcessStartInfo()
-                {
-                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\scripts",
+                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory + @"\scripts",
                     FileName = "python.exe",
-                    Arguments = "external_filter_server.py " + port.ToString() + " " + file,
+                    Arguments = $"external_filter_server.py {port} {file}",
                     UseShellExecute = false,
                     RedirectStandardOutput = false,
                     RedirectStandardError = false,
                     RedirectStandardInput = false,
                     CreateNoWindow = true
-                };
-                try
-                {
-                    //procExternalFilter.Start();
-                    tsExternalFilter.BackColor = Color.Green;
-                    if (Python == null)
-                    {
-                        procExternalFilter.Start();
-                        timerPython.Start();
-                        Python = new FrmPython(file);
-                        Python.Show();
-                    }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Do you have python installed on your computer?");
-                    //MessageBox.Show(ex.Message);
-                }
+            };
 
+            try
+            {
+                //procExternalFilter.Start();
+                tsExternalFilter.BackColor = Color.Green;
+                if (Python == null)
+                {
+                    procExternalFilter.Start();
+                    timerPython.Start();
+                    Python = new FrmPython(file);
+                    Python.Show();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Do you have python installed on your computer?");
             }
         }
 
         private string CreateFile()
         {
-            string Path = AppDomain.CurrentDomain.BaseDirectory + "Log.txt";
-            if (File.Exists(Path)) File.Delete(Path);
-            File.CreateText(Path).Close();
-            return Path;
+            string path = AppDomain.CurrentDomain.BaseDirectory + "Log.txt";
+            if (File.Exists(path))
+                File.Delete(path);
+
+            File.CreateText(path).Close();
+            return path;
         }
 
-        private void closeExternalFilter()
+        private void CloseExternalFilter()
         {
             try
             {
@@ -2924,25 +2510,24 @@ DATA_TO_SEND";
                 procExternalFilter.Kill();
                 tsExternalFilter.BackColor = Color.Red;
             }
-            catch (Exception)
+            catch
             { }
-
-
         }
 
         private void toolToggleFilter_Click(object sender, EventArgs e)
         {
-            if (!(sender as ToolStripMenuItem).Checked)
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            if (!item.Checked)
             {
-                activateExtenalFilter();
-                (sender as ToolStripMenuItem).Checked = true;
+                ActivateExtenalFilter();
+                item.Checked = true;
             }
             else
             {
-                (sender as ToolStripMenuItem).Checked = false;
+                item.Checked = false;
                 try
                 {
-                    closeExternalFilter();
+                    CloseExternalFilter();
                 }
                 catch (Exception ex)
                 {
@@ -2957,24 +2542,24 @@ DATA_TO_SEND";
             {
                 strPipeMsgOut.command = Glob.CMD_INJECT;
                 strPipeMsgOut.function = Glob.FUNC_SEND;
-                strPipeMsgOut.sockid = Int32.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.datasize = ((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value).Length;
                 WritePipe();
                 try
                 {
                     pipeOut.Write(Encoding.ASCII.GetBytes(txbRecordText.Text), 0, strPipeMsgOut.datasize);
                 }
-                catch (Exception)
+                catch
                 { }
             }
-
         }
 
         private void timerPython_Tick(object sender, EventArgs e)
         {
             try
             {
-                if (procExternalFilter.HasExited) tsExternalFilter.BackColor = Color.Red;
+                if (procExternalFilter.HasExited)
+                    tsExternalFilter.BackColor = Color.Red;
                 else
                     tsExternalFilter.BackColor = Color.Green;
             }
@@ -2993,7 +2578,7 @@ DATA_TO_SEND";
                 string data = (string)dgridMain.SelectedRows[0].Cells["data"].Value;
                 string method = (string)dgridMain.SelectedRows[0].Cells["method"].Value;
 
-                string req = @"POST /?func=" + method + @"&sockid=" + sockid + @" HTTP/1.1
+                string req = "POST /?func=" + method + "&sockid=" + sockid + @" HTTP/1.1
 Host: 127.0.0.1:8083
 Content-Length: 62
 Expect: 100-continue

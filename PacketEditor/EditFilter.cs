@@ -2,19 +2,18 @@
 using System.Data;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace PacketEditor
 {
     public partial class EditFilter : Form
     {
-        public bool retval;
-
-        DataRow drFilters;
-        Main.SockInfo sinfo;
-
-        DataTable dtF; //Forms[Filters].dtFilters
-        DataGridView dgF; //Forms[FIlters].dgridFilters
-        int dgF_line;
+        //private bool retVal;
+        readonly DataRow drFilters;
+        readonly SocketInfo sInfo;
+        readonly DataTable dtF; //Forms[Filters].dtFilters
+        readonly DataGridView dgF; //Forms[FIlters].dgridFilters
+        readonly int dgF_line;
 
         void UpdateUI(DataRow dr)
         {
@@ -25,13 +24,13 @@ namespace PacketEditor
             this.cmbAPIActionE.SelectedIndexChanged -= new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
             this.cmbDNSActionE.SelectedIndexChanged -= new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
 
-            if (dr["id"].ToString() != String.Empty)
+            if (dr["id"].ToString() != string.Empty)
             {
                 txtName.Text = dr["id"].ToString();
                 chkEnabled.Checked = (bool)dr["enabled"];
                 foreach (byte b in (byte[])dr["MsgFunction"])
                 {
-                    chkMsg.SetItemChecked(chkMsg.FindStringExact(sinfo.Msg(b)), true);
+                    chkMsg.SetItemChecked(chkMsg.FindStringExact(sInfo.Msg(b)), true);
                 }
                 txtMsgCatch.Text = dr["MsgCatch"].ToString();
                 switch ((byte)dr["MsgAction"])
@@ -52,10 +51,10 @@ namespace PacketEditor
                         break;
                 }
                 txtMsgReplace.Text = dr["MsgReplace"].ToString();
-                cmbMsgActionE.Text = sinfo.Error((int)dr["MsgError"]);
+                cmbMsgActionE.Text = sInfo.Error((int)dr["MsgError"]);
                 foreach (byte b in (byte[])dr["APIFunction"])
                 {
-                    chkAPI.SetItemChecked(chkAPI.FindStringExact(sinfo.Api(b)), true);
+                    chkAPI.SetItemChecked(chkAPI.FindStringExact(sInfo.Api(b)), true);
                 }
                 txtAPICatch.Text = dr["APICatch"].ToString();
                 switch ((byte)dr["APIAction"])
@@ -76,10 +75,10 @@ namespace PacketEditor
                         break;
                 }
                 txtAPIReplace.Text = dr["APIReplace"].ToString();
-                cmbAPIActionE.Text = sinfo.Error((int)dr["APIError"]);
+                cmbAPIActionE.Text = sInfo.Error((int)dr["APIError"]);
                 foreach (byte b in (byte[])dr["DNSFunction"])
                 {
-                    chkDNS.SetItemChecked(chkDNS.FindStringExact(sinfo.Api(b)), true);
+                    chkDNS.SetItemChecked(chkDNS.FindStringExact(sInfo.Api(b)), true);
                 }
                 txtDNSCatch.Text = dr["DNSCatch"].ToString();
                 switch ((byte)dr["DNSAction"])
@@ -100,7 +99,7 @@ namespace PacketEditor
                         break;
                 }
                 txtDNSReplace.Text = dr["DNSReplace"].ToString();
-                cmbDNSActionE.Text = sinfo.Error((int)dr["DNSError"]);
+                cmbDNSActionE.Text = sInfo.Error((int)dr["DNSError"]);
             }
             else
             {
@@ -118,68 +117,79 @@ namespace PacketEditor
 
         void UpdateDR(DataRow dr)
         {
-            byte t;
             dr["id"] = txtName.Text;
             dr["enabled"] = chkEnabled.Checked;
-            byte[] b = new byte[chkMsg.CheckedItems.Count];
-            for (int i = 0; i < chkMsg.CheckedItems.Count; i++) 
+
+            byte[] bytes = new byte[chkMsg.CheckedItems.Count];
+            for (int i = 0; i < chkMsg.CheckedItems.Count; i++)
             {
-                b[i] = sinfo.Msgnum(chkMsg.CheckedItems[i].ToString());
+                bytes[i] = sInfo.MsgNum(chkMsg.CheckedItems[i].ToString());
             }
-            dr["MsgFunction"] = b;
+            dr["MsgFunction"] = bytes;
             dr["MsgCatch"] = txtMsgCatch.Text;
-            if (rdoMsgActionR.Checked == true)
+            byte t;
+            if (rdoMsgActionR.Checked)
                 t = Glob.ActionReplaceString;
             else
                 t = Glob.ActionError;
-            if (rdoMsgMethodH.Checked == true)
+
+            if (rdoMsgMethodH.Checked)
                 t++;
             dr["MsgAction"] = t;
             dr["MsgReplace"] = txtMsgReplace.Text;
-            dr["MsgError"] = sinfo.ErrorNum(cmbMsgActionE.Text);
-            b = new byte[chkAPI.CheckedItems.Count];
+            dr["MsgError"] = sInfo.ErrorNum(cmbMsgActionE.Text);
+
+
+            bytes = new byte[chkAPI.CheckedItems.Count];
             for (int i = 0; i < chkAPI.CheckedItems.Count; i++)
             {
-                b[i] = sinfo.ApiNum(chkAPI.CheckedItems[i].ToString());
+                bytes[i] = sInfo.ApiNum(chkAPI.CheckedItems[i].ToString());
             }
-            dr["APIFunction"] = b;
+            dr["APIFunction"] = bytes;
             dr["APICatch"] = txtAPICatch.Text;
-            if (rdoAPIActionR.Checked == true)
+
+            if (rdoAPIActionR.Checked)
                 t = Glob.ActionReplaceString;
             else
                 t = Glob.ActionError;
-            if (rdoAPIMethodH.Checked == true)
+
+            if (rdoAPIMethodH.Checked)
                 t++;
+
             dr["APIAction"] = t;
             dr["APIReplace"] = txtAPIReplace.Text;
-            dr["APIError"] = sinfo.ErrorNum(cmbAPIActionE.Text);
-            b = new byte[chkDNS.CheckedItems.Count];
+            dr["APIError"] = sInfo.ErrorNum(cmbAPIActionE.Text);
+
+
+            bytes = new byte[chkDNS.CheckedItems.Count];
             for (int i = 0; i < chkDNS.CheckedItems.Count; i++)
             {
-                b[i] = sinfo.ApiNum(chkDNS.CheckedItems[i].ToString());
+                bytes[i] = sInfo.ApiNum(chkDNS.CheckedItems[i].ToString());
             }
-            dr["DNSFunction"] = b;
+            dr["DNSFunction"] = bytes;
             dr["DNSCatch"] = txtDNSCatch.Text;
-            if (rdoDNSActionR.Checked == true)
+            if (rdoDNSActionR.Checked)
                 t = Glob.ActionReplaceString;
             else
                 t = Glob.ActionError;
-            if (rdoDNSMethodH.Checked == true)
+
+            if (rdoDNSMethodH.Checked)
                 t++;
             dr["DNSAction"] = t;
             dr["DNSReplace"] = txtDNSReplace.Text;
-            dr["DNSError"] = sinfo.ErrorNum(cmbDNSActionE.Text);
+            dr["DNSError"] = sInfo.ErrorNum(cmbDNSActionE.Text);
+
 
             funcUpdate(dr);
         }
 
-        public EditFilter(DataRow dr, Main.SockInfo si, DataTable dtFilters, DataGridView dgridFilters, int dgF_l)
+        public EditFilter(DataRow dr, SocketInfo si, DataTable dtFilters, DataGridView dgridFilters, int dgF_l)
         {
             InitializeComponent();
             drFilters = dr;
-            sinfo = si;
+            sInfo = si;
             // the following parameters, need to update the grid of the Filters form
-            dtF = dtFilters; 
+            dtF = dtFilters;
             dgF = dgridFilters; // the grid
             dgF_line = dgF_l; // the line to update
 
@@ -188,7 +198,7 @@ namespace PacketEditor
 
         private void frmEditFilters_Activated(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = 1;
             }
@@ -196,7 +206,7 @@ namespace PacketEditor
 
         private void frmEditFilters_Deactivate(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = .5;
             }
@@ -205,23 +215,30 @@ namespace PacketEditor
         private void btnOK_Click(object sender, EventArgs e)
         {
             txtName.Text = txtName.Text.Trim();
-            
-            if (txtName.Text != String.Empty)
+
+            if (txtName.Text != string.Empty)
             {
-                if (txtMsgCatch.Text != String.Empty)
+                if (txtMsgCatch.Text != string.Empty)
                 {
-                        try { Regex.Match("", txtMsgCatch.Text); }
-                        catch (ArgumentException)
-                        {
-                            tabControl1.SelectedTab = this.tabPage1;
-                            txtMsgCatch.Focus();
-                            MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
+                    try
+                    {
+                        Regex.Match("", txtMsgCatch.Text);
+                    }
+                    catch (ArgumentException)
+                    {
+                        tabControl1.SelectedTab = this.tabPage1;
+                        txtMsgCatch.Focus();
+                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
-                if (txtAPICatch.Text != String.Empty)
+
+                if (txtAPICatch.Text != string.Empty)
                 {
-                    try { Regex.Match("", txtAPICatch.Text); }
+                    try
+                    {
+                        Regex.Match("", txtAPICatch.Text);
+                    }
                     catch (ArgumentException)
                     {
                         tabControl1.SelectedTab = this.tabPage2;
@@ -230,9 +247,13 @@ namespace PacketEditor
                         return;
                     }
                 }
-                if (txtDNSCatch.Text != String.Empty)
+
+                if (txtDNSCatch.Text != string.Empty)
                 {
-                    try { Regex.Match("", txtDNSCatch.Text); }
+                    try
+                    {
+                        Regex.Match("", txtDNSCatch.Text);
+                    }
                     catch (ArgumentException)
                     {
                         tabControl1.SelectedTab = this.tabPage3;
@@ -241,6 +262,7 @@ namespace PacketEditor
                         return;
                     }
                 }
+
                 Form fc = Application.OpenForms["Filters"];
                 if (fc != null)
                 {
@@ -257,72 +279,74 @@ namespace PacketEditor
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            retval = false;
+            //retVal = false;
             this.Close();
         }
 
         private void txtMsgReplace_TextChanged(object sender, EventArgs e)
         {
-            if (rdoMsgActionR.Checked == false)
+            if (!rdoMsgActionR.Checked)
                 rdoMsgActionR.Checked = true;
         }
 
         private void txtAPIReplace_TextChanged(object sender, EventArgs e)
         {
-            if (rdoAPIActionR.Checked == false)
+            if (!rdoAPIActionR.Checked)
                 rdoAPIActionR.Checked = true;
         }
 
         private void txtDNSReplace_TextChanged(object sender, EventArgs e)
         {
-            if (rdoDNSActionR.Checked == false)
+            if (!rdoDNSActionR.Checked)
                 rdoDNSActionR.Checked = true;
         }
 
         private void cmbMsgActionE_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (rdoMsgActionE.Checked == false)
+            if (!rdoMsgActionE.Checked)
                 rdoMsgActionE.Checked = true;
         }
 
         private void cmbAPIActionE_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (rdoAPIActionE.Checked == false)
+            if (!rdoAPIActionE.Checked)
                 rdoAPIActionE.Checked = true;
         }
 
         private void cmbDNSActionE_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (rdoDNSActionE.Checked == false)
+            if (!rdoDNSActionE.Checked)
                 rdoDNSActionE.Checked = true;
         }
 
         private void funcUpdate(DataRow dr)
         {
-            string funs = "";
-            int i = dgF_line;
+            int idx = dgF_line;
             if (dtF.Rows.Find(dr["id"].ToString()) == null) // new one
             {
                 dtF.Rows.Add(dr);
-                i = dgF.Rows.Add();
+                idx = dgF.Rows.Add();
             }
-            dgF.Rows[i].Cells["name"].Value = dr["id"].ToString();
-            dgF.Rows[i].Cells["enabled"].Value = dr["enabled"];
+            dgF.Rows[idx].Cells["name"].Value = dr["id"].ToString();
+            dgF.Rows[idx].Cells["enabled"].Value = dr["enabled"];
+            
+            StringBuilder funs = new StringBuilder();
             foreach (byte f in (byte[])dr["MsgFunction"])
             {
-                funs += sinfo.Msg(f) + " ";
+                funs.Append(sInfo.Msg(f) + " ");
             }
             foreach (byte f in (byte[])dr["APIFunction"])
             {
-                funs += sinfo.Api(f) + " ";
+                funs.Append(sInfo.Api(f) + " ");
             }
             foreach (byte f in (byte[])dr["DNSFunction"])
             {
-                funs += sinfo.Api(f) + " ";
+                funs.Append(sInfo.Api(f) + " ");
             }
-            if (funs != string.Empty)
+
+            if (funs.ToString() != string.Empty)
             {
-                dgF.Rows[i].Cells["function"].Value = funs.TrimEnd();
+                dgF.Rows[idx].Cells["function"].Value = funs.ToString().TrimEnd();
             }
         }
 
@@ -331,11 +355,14 @@ namespace PacketEditor
             // exactly like btnOk just without this.Close
             txtName.Text = txtName.Text.Trim();
 
-            if (txtName.Text != String.Empty)
+            if (txtName.Text != string.Empty)
             {
-                if (txtMsgCatch.Text != String.Empty)
+                if (txtMsgCatch.Text != string.Empty)
                 {
-                    try { Regex.Match("", txtMsgCatch.Text); }
+                    try
+                    {
+                        Regex.Match("", txtMsgCatch.Text);
+                    }
                     catch (ArgumentException)
                     {
                         tabControl1.SelectedTab = this.tabPage1;
@@ -344,9 +371,13 @@ namespace PacketEditor
                         return;
                     }
                 }
-                if (txtAPICatch.Text != String.Empty)
+
+                if (txtAPICatch.Text != string.Empty)
                 {
-                    try { Regex.Match("", txtAPICatch.Text); }
+                    try
+                    {
+                        Regex.Match("", txtAPICatch.Text);
+                    }
                     catch (ArgumentException)
                     {
                         tabControl1.SelectedTab = this.tabPage2;
@@ -355,9 +386,13 @@ namespace PacketEditor
                         return;
                     }
                 }
-                if (txtDNSCatch.Text != String.Empty)
+
+                if (txtDNSCatch.Text != string.Empty)
                 {
-                    try { Regex.Match("", txtDNSCatch.Text); }
+                    try
+                    {
+                        Regex.Match("", txtDNSCatch.Text);
+                    }
                     catch (ArgumentException)
                     {
                         tabControl1.SelectedTab = this.tabPage3;
@@ -366,6 +401,7 @@ namespace PacketEditor
                         return;
                     }
                 }
+
                 Form fc = Application.OpenForms["Filters"];
                 if (fc != null) // if the form is open
                 {
@@ -377,7 +413,6 @@ namespace PacketEditor
                 MessageBox.Show("You must enter a filter name.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtName.Focus();
             }
-
         }
     }
 }

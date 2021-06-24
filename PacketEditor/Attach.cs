@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 
@@ -12,13 +7,8 @@ namespace PacketEditor
 {
     public partial class Attach : Form
     {
-        public int pID = 0;
-        private string procPath = "";
-
-        public string GetpPath()
-        {
-            return procPath;
-        }
+        public int PID { get; private set; }
+        public string ProcPath { get; private set; } = "";
 
         public Attach()
         {
@@ -27,45 +17,45 @@ namespace PacketEditor
 
         private void frmAttach_Load(object sender, EventArgs e)
         {
-            int i;
-            
-            Process[] processlist = Process.GetProcesses();
-            i = 0;
+            int idx = 0;
             bool contains = false;
-            foreach(Process theprocess in processlist) 
+
+            foreach (Process theprocess in Process.GetProcesses())
             {
-                foreach(DataGridViewRow r in dgridAttach.Rows)
+                foreach (DataGridViewRow r in dgridAttach.Rows)
                 {
-                    if (r.Cells["name"].Value == theprocess.ProcessName)
+                    if (r.Cells["name"].Value.ToString() == theprocess.ProcessName)
                     {
                         contains = true;
                         break;
                     }
                 }
-                if(contains)
+                if (contains)
                 {
                     contains = false;
                     continue;
                 }
 
                 dgridAttach.Rows.Add();
-                dgridAttach.Rows[i].Selected = false;
-                dgridAttach.Rows[i].Cells["id"].Value = theprocess.Id.ToString("X8");
-                dgridAttach.Rows[i].Cells["name"].Value = theprocess.ProcessName;
-                dgridAttach.Rows[i].Cells["window"].Value = theprocess.MainWindowTitle;
+                dgridAttach.Rows[idx].Selected = false;
+                dgridAttach.Rows[idx].Cells["id"].Value = theprocess.Id.ToString("X8");
+                dgridAttach.Rows[idx].Cells["name"].Value = theprocess.ProcessName;
+                dgridAttach.Rows[idx].Cells["window"].Value = theprocess.MainWindowTitle;
                 try
                 {
-                   dgridAttach.Rows[i].Cells["path"].Value = theprocess.MainModule.FileName;
+                    dgridAttach.Rows[idx].Cells["path"].Value = theprocess.MainModule.FileName;
                 }
-                catch {}
-                if (dgridAttach.Rows[i].Cells["path"].Value == null)
-                    dgridAttach.Rows[i].Cells["path"].Value = theprocess.StartInfo.FileName;
-                if (dgridAttach.Rows[i].Cells["path"].Value.ToString() == "")
-                    dgridAttach.Rows.Remove(dgridAttach.Rows[i]);
-                        else
-                    i++;
+                catch { }
+
+                if (dgridAttach.Rows[idx].Cells["path"].Value == null)
+                    dgridAttach.Rows[idx].Cells["path"].Value = theprocess.StartInfo.FileName;
+
+                if (dgridAttach.Rows[idx].Cells["path"].Value.ToString() == string.Empty)
+                    dgridAttach.Rows.Remove(dgridAttach.Rows[idx]);
+                else
+                    idx++;
             }
-            
+
             dgridAttach.Sort(dgridAttach.Columns["name"], ListSortDirection.Descending);
         }
 
@@ -78,13 +68,13 @@ namespace PacketEditor
         {
             if (dgridAttach.SelectedRows.Count != 0)
             {
-                pID = int.Parse((string)dgridAttach.SelectedRows[0].Cells["id"].Value,System.Globalization.NumberStyles.HexNumber);
-                procPath = (string)dgridAttach.SelectedRows[0].Cells["path"].Value;
+                PID = int.Parse((string)dgridAttach.SelectedRows[0].Cells["id"].Value, System.Globalization.NumberStyles.HexNumber);
+                ProcPath = (string)dgridAttach.SelectedRows[0].Cells["path"].Value;
                 this.Close();
             }
             else
             {
-                MessageBox.Show(this, "You must select a process.","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(this, "You must select a process.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -94,7 +84,8 @@ namespace PacketEditor
             {
                 this.Close();
             }
-            if (Char.IsLetterOrDigit(e.KeyChar))
+
+            if (char.IsLetterOrDigit(e.KeyChar))
             {
                 foreach (DataGridViewRow dgvRow in dgridAttach.Rows)
                 {
@@ -110,7 +101,7 @@ namespace PacketEditor
 
         private void frmAttach_Activated(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = 1;
             }
@@ -118,7 +109,7 @@ namespace PacketEditor
 
         private void frmAttach_Deactivate(object sender, EventArgs e)
         {
-            if (this.TopMost == true)
+            if (this.TopMost)
             {
                 this.Opacity = .5;
             }

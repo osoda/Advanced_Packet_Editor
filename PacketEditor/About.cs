@@ -16,16 +16,6 @@ namespace PacketEditor
             InitializeComponent();
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void btnWebsite_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://appsec-labs.com/Advanced_Packet_Editor");
-        }
-
         private void frmAbout_Load(object sender, EventArgs e)
         {
             string strAbout;
@@ -42,11 +32,6 @@ namespace PacketEditor
             strAbout += "\n\nThe Advanced Packet Editor is an Open-Source Project\nFor intercepting and manipulating TCP traffic between Client and Server";
 
             lblAbout.Text = strAbout;
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-
         }
     }
 }

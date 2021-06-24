@@ -57,22 +57,22 @@ class externalFilterHTTPServer(BaseHTTPRequestHandler):
 		
 	def log_message(self, format, *args):
 		pass
-                
+
 def main():
 	try:
 		server = HTTPServer((address, port), externalFilterHTTPServer)
-		print '--------------------------------------------------------'
-		print 'Server started at port', port, 'and listen to', address
-		print '--------------------------------------------------------'
-		print 'Filter path:', filter_path
+		print('--------------------------------------------------------')
+		print('Server started at port', port, 'and listen to', address)
+		print('--------------------------------------------------------')
+		print('Filter path:', filter_path)
 		if 'log_path' in globals():
-			print 'Log path:', log_path
-		print '-------------------------------------------------------'
+			print('Log path:', log_path)
+		print('-------------------------------------------------------')
 		server.serve_forever()
 		
 	except KeyboardInterrupt:
 		print('^C received, shutting down server')
-		server.socket.close() 
- 
+		server.socket.close()
+
 if __name__=='__main__':
 	main()
