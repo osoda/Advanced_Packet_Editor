@@ -48,10 +48,10 @@ namespace Be.Windows.Forms
 		/// </summary>
 		public event EventHandler Changed;
 
-		/// <summary>
-		/// Contains all changes
-		/// </summary>
-		WriteCollection _writes = new WriteCollection();
+        /// <summary>
+        /// Contains all changes
+        /// </summary>
+        readonly WriteCollection _writes = new WriteCollection();
 
 		/// <summary>
 		/// Contains the file name.
@@ -61,10 +61,11 @@ namespace Be.Windows.Forms
 		/// Contains the file stream.
 		/// </summary>
 		FileStream _fileStream;
+
         /// <summary>
         /// Read-only access.
         /// </summary>
-        bool _readOnly;
+        readonly bool _readOnly;
 
 		/// <summary>
 		/// Initializes a new instance of the FileByteProvider class.
@@ -108,9 +109,8 @@ namespace Be.Windows.Forms
 		/// <remarks>Never used.</remarks>
 		void OnChanged(EventArgs e)
 		{
-			if(Changed != null)
-				Changed(this, e);
-		}
+            Changed?.Invoke(this, e);
+        }
 
 		/// <summary>
 		/// Gets the name of the file the byte provider is using.

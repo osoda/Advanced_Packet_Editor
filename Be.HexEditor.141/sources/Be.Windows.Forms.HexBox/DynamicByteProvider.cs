@@ -11,10 +11,11 @@ namespace Be.Windows.Forms
 		/// Contains information about changes.
 		/// </summary>
 		bool _hasChanges;
-		/// <summary>
-		/// Contains a byte collection.
-		/// </summary>
-		ByteCollection _bytes;
+
+        /// <summary>
+        /// Contains a byte collection.
+        /// </summary>
+        readonly ByteCollection _bytes;
 
 		/// <summary>
 		/// Initializes a new instance of the DynamicByteProvider class.

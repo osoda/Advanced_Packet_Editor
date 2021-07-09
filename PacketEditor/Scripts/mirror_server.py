@@ -10,7 +10,7 @@ class mirrorHTTPServer(BaseHTTPRequestHandler):
 		self.end_headers()
 		self.wfile.write('<HTML><body>Get!</body></HTML>')
 		return 
-			
+
 	def do_POST(self):
 		length = int(self.headers.getheader('content-length'))
 		data = self.rfile.read(length)
@@ -27,7 +27,7 @@ def main():
 		print ('Mirror server started at port', port, 'and listen to', address)
 		server.serve_forever()
 	except KeyboardInterrupt:
-		server.socket.close() 
- 
+		server.socket.close()
+
 if __name__=='__main__':
 	main()

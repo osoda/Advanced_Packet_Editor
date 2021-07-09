@@ -23,13 +23,13 @@ namespace PacketEditor
         NamedPipeClientStream pipeOut;
         readonly string strDLL = Directory.GetCurrentDirectory() + "\\WSPE.dat";
         Thread trdPipeRead;
-        int intTargetpID = 0;
+        int intTargetpID;
         Glob.PipeHeader strPipeMsgOut;
         Glob.PipeHeader strPipeMsgIn;
         readonly SocketInfo sinfo = new SocketInfo();
         bool filter = true;
         bool monitor = true;
-        bool DNStrap = false;
+        bool DNStrap; // false
         readonly Encoding latin = Encoding.GetEncoding(28591);
         Filters frmChFilters;
         string reAttachPath;
@@ -42,20 +42,20 @@ Connection: Keep-Alive
 DATA_TO_SEND";
         // Listen for requests
         private HttpListener listener;
-        bool listen_for_requests = false;
+        bool listen_for_requests; // false
         private bool firstRun = true;
         private string prefixes = "8083";
         public event delReceiveWebRequest ReceiveWebRequest;
         private const int RequestThreadAbortedException = 995;
 
         // External filter
-        WebRequest req = null;
-        WebResponse rsp = null;
+        WebRequest req;
+        WebResponse rsp;
         private string prefixes2 = "8084";
-        bool externalFilter = false;
+        bool externalFilter; // false
         // Wrap the request stream with a text-based writer
-        StreamWriter writer = null;
-        StreamReader reader = null;
+        StreamWriter writer;
+        StreamReader reader;
         string rsptext = "";
 
         string reattacheDelay = "1000";
@@ -187,41 +187,41 @@ DATA_TO_SEND";
         static extern bool LookupPrivilegeValue(string lpSystemName, string lpName,
             out LUID lpLuid);
 
-        public const string SE_ASSIGNPRIMARYTOKEN_NAME = "SeAssignPrimaryTokenPrivilege";
-        public const string SE_AUDIT_NAME = "SeAuditPrivilege";
-        public const string SE_BACKUP_NAME = "SeBackupPrivilege";
-        public const string SE_CHANGE_NOTIFY_NAME = "SeChangeNotifyPrivilege";
-        public const string SE_CREATE_GLOBAL_NAME = "SeCreateGlobalPrivilege";
-        public const string SE_CREATE_PAGEFILE_NAME = "SeCreatePagefilePrivilege";
-        public const string SE_CREATE_PERMANENT_NAME = "SeCreatePermanentPrivilege";
-        public const string SE_CREATE_SYMBOLIC_LINK_NAME = "SeCreateSymbolicLinkPrivilege";
-        public const string SE_CREATE_TOKEN_NAME = "SeCreateTokenPrivilege";
-        public const string SE_DEBUG_NAME = "SeDebugPrivilege";
-        public const string SE_ENABLE_DELEGATION_NAME = "SeEnableDelegationPrivilege";
-        public const string SE_IMPERSONATE_NAME = "SeImpersonatePrivilege";
-        public const string SE_INC_BASE_PRIORITY_NAME = "SeIncreaseBasePriorityPrivilege";
-        public const string SE_INCREASE_QUOTA_NAME = "SeIncreaseQuotaPrivilege";
-        public const string SE_INC_WORKING_SET_NAME = "SeIncreaseWorkingSetPrivilege";
-        public const string SE_LOAD_DRIVER_NAME = "SeLoadDriverPrivilege";
-        public const string SE_LOCK_MEMORY_NAME = "SeLockMemoryPrivilege";
-        public const string SE_MACHINE_ACCOUNT_NAME = "SeMachineAccountPrivilege";
-        public const string SE_MANAGE_VOLUME_NAME = "SeManageVolumePrivilege";
-        public const string SE_PROF_SINGLE_PROCESS_NAME = "SeProfileSingleProcessPrivilege";
-        public const string SE_RELABEL_NAME = "SeRelabelPrivilege";
-        public const string SE_REMOTE_SHUTDOWN_NAME = "SeRemoteShutdownPrivilege";
-        public const string SE_RESTORE_NAME = "SeRestorePrivilege";
-        public const string SE_SECURITY_NAME = "SeSecurityPrivilege";
-        public const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
-        public const string SE_SYNC_AGENT_NAME = "SeSyncAgentPrivilege";
-        public const string SE_SYSTEM_ENVIRONMENT_NAME = "SeSystemEnvironmentPrivilege";
-        public const string SE_SYSTEM_PROFILE_NAME = "SeSystemProfilePrivilege";
-        public const string SE_SYSTEMTIME_NAME = "SeSystemtimePrivilege";
-        public const string SE_TAKE_OWNERSHIP_NAME = "SeTakeOwnershipPrivilege";
-        public const string SE_TCB_NAME = "SeTcbPrivilege";
-        public const string SE_TIME_ZONE_NAME = "SeTimeZonePrivilege";
-        public const string SE_TRUSTED_CREDMAN_ACCESS_NAME = "SeTrustedCredManAccessPrivilege";
-        public const string SE_UNDOCK_NAME = "SeUndockPrivilege";
-        public const string SE_UNSOLICITED_INPUT_NAME = "SeUnsolicitedInputPrivilege";
+        private const string SE_ASSIGNPRIMARYTOKEN_NAME = "SeAssignPrimaryTokenPrivilege";
+        private const string SE_AUDIT_NAME = "SeAuditPrivilege";
+        private const string SE_BACKUP_NAME = "SeBackupPrivilege";
+        private const string SE_CHANGE_NOTIFY_NAME = "SeChangeNotifyPrivilege";
+        private const string SE_CREATE_GLOBAL_NAME = "SeCreateGlobalPrivilege";
+        private const string SE_CREATE_PAGEFILE_NAME = "SeCreatePagefilePrivilege";
+        private const string SE_CREATE_PERMANENT_NAME = "SeCreatePermanentPrivilege";
+        private const string SE_CREATE_SYMBOLIC_LINK_NAME = "SeCreateSymbolicLinkPrivilege";
+        private const string SE_CREATE_TOKEN_NAME = "SeCreateTokenPrivilege";
+        private const string SE_DEBUG_NAME = "SeDebugPrivilege";
+        private const string SE_ENABLE_DELEGATION_NAME = "SeEnableDelegationPrivilege";
+        private const string SE_IMPERSONATE_NAME = "SeImpersonatePrivilege";
+        private const string SE_INC_BASE_PRIORITY_NAME = "SeIncreaseBasePriorityPrivilege";
+        private const string SE_INCREASE_QUOTA_NAME = "SeIncreaseQuotaPrivilege";
+        private const string SE_INC_WORKING_SET_NAME = "SeIncreaseWorkingSetPrivilege";
+        private const string SE_LOAD_DRIVER_NAME = "SeLoadDriverPrivilege";
+        private const string SE_LOCK_MEMORY_NAME = "SeLockMemoryPrivilege";
+        private const string SE_MACHINE_ACCOUNT_NAME = "SeMachineAccountPrivilege";
+        private const string SE_MANAGE_VOLUME_NAME = "SeManageVolumePrivilege";
+        private const string SE_PROF_SINGLE_PROCESS_NAME = "SeProfileSingleProcessPrivilege";
+        private const string SE_RELABEL_NAME = "SeRelabelPrivilege";
+        private const string SE_REMOTE_SHUTDOWN_NAME = "SeRemoteShutdownPrivilege";
+        private const string SE_RESTORE_NAME = "SeRestorePrivilege";
+        private const string SE_SECURITY_NAME = "SeSecurityPrivilege";
+        private const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
+        private const string SE_SYNC_AGENT_NAME = "SeSyncAgentPrivilege";
+        private const string SE_SYSTEM_ENVIRONMENT_NAME = "SeSystemEnvironmentPrivilege";
+        private const string SE_SYSTEM_PROFILE_NAME = "SeSystemProfilePrivilege";
+        private const string SE_SYSTEMTIME_NAME = "SeSystemtimePrivilege";
+        private const string SE_TAKE_OWNERSHIP_NAME = "SeTakeOwnershipPrivilege";
+        private const string SE_TCB_NAME = "SeTcbPrivilege";
+        private const string SE_TIME_ZONE_NAME = "SeTimeZonePrivilege";
+        private const string SE_TRUSTED_CREDMAN_ACCESS_NAME = "SeTrustedCredManAccessPrivilege";
+        private const string SE_UNDOCK_NAME = "SeUndockPrivilege";
+        private const string SE_UNSOLICITED_INPUT_NAME = "SeUnsolicitedInputPrivilege";
 
         [StructLayout(LayoutKind.Sequential)]
         public struct LUID
@@ -233,10 +233,10 @@ DATA_TO_SEND";
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CloseHandle(IntPtr hHandle);
 
-        public const uint SE_PRIVILEGE_ENABLED_BY_DEFAULT = 0x00000001;
-        public const uint SE_PRIVILEGE_ENABLED = 0x00000002;
-        public const uint SE_PRIVILEGE_REMOVED = 0x00000004;
-        public const uint SE_PRIVILEGE_USED_FOR_ACCESS = 0x80000000;
+        private const uint SE_PRIVILEGE_ENABLED_BY_DEFAULT = 0x00000001;
+        private const uint SE_PRIVILEGE_ENABLED = 0x00000002;
+        private const uint SE_PRIVILEGE_REMOVED = 0x00000004;
+        private const uint SE_PRIVILEGE_USED_FOR_ACCESS = 0x80000000;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct TOKEN_PRIVILEGES

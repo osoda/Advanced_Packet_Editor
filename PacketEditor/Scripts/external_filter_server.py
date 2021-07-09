@@ -34,7 +34,7 @@ class externalFilterHTTPServer(BaseHTTPRequestHandler):
 		self.end_headers()
 		self.wfile.write('<HTML><body>Get!</body></HTML>')
 		return 
-			
+
 	def do_POST(self):
 		length = int(self.headers.getheader('content-length'))
 		data = self.rfile.read(length)

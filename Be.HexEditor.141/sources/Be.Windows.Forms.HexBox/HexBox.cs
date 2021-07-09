@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Security.Permissions;
 using System.Windows.Forms.VisualStyles;
@@ -10,11 +9,11 @@ using System.Text;
 
 namespace Be.Windows.Forms
 {
-	#region HexCasing enumeration
-	/// <summary>
-	/// Specifies the case of hex characters in the HexBox control
-	/// </summary>
-	public enum HexCasing 
+    #region HexCasing enumeration
+    /// <summary>
+    /// Specifies the case of hex characters in the HexBox control
+    /// </summary>
+    public enum HexCasing 
 	{ 
 		/// <summary>
 		/// Converts all characters to uppercase.
@@ -42,12 +41,14 @@ namespace Be.Windows.Forms
 		public int CharacterPosition
 		{
 			get { return _characterPosition; }
-		} int _characterPosition;
+		}
+        readonly int _characterPosition;
 
 		public long Index
 		{
 			get { return _index; }
-		} long _index;
+		}
+        readonly long _index;
 	}
 	#endregion
 
@@ -105,7 +106,7 @@ namespace Be.Windows.Forms
 		/// </summary>
 		class EmptyKeyInterpreter : IKeyInterpreter
 		{
-			HexBox _hexBox;
+            readonly HexBox _hexBox;
 
 			public EmptyKeyInterpreter(HexBox hexBox)
 			{
@@ -1033,17 +1034,12 @@ namespace Be.Windows.Forms
 				switch(keyData)
 				{
 					case Keys.Tab | Keys.Shift:
-					case Keys.Tab:
-						if(RaiseKeyDown(keyData))
+						if (RaiseKeyDown(keyData))
 							return true;
-						break;
-				}
-
-				switch(keyData)
-				{
-					case Keys.Tab | Keys.Shift:
 						return PreProcessWmKeyDown_ShiftTab(ref m);
 					case Keys.Tab:
+						if (RaiseKeyDown(keyData))
+							return true;
 						return PreProcessWmKeyDown_Tab(ref m);
 					default:
 						return base.PreProcessWmKeyDown(ref m);
@@ -1076,9 +1072,8 @@ namespace Be.Windows.Forms
 
 				long pos = _hexBox._bytePos;
 				long sel = _hexBox._selectionLength;
-				int cp = _hexBox._byteCharacterPos;
 
-				if(
+                if (
 					(!sw && pos != _hexBox._byteProvider.Length) ||
 					(!si && pos == _hexBox._byteProvider.Length))
 				{
@@ -1103,8 +1098,8 @@ namespace Be.Windows.Forms
 				{
 					_hexBox._byteProvider.DeleteBytes(pos, sel);
 					isInsertMode = true;
-					cp = 0;
-					_hexBox.SetPosition(pos, cp);
+                    int cp = 0;
+                    _hexBox.SetPosition(pos, cp);
 				}
 
 				_hexBox.ReleaseSelection();
@@ -1156,10 +1151,10 @@ namespace Be.Windows.Forms
 		/// </summary>
 		Rectangle _recStringView;
 
-		/// <summary>
-		/// Contains string format information for text drawing
-		/// </summary>
-		StringFormat _stringFormat;
+        /// <summary>
+        /// Contains string format information for text drawing
+        /// </summary>
+        readonly StringFormat _stringFormat;
 		/// <summary>
 		/// Contains the width and height of a single char
 		/// </summary>
@@ -1190,14 +1185,14 @@ namespace Be.Windows.Forms
 		/// Contains the scroll bars current position
 		/// </summary>
 		long _scrollVpos;
-		/// <summary>
-		/// Contains a vertical scroll
-		/// </summary>
-		VScrollBar _vScrollBar;
+        /// <summary>
+        /// Contains a vertical scroll
+        /// </summary>
+        readonly VScrollBar _vScrollBar;
         /// <summary>
         /// Contains a timer for thumbtrack scrolling
         /// </summary>
-        Timer _thumbTrackTimer = new Timer();
+        readonly Timer _thumbTrackTimer = new Timer();
         /// <summary>
         /// Contains the thumbtrack scrolling position
         /// </summary>
@@ -1457,8 +1452,6 @@ namespace Be.Windows.Forms
                     _thumbTrackTimer.Enabled = true;
 					break;
 				case ScrollEventType.First:
-					break;
-				default:
 					break;
 			}
             

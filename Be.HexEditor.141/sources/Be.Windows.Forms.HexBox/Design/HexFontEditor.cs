@@ -11,52 +11,43 @@ namespace Be.Windows.Forms.Design
 	/// </summary>
 	internal class HexFontEditor : FontEditor
 	{
-		object value;
-
-		/// <summary>
-		/// Initializes an instance of HexFontEditor class.
-		/// </summary>
-		public HexFontEditor()
-		{
-		}
-
 		/// <summary>
 		/// Edits the value
 		/// </summary>
 		public override object EditValue(System.ComponentModel.ITypeDescriptorContext context, IServiceProvider provider, object value)
 		{
-			this.value = value;
+			object tmpValue = value;
 			if (provider != null)
 			{
 				IWindowsFormsEditorService service1 = (IWindowsFormsEditorService) provider.GetService(typeof(IWindowsFormsEditorService));
 				if (service1 != null)
 				{
-					FontDialog fontDialog = new FontDialog();
-					fontDialog.ShowApply = false;
-					fontDialog.ShowColor = false;
-					fontDialog.AllowVerticalFonts = false;
-					fontDialog.AllowScriptChange = false;
-					fontDialog.FixedPitchOnly = true;
-					fontDialog.ShowEffects = false;
-					fontDialog.ShowHelp = false;
+                    FontDialog fontDialog = new FontDialog
+                    {
+                        ShowApply = false,
+                        ShowColor = false,
+                        AllowVerticalFonts = false,
+                        AllowScriptChange = false,
+                        FixedPitchOnly = true,
+                        ShowEffects = false,
+                        ShowHelp = false
+                    };
 
-					Font font = value as Font;
-					if(font != null)
+                    if (value is Font font)
+                    {
+                        fontDialog.Font = font;
+                    }
+                    if (fontDialog.ShowDialog() == DialogResult.OK)
 					{
-						fontDialog.Font = font;
-					}
-					if (fontDialog.ShowDialog() == DialogResult.OK)
-					{
-						this.value = fontDialog.Font;
+						tmpValue = fontDialog.Font;
 					}
 
 					fontDialog.Dispose();
 				}
 			}
 
-			value = this.value;
-			this.value = null;
-			return value;
+			value = tmpValue;
+            return value;
 
 		}
 
@@ -64,7 +55,5 @@ namespace Be.Windows.Forms.Design
 		{
 			return UITypeEditorEditStyle.Modal;
 		}
-
-
 	}
 }
