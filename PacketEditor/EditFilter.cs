@@ -10,27 +10,43 @@ namespace PacketEditor
     {
         //private bool retVal;
         readonly DataRow drFilters;
-        readonly SocketInfo sInfo;
         readonly DataTable dtF; //Forms[Filters].dtFilters
         readonly DataGridView dgF; //Forms[FIlters].dgridFilters
         readonly int dgF_line;
 
+        public EditFilter(DataRow dr, DataTable dtFilters, DataGridView dgridFilters, int dgF_l)
+        {
+            InitializeComponent();
+
+            drFilters = dr;
+            // the following parameters, need to update the grid of the Filters form
+            dtF = dtFilters;
+            dgF = dgridFilters; // the grid
+            dgF_line = dgF_l; // the line to update
+
+            UpdateUI(dr);
+        }
+
         void UpdateUI(DataRow dr)
         {
+            #region Remove controls EventHandler
             this.txtMsgReplace.TextChanged -= new EventHandler(this.txtMsgReplace_TextChanged);
             this.txtAPIReplace.TextChanged -= new EventHandler(this.txtAPIReplace_TextChanged);
             this.txtDNSReplace.TextChanged -= new EventHandler(this.txtMsgReplace_TextChanged);
             this.cmbMsgActionE.SelectedIndexChanged -= new EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
             this.cmbAPIActionE.SelectedIndexChanged -= new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
             this.cmbDNSActionE.SelectedIndexChanged -= new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
+            #endregion
 
             if (dr["id"].ToString() != string.Empty)
             {
                 txtName.Text = dr["id"].ToString();
                 chkEnabled.Checked = (bool)dr["enabled"];
+
+                #region Msg
                 foreach (byte b in (byte[])dr["MsgFunction"])
                 {
-                    chkMsg.SetItemChecked(chkMsg.FindStringExact(sInfo.Msg(b)), true);
+                    chkMsg.SetItemChecked(chkMsg.FindStringExact(SocketInfoUtils.Msg(b)), true);
                 }
                 txtMsgCatch.Text = dr["MsgCatch"].ToString();
                 switch ((byte)dr["MsgAction"])
@@ -51,10 +67,13 @@ namespace PacketEditor
                         break;
                 }
                 txtMsgReplace.Text = dr["MsgReplace"].ToString();
-                cmbMsgActionE.Text = sInfo.Error((int)dr["MsgError"]);
+                cmbMsgActionE.Text = SocketInfoUtils.Error((int)dr["MsgError"]);
+                #endregion
+
+                #region API
                 foreach (byte b in (byte[])dr["APIFunction"])
                 {
-                    chkAPI.SetItemChecked(chkAPI.FindStringExact(sInfo.Api(b)), true);
+                    chkAPI.SetItemChecked(chkAPI.FindStringExact(SocketInfoUtils.Api(b)), true);
                 }
                 txtAPICatch.Text = dr["APICatch"].ToString();
                 switch ((byte)dr["APIAction"])
@@ -75,10 +94,13 @@ namespace PacketEditor
                         break;
                 }
                 txtAPIReplace.Text = dr["APIReplace"].ToString();
-                cmbAPIActionE.Text = sInfo.Error((int)dr["APIError"]);
+                cmbAPIActionE.Text = SocketInfoUtils.Error((int)dr["APIError"]);
+                #endregion
+
+                #region DNS
                 foreach (byte b in (byte[])dr["DNSFunction"])
                 {
-                    chkDNS.SetItemChecked(chkDNS.FindStringExact(sInfo.Api(b)), true);
+                    chkDNS.SetItemChecked(chkDNS.FindStringExact(SocketInfoUtils.Api(b)), true);
                 }
                 txtDNSCatch.Text = dr["DNSCatch"].ToString();
                 switch ((byte)dr["DNSAction"])
@@ -99,7 +121,7 @@ namespace PacketEditor
                         break;
                 }
                 txtDNSReplace.Text = dr["DNSReplace"].ToString();
-                cmbDNSActionE.Text = sInfo.Error((int)dr["DNSError"]);
+                cmbDNSActionE.Text = SocketInfoUtils.Error((int)dr["DNSError"]);
             }
             else
             {
@@ -107,12 +129,16 @@ namespace PacketEditor
                 cmbAPIActionE.Text = "NO_ERROR";
                 cmbDNSActionE.Text = "NO_ERROR";
             }
+            #endregion
+
+            #region Reasign controls EventHandler
             this.txtMsgReplace.TextChanged += new EventHandler(this.txtMsgReplace_TextChanged);
             this.txtAPIReplace.TextChanged += new EventHandler(this.txtAPIReplace_TextChanged);
             this.txtDNSReplace.TextChanged += new EventHandler(this.txtMsgReplace_TextChanged);
             this.cmbMsgActionE.SelectedIndexChanged += new EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
             this.cmbAPIActionE.SelectedIndexChanged += new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
             this.cmbDNSActionE.SelectedIndexChanged += new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
+            #endregion
         }
 
         void UpdateDR(DataRow dr)
@@ -120,80 +146,77 @@ namespace PacketEditor
             dr["id"] = txtName.Text;
             dr["enabled"] = chkEnabled.Checked;
 
+            #region Msg
             byte[] bytes = new byte[chkMsg.CheckedItems.Count];
             for (int i = 0; i < chkMsg.CheckedItems.Count; i++)
             {
-                bytes[i] = sInfo.MsgNum(chkMsg.CheckedItems[i].ToString());
+                bytes[i] = SocketInfoUtils.MsgNum(chkMsg.CheckedItems[i].ToString());
             }
             dr["MsgFunction"] = bytes;
             dr["MsgCatch"] = txtMsgCatch.Text;
-            byte t;
+            byte actionByte;
             if (rdoMsgActionR.Checked)
-                t = Glob.ActionReplaceString;
+                actionByte = Glob.ActionReplaceString;
             else
-                t = Glob.ActionError;
+                actionByte = Glob.ActionError;
 
             if (rdoMsgMethodH.Checked)
-                t++;
-            dr["MsgAction"] = t;
+                actionByte++;
+
+            dr["MsgAction"] = actionByte;
             dr["MsgReplace"] = txtMsgReplace.Text;
-            dr["MsgError"] = sInfo.ErrorNum(cmbMsgActionE.Text);
+            dr["MsgError"] = SocketInfoUtils.ErrorNum(cmbMsgActionE.Text);
+            #endregion
 
-
+            #region API
             bytes = new byte[chkAPI.CheckedItems.Count];
             for (int i = 0; i < chkAPI.CheckedItems.Count; i++)
             {
-                bytes[i] = sInfo.ApiNum(chkAPI.CheckedItems[i].ToString());
+                bytes[i] = SocketInfoUtils.ApiNum(chkAPI.CheckedItems[i].ToString());
             }
             dr["APIFunction"] = bytes;
             dr["APICatch"] = txtAPICatch.Text;
 
             if (rdoAPIActionR.Checked)
-                t = Glob.ActionReplaceString;
+                actionByte = Glob.ActionReplaceString;
             else
-                t = Glob.ActionError;
+                actionByte = Glob.ActionError;
 
             if (rdoAPIMethodH.Checked)
-                t++;
+                actionByte++;
 
-            dr["APIAction"] = t;
+            dr["APIAction"] = actionByte;
             dr["APIReplace"] = txtAPIReplace.Text;
-            dr["APIError"] = sInfo.ErrorNum(cmbAPIActionE.Text);
+            dr["APIError"] = SocketInfoUtils.ErrorNum(cmbAPIActionE.Text);
+            #endregion
 
-
+            #region DNS
             bytes = new byte[chkDNS.CheckedItems.Count];
             for (int i = 0; i < chkDNS.CheckedItems.Count; i++)
             {
-                bytes[i] = sInfo.ApiNum(chkDNS.CheckedItems[i].ToString());
+                bytes[i] = SocketInfoUtils.ApiNum(chkDNS.CheckedItems[i].ToString());
             }
             dr["DNSFunction"] = bytes;
             dr["DNSCatch"] = txtDNSCatch.Text;
             if (rdoDNSActionR.Checked)
-                t = Glob.ActionReplaceString;
+                actionByte = Glob.ActionReplaceString;
             else
-                t = Glob.ActionError;
+                actionByte = Glob.ActionError;
 
             if (rdoDNSMethodH.Checked)
-                t++;
-            dr["DNSAction"] = t;
+                actionByte++;
+
+            dr["DNSAction"] = actionByte;
             dr["DNSReplace"] = txtDNSReplace.Text;
-            dr["DNSError"] = sInfo.ErrorNum(cmbDNSActionE.Text);
+            dr["DNSError"] = SocketInfoUtils.ErrorNum(cmbDNSActionE.Text);
+            #endregion
 
-
-            funcUpdate(dr);
+            FuncUpdate(dr);
         }
 
-        public EditFilter(DataRow dr, SocketInfo si, DataTable dtFilters, DataGridView dgridFilters, int dgF_l)
+        private void CloseForm()
         {
-            InitializeComponent();
-            drFilters = dr;
-            sInfo = si;
-            // the following parameters, need to update the grid of the Filters form
-            dtF = dtFilters;
-            dgF = dgridFilters; // the grid
-            dgF_line = dgF_l; // the line to update
-
-            UpdateUI(dr);
+            Close();
         }
 
         private void frmEditFilters_Activated(object sender, EventArgs e)
@@ -212,55 +235,53 @@ namespace PacketEditor
             }
         }
 
+        /// <summary>
+        /// Validate the TextBox.Text is a valid regular expression or not.
+        /// If not, it will show up a MessageBox to warn user.
+        /// </summary>
+        /// <param name="textBox"></param>
+        /// <param name="tabPage">The textBox layout tab</param>
+        /// <returns><c>true</c> if it is a valid regular expression; otherwise, <c>false</c>.</returns>
+        private bool ValidateRegex(in TextBox textBox, in TabPage tabPage)
+        {
+            if (textBox.Text == string.Empty)
+            {
+                return true;
+            }
+
+            try
+            {
+                Regex.Match("", textBox.Text);
+            }
+            catch (ArgumentException)
+            {
+                tabControl1.SelectedTab = tabPage;
+                textBox.Focus();
+                MessageBox.Show("Invalid regular expression in Catch section.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            return true;
+        }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
             txtName.Text = txtName.Text.Trim();
 
             if (txtName.Text != string.Empty)
             {
-                if (txtMsgCatch.Text != string.Empty)
+                if (!ValidateRegex(txtMsgCatch, tabPage1))
                 {
-                    try
-                    {
-                        Regex.Match("", txtMsgCatch.Text);
-                    }
-                    catch (ArgumentException)
-                    {
-                        tabControl1.SelectedTab = this.tabPage1;
-                        txtMsgCatch.Focus();
-                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    return;
                 }
 
-                if (txtAPICatch.Text != string.Empty)
+                if (!ValidateRegex(txtAPICatch, tabPage2))
                 {
-                    try
-                    {
-                        Regex.Match("", txtAPICatch.Text);
-                    }
-                    catch (ArgumentException)
-                    {
-                        tabControl1.SelectedTab = this.tabPage2;
-                        txtAPICatch.Focus();
-                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    return;
                 }
 
-                if (txtDNSCatch.Text != string.Empty)
+                if (!ValidateRegex(txtDNSCatch, tabPage3))
                 {
-                    try
-                    {
-                        Regex.Match("", txtDNSCatch.Text);
-                    }
-                    catch (ArgumentException)
-                    {
-                        tabControl1.SelectedTab = this.tabPage3;
-                        txtDNSCatch.Focus();
-                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    return;
                 }
 
                 Form fc = Application.OpenForms["Filters"];
@@ -268,7 +289,7 @@ namespace PacketEditor
                 {
                     UpdateDR(drFilters);
                 }
-                this.Close();
+                CloseForm();
             }
             else
             {
@@ -279,8 +300,7 @@ namespace PacketEditor
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            //retVal = false;
-            this.Close();
+            CloseForm();
         }
 
         private void txtMsgReplace_TextChanged(object sender, EventArgs e)
@@ -319,7 +339,7 @@ namespace PacketEditor
                 rdoDNSActionE.Checked = true;
         }
 
-        private void funcUpdate(DataRow dr)
+        private void FuncUpdate(DataRow dr)
         {
             int idx = dgF_line;
             if (dtF.Rows.Find(dr["id"].ToString()) == null) // new one
@@ -329,22 +349,22 @@ namespace PacketEditor
             }
             dgF.Rows[idx].Cells["name"].Value = dr["id"].ToString();
             dgF.Rows[idx].Cells["enabled"].Value = dr["enabled"];
-            
-            StringBuilder funs = new StringBuilder();
+
+            var funs = new StringBuilder();
             foreach (byte f in (byte[])dr["MsgFunction"])
             {
-                funs.Append(sInfo.Msg(f) + " ");
+                funs.Append(SocketInfoUtils.Msg(f) + " ");
             }
             foreach (byte f in (byte[])dr["APIFunction"])
             {
-                funs.Append(sInfo.Api(f) + " ");
+                funs.Append(SocketInfoUtils.Api(f) + " ");
             }
             foreach (byte f in (byte[])dr["DNSFunction"])
             {
-                funs.Append(sInfo.Api(f) + " ");
+                funs.Append(SocketInfoUtils.Api(f) + " ");
             }
 
-            if (funs.ToString() != string.Empty)
+            if (funs.Length != 0)
             {
                 dgF.Rows[idx].Cells["function"].Value = funs.ToString().TrimEnd();
             }
@@ -357,49 +377,19 @@ namespace PacketEditor
 
             if (txtName.Text != string.Empty)
             {
-                if (txtMsgCatch.Text != string.Empty)
+                if (!ValidateRegex(txtMsgCatch, tabPage1))
                 {
-                    try
-                    {
-                        Regex.Match("", txtMsgCatch.Text);
-                    }
-                    catch (ArgumentException)
-                    {
-                        tabControl1.SelectedTab = this.tabPage1;
-                        txtMsgCatch.Focus();
-                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    return;
                 }
 
-                if (txtAPICatch.Text != string.Empty)
+                if (!ValidateRegex(txtAPICatch, tabPage2))
                 {
-                    try
-                    {
-                        Regex.Match("", txtAPICatch.Text);
-                    }
-                    catch (ArgumentException)
-                    {
-                        tabControl1.SelectedTab = this.tabPage2;
-                        txtAPICatch.Focus();
-                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    return;
                 }
 
-                if (txtDNSCatch.Text != string.Empty)
+                if (!ValidateRegex(txtDNSCatch, tabPage3))
                 {
-                    try
-                    {
-                        Regex.Match("", txtDNSCatch.Text);
-                    }
-                    catch (ArgumentException)
-                    {
-                        tabControl1.SelectedTab = this.tabPage3;
-                        txtDNSCatch.Focus();
-                        MessageBox.Show("Invalid expression.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    return;
                 }
 
                 Form fc = Application.OpenForms["Filters"];

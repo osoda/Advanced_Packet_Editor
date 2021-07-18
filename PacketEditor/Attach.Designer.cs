@@ -73,7 +73,7 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgridAttach.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgridAttach.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgridAttach.Location = new System.Drawing.Point(9, 9);
+            this.dgridAttach.Location = new System.Drawing.Point(9, 8);
             this.dgridAttach.Margin = new System.Windows.Forms.Padding(0);
             this.dgridAttach.MultiSelect = false;
             this.dgridAttach.Name = "dgridAttach";
@@ -85,7 +85,7 @@
             this.dgridAttach.ShowCellErrors = false;
             this.dgridAttach.ShowCellToolTips = false;
             this.dgridAttach.ShowEditingIcon = false;
-            this.dgridAttach.Size = new System.Drawing.Size(670, 216);
+            this.dgridAttach.Size = new System.Drawing.Size(670, 199);
             this.dgridAttach.TabIndex = 0;
             this.dgridAttach.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dgridAttach_KeyPress);
             // 
@@ -128,9 +128,9 @@
             // btnAttach
             // 
             this.btnAttach.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnAttach.Location = new System.Drawing.Point(523, 228);
+            this.btnAttach.Location = new System.Drawing.Point(523, 210);
             this.btnAttach.Name = "btnAttach";
-            this.btnAttach.Size = new System.Drawing.Size(75, 23);
+            this.btnAttach.Size = new System.Drawing.Size(75, 21);
             this.btnAttach.TabIndex = 1;
             this.btnAttach.Text = "&Attach";
             this.btnAttach.UseVisualStyleBackColor = true;
@@ -139,19 +139,19 @@
             // btnCancel
             // 
             this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnCancel.Location = new System.Drawing.Point(604, 228);
+            this.btnCancel.Location = new System.Drawing.Point(604, 210);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(75, 21);
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "&Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // frmAttach
+            // Attach
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(688, 255);
+            this.ClientSize = new System.Drawing.Size(688, 235);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnAttach);
             this.Controls.Add(this.dgridAttach);
@@ -159,7 +159,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "frmAttach";
+            this.Name = "Attach";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;

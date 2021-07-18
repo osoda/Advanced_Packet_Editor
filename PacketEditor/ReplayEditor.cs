@@ -8,31 +8,30 @@ namespace PacketEditor
 {
     public partial class ReplayEditor : Form
     {
-        ByteCollection bcBytes = new ByteCollection();
-        readonly NamedPipeClientStream pipeOut;
-        Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader();
+        private readonly NamedPipeClientStream pipeOut;
 
         public ReplayEditor(byte[] replayData, int socket, NamedPipeClientStream pipe)
         {
             InitializeComponent();
-            
-            DynamicByteProvider bytePro = new DynamicByteProvider(replayData);
 
-            hexBox1.ByteProvider = bytePro;
-            //isocket = socket;
+            hexBox1.ByteProvider = new DynamicByteProvider(replayData);
             pipeOut = pipe;
             txtSockID.Text = socket.ToString("X4");
         }
 
+        void CloseForm()
+        {
+            Close();
+        }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            //isocket = 0;
-            this.Close();
+            CloseForm();
         }
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            DynamicByteProvider bytePro = hexBox1.ByteProvider as DynamicByteProvider;
+            Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader();
             try
             {
                 strPipeMsgOut.sockid = int.Parse(txtSockID.Text, System.Globalization.NumberStyles.HexNumber);
@@ -45,31 +44,34 @@ namespace PacketEditor
                 return;
             }
 
-            bcBytes = bytePro.Bytes;
+            DynamicByteProvider bytePro = hexBox1.ByteProvider as DynamicByteProvider;
+            ByteCollection bcBytes = bytePro.Bytes;
             strPipeMsgOut.command = Glob.CMD_INJECT;
             strPipeMsgOut.function = Glob.FUNC_SEND;
             strPipeMsgOut.datasize = bcBytes.Count;
 
+            byte[] buf = Glob.RawSerializeEx(strPipeMsgOut);
+            int size = Marshal.SizeOf(strPipeMsgOut);
             for (int times = int.Parse(txtTimes.Text); times > 0; times--)
             {
-                pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
+                pipeOut.Write(buf, 0, size);
                 pipeOut.Write(bcBytes.GetBytes(), 0, strPipeMsgOut.datasize);
             }
         }
 
         private void frmReplayEditor_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == 27)
+            if (e.KeyChar == (char)Keys.Escape)
             {
-                this.Close();
+                CloseForm();
             }
         }
 
         private void hexBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == 27)
+            if (e.KeyChar == (char)Keys.Escape)
             {
-                this.Close();
+                CloseForm();
             }
         }
 

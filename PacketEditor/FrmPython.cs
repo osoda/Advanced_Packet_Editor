@@ -18,9 +18,10 @@ namespace PacketEditor
 
         private void FrmPython_Load(object sender, EventArgs e)
         {
-            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\Scripts\filter.py"))
+            string fileName = AppDomain.CurrentDomain.BaseDirectory + @"\Scripts\filter.py";
+            if (File.Exists(fileName))
             {
-                txbFilter.Text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\Scripts\filter.py");
+                txbFilter.Text = File.ReadAllText(fileName);
             }
         }
 
@@ -39,12 +40,12 @@ namespace PacketEditor
 
         private void saveFilterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\Scripts\\filter.py", txbFilter.Text);
+            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"\Scripts\filter.py", txbFilter.Text);
         }
 
         private void txbFilter_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 190 && txbFilter.Text.IndexOf(".") > 0)
+            if (e.KeyValue == (int)Keys.OemPeriod && txbFilter.Text.IndexOf(".") > 0)
             {
                 txbFilter.SelectionStart = txbFilter.Text.IndexOf(".") + 1;
                 txbFilter.SelectionLength = 2;

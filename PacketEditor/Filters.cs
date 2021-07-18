@@ -7,42 +7,45 @@ namespace PacketEditor
 {
     public partial class Filters : Form
     {
-        readonly DataTable dtFilters;
-        readonly SocketInfo sInfo;
+        private readonly DataTable dtFilters;
 
-        public Filters(DataTable dt, SocketInfo si)
+        public Filters(DataTable dt)
         {
             InitializeComponent();
 
             dtFilters = dt;
-            sInfo = si;
 
-            StringBuilder funs = new StringBuilder();
+            var funs = new StringBuilder();
             foreach (DataRow dr in dt.Rows)
             {
-                int i = dgridFilters.Rows.Add();
                 funs.Clear();
-                dgridFilters.Rows[i].Cells["name"].Value = dr["id"].ToString();
-                dgridFilters.Rows[i].Cells["enabled"].Value = dr["enabled"];
+                int idx = dgridFilters.Rows.Add();
+                dgridFilters.Rows[idx].Cells["name"].Value = dr["id"].ToString();
+                dgridFilters.Rows[idx].Cells["enabled"].Value = dr["enabled"];
 
                 foreach (byte f in (byte[])dr["MsgFunction"])
                 {
-                    funs.Append(si.Msg(f) + " ");
+                    funs.Append(SocketInfoUtils.Msg(f) + " ");
                 }
                 foreach (byte f in (byte[])dr["APIFunction"])
                 {
-                    funs.Append(si.Api(f) + " ");
+                    funs.Append(SocketInfoUtils.Api(f) + " ");
                 }
                 foreach (byte f in (byte[])dr["DNSFunction"])
                 {
-                    funs.Append(si.Api(f) + " ");
+                    funs.Append(SocketInfoUtils.Api(f) + " ");
                 }
 
-                if (funs.ToString() != string.Empty)
+                if (funs.Length != 0)
                 {
-                    dgridFilters.Rows[i].Cells["function"].Value = funs.ToString().TrimEnd();
+                    dgridFilters.Rows[idx].Cells["function"].Value = funs.ToString().TrimEnd();
                 }
             }
+        }
+
+        private void CloseForm()
+        {
+            Close();
         }
 
         private void frmFilters_Activated(object sender, EventArgs e)
@@ -63,13 +66,13 @@ namespace PacketEditor
 
         private void dgridFilters_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == 27)
+            if (e.KeyChar == (char)Keys.Escape)
             {
-                this.Close();
+                CloseForm();
             }
-            else if (e.KeyChar == 32)
+            else if (e.KeyChar == (char)Keys.Space)
             {
-                if ((bool)dgridFilters.SelectedRows[0].Cells["enabled"].Value == false)
+                if (!(bool)dgridFilters.SelectedRows[0].Cells["enabled"].Value)
                 {
                     dgridFilters.SelectedRows[0].Cells["enabled"].Value = true;
                     dtFilters.Rows.Find(dgridFilters.SelectedRows[0].Cells["name"].Value)["enabled"] = true;
@@ -87,18 +90,15 @@ namespace PacketEditor
             foreach (DataGridViewRow srow in dgridFilters.SelectedRows)
             {
                 DataRow drsock = dtFilters.Rows.Find(srow.Cells["name"].Value);
-                if (drsock != null)
-                {
-                    drsock.Delete();
-                }
+                drsock?.Delete();
+
                 dgridFilters.Rows.Remove(srow);
             }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            DataRow dr = dtFilters.NewRow();
-            EditFilter frmChReplay = new EditFilter(dr, sInfo, dtFilters, dgridFilters, 0);
+            var frmChReplay = new EditFilter(dtFilters.NewRow(), dtFilters, dgridFilters, 0);
             if (this.TopMost)
                 frmChReplay.TopMost = true;
             frmChReplay.Show();
@@ -106,7 +106,7 @@ namespace PacketEditor
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            this.Close();
+            CloseForm();
         }
 
         private void dgridFilters_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -114,7 +114,7 @@ namespace PacketEditor
             if ((e.ColumnIndex != 0) && (e.RowIndex != -1))
             {
                 DataRow dr = dtFilters.Rows[e.RowIndex];
-                EditFilter frmChReplay = new EditFilter(dr, sInfo, dtFilters, dgridFilters, e.RowIndex);
+                var frmChReplay = new EditFilter(dr, dtFilters, dgridFilters, e.RowIndex);
                 if (this.TopMost)
                     frmChReplay.TopMost = true;
                 frmChReplay.Show();
@@ -123,20 +123,18 @@ namespace PacketEditor
 
         private void dgridFilters_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if ((e.ColumnIndex == 0) && (e.RowIndex != -1))
+            if ((e.ColumnIndex == 0) && (e.RowIndex != -1)
+                && dgridFilters[e.ColumnIndex, e.RowIndex].GetContentBounds(e.RowIndex).Contains(e.Location))
             {
-                if (dgridFilters[e.ColumnIndex, e.RowIndex].GetContentBounds(e.RowIndex).Contains(e.Location))
+                if (!(bool)dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value)
                 {
-                    if ((bool)dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == false)
-                    {
-                        dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = true;
-                        dtFilters.Rows.Find(dgridFilters.Rows[e.RowIndex].Cells["name"].Value)["enabled"] = true;
-                    }
-                    else
-                    {
-                        dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = false;
-                        dtFilters.Rows.Find(dgridFilters.Rows[e.RowIndex].Cells["name"].Value)["enabled"] = false;
-                    }
+                    dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = true;
+                    dtFilters.Rows.Find(dgridFilters.Rows[e.RowIndex].Cells["name"].Value)["enabled"] = true;
+                }
+                else
+                {
+                    dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = false;
+                    dtFilters.Rows.Find(dgridFilters.Rows[e.RowIndex].Cells["name"].Value)["enabled"] = false;
                 }
             }
         }

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace PacketEditor
 {
-    class Glob
+    public class Glob
     {
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
         public struct PipeHeader
@@ -43,20 +43,44 @@ namespace PacketEditor
             return rawdatas;
         }
 
-        public static object RawDeserializeEx(byte[] rawData, Type anyType)
+        public static T RawDeserializeEx<T>(byte[] rawData)
         {
-            int rawSize = Marshal.SizeOf(anyType);
+            int rawSize = Marshal.SizeOf(typeof(T));
             if (rawSize > rawData.Length)
-                return null;
+                return default;
 
             GCHandle handle = GCHandle.Alloc(rawData, GCHandleType.Pinned);
             IntPtr buffer = handle.AddrOfPinnedObject();
-            object retObj = Marshal.PtrToStructure(buffer, anyType);
+            object retObj = Marshal.PtrToStructure(buffer, typeof(T));
             handle.Free();
-            return retObj;
+            return (T)retObj;
         }
 
         #region Constant
+        public enum CMD : byte
+        {
+            Data = 1,
+            StructData,
+            NoFilterData,
+            NoFilterStructData,
+            NoData,
+            DnsData,
+            DnsStructData,
+            Init,
+            Deinit,
+            Query = 245,
+            Unfreeze,
+            Freeze,
+            Filter,
+            Recv,
+            Inject,
+            DisableFilter,
+            EnableFilter,
+            DisableMonitor,
+            EnableMonitor,
+            UnloadDll
+        }
+
         public const byte CMD_DEINIT = 9;
         public const byte CMD_INIT = 8;
         public const byte CMD_DNS_STRUCTDATA = 7;
@@ -119,6 +143,14 @@ namespace PacketEditor
         public const byte FUNC_SOCKET_OUT = 36;
         public const byte FUNC_GETSOCKNAME = 37;
         public const byte FUNC_GETPEERNAME = 38;
+
+        public enum Action : byte
+        {
+            ReplaceString,
+            ReplaceStringH,
+            Error,
+            ErrorH
+        }
 
         public const byte ActionReplaceString = 0;
         public const byte ActionReplaceStringH = 1;

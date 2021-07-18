@@ -1,71 +1,54 @@
-﻿namespace PacketEditor
+﻿using System;
+using System.Net.Sockets;
+
+namespace PacketEditor
 {
-    public class SocketInfo
+    // TODO: Replace by C# built in enums. And make this class static
+    static class SocketInfoUtils
     {
-        public readonly string[] afamily = new string[] { "UNSPEC", "UNIX", "INET", "IMPLINK", "PUP", "CHAOS", "NS", "ISO", "ECMA", "DATAKIT", "CCITT", "SNA", "DECnet", "DLI", "LAT", "HYLINK", "APPLETALK", "NETBIOS", "MAX" };
-        public readonly string[] atype = new string[] { "", "STREAM", "DGRAM", "RAW", "RDM", "SEQPACKET" };
-        public readonly string[] sdhow = new string[] { "RECEIVE", "SEND", "BOTH" };
-        public readonly string sockidfmt = "X4";
+        // Sockets.AddressFamily 19
+        static readonly string[] afamily = new string[] { "UNSPEC", "UNIX", "INET", "IMPLINK", "PUP", "CHAOS", "NS", "ISO", "ECMA", "DATAKIT", "CCITT", "SNA", "DECnet", "DLI", "LAT", "HYLINK", "APPLETALK", "NETBIOS", "MAX" };
+        // Sockets.SocketType 6
+        static readonly string[] atype = new string[] { "", "STREAM", "DGRAM", "RAW", "RDM", "SEQPACKET" };
+        // Sockets.SocketShutdown
+        static readonly string[] sdhow = new string[] { "RECEIVE", "SEND", "BOTH" };
+        public const string sockIdFmt = "X4";
 
-        public string Proto(int proto)
+        public static string AddressFamilyName(int af)
         {
-            switch (proto)
-            {
-                case 0:
-                    return "IP";
-                case 1:
-                    return "ICMP";
-                case 2:
-                    return "GGP";
-                case 6:
-                    return "TCP";
-                case 12:
-                    return "PUP";
-                case 17:
-                    return "UDP";
-                case 22:
-                    return "IDP";
-                case 77:
-                    return "ND";
-                case 255:
-                    return "RAW";
-                case 256:
-                    return "MAX";
-                default:
-                    return "UNKNOWN";
-            }
+            string addressFamily = Enum.GetName(typeof(AddressFamily), af);
+
+            return addressFamily?.ToUpper() ?? string.Empty;
         }
 
-        public string Type(int type)
+        public static string SocketTypeName(int st)
         {
-            switch (type)
-            {
-                case 0:
-                    return "IP";
-                case 1:
-                    return "ICMP";
-                case 2:
-                    return "GGP";
-                case 6:
-                    return "TCP";
-                case 12:
-                    return "PUP";
-                case 17:
-                    return "UDP";
-                case 22:
-                    return "IDP";
-                case 77:
-                    return "ND";
-                case 255:
-                    return "RAW";
-                case 256:
-                    return "MAX";
-                default:
-                    return "UNKNOWN";
-            }
+            string socketType = Enum.GetName(typeof(SocketType), st);
+
+            return socketType?.ToUpper() ?? string.Empty;
         }
 
-        public string Msg(int function)
+        public static string SocketShutdownName(int sd)
+        {
+            string socketShutdown = Enum.GetName(typeof(SocketShutdown), sd);
+
+            return socketShutdown?.ToUpper() ?? string.Empty;
+        }
+
+        public static string ProtocolName(int proto)
+        {
+            string protocolType = Enum.GetName(typeof(ProtocolType), proto);
+            if (protocolType != null)
+            {
+                return protocolType.ToUpper();
+            }
+
+            if (proto == 256)
+                return "MAX";
+            return "UNKNOWN";
+        }
+
+        public static string Msg(int function)
         {
             switch (function)
             {
@@ -94,7 +77,7 @@
             }
         }
 
-        public string Api(int function)
+        public static string Api(int function)
         {
             switch (function)
             {
@@ -145,7 +128,7 @@
             }
         }
 
-        public byte MsgNum(string name)
+        public static byte MsgNum(string name)
         {
             switch (name)
             {
@@ -174,7 +157,7 @@
             }
         }
 
-        public byte ApiNum(string name)
+        public static byte ApiNum(string name)
         {
             switch (name)
             {
@@ -217,7 +200,7 @@
             }
         }
 
-        public int ErrorNum(string name)
+        public static int ErrorNum(string name)
         {
             switch (name)
             {
@@ -305,7 +288,7 @@
             }
         }
 
-        public string Error(int error)
+        public static string Error(int error)
         {
             switch (error)
             {

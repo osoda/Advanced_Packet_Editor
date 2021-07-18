@@ -32,14 +32,6 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Sockets));
             this.dgridSockets = new System.Windows.Forms.DataGridView();
-            this.socket = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.proto = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.fam = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.type = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lastapi = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lastmsg = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.local = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.remote = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.replayEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.socketToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,6 +40,14 @@
             this.sDSENDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sDBOTHToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.socket = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.proto = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.fam = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lastapi = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lastmsg = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.local = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.remote = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgridSockets)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -87,9 +87,71 @@
             this.dgridSockets.RowHeadersVisible = false;
             this.dgridSockets.RowTemplate.Height = 18;
             this.dgridSockets.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgridSockets.Size = new System.Drawing.Size(682, 208);
+            this.dgridSockets.Size = new System.Drawing.Size(682, 192);
             this.dgridSockets.TabIndex = 0;
             this.dgridSockets.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dgridSockets_KeyPress);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.replayEditorToolStripMenuItem,
+            this.socketToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip2";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(113, 48);
+            // 
+            // replayEditorToolStripMenuItem
+            // 
+            this.replayEditorToolStripMenuItem.Name = "replayEditorToolStripMenuItem";
+            this.replayEditorToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.replayEditorToolStripMenuItem.Text = "In&ject";
+            this.replayEditorToolStripMenuItem.Click += new System.EventHandler(this.replayEditorToolStripMenuItem_Click);
+            // 
+            // socketToolStripMenuItem
+            // 
+            this.socketToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.shutdownToolStripMenuItem,
+            this.closeToolStripMenuItem});
+            this.socketToolStripMenuItem.Name = "socketToolStripMenuItem";
+            this.socketToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.socketToolStripMenuItem.Text = "Socket";
+            // 
+            // shutdownToolStripMenuItem
+            // 
+            this.shutdownToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sDRECVToolStripMenuItem,
+            this.sDSENDToolStripMenuItem,
+            this.sDBOTHToolStripMenuItem});
+            this.shutdownToolStripMenuItem.Name = "shutdownToolStripMenuItem";
+            this.shutdownToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.shutdownToolStripMenuItem.Text = "shutdown";
+            // 
+            // sDRECVToolStripMenuItem
+            // 
+            this.sDRECVToolStripMenuItem.Name = "sDRECVToolStripMenuItem";
+            this.sDRECVToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.sDRECVToolStripMenuItem.Text = "SD_RECEIVE";
+            this.sDRECVToolStripMenuItem.Click += new System.EventHandler(this.sDRECVToolStripMenuItem_Click);
+            // 
+            // sDSENDToolStripMenuItem
+            // 
+            this.sDSENDToolStripMenuItem.Name = "sDSENDToolStripMenuItem";
+            this.sDSENDToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.sDSENDToolStripMenuItem.Text = "SD_SEND";
+            this.sDSENDToolStripMenuItem.Click += new System.EventHandler(this.sDSENDToolStripMenuItem_Click);
+            // 
+            // sDBOTHToolStripMenuItem
+            // 
+            this.sDBOTHToolStripMenuItem.Name = "sDBOTHToolStripMenuItem";
+            this.sDBOTHToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            this.sDBOTHToolStripMenuItem.Text = "SD_BOTH";
+            this.sDBOTHToolStripMenuItem.Click += new System.EventHandler(this.sDBOTHToolStripMenuItem_Click);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.closeToolStripMenuItem.Text = "closesocket";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // socket
             // 
@@ -100,7 +162,7 @@
             // 
             // proto
             // 
-            this.proto.HeaderText = "Proto";
+            this.proto.HeaderText = "Protocol";
             this.proto.Name = "proto";
             this.proto.ReadOnly = true;
             this.proto.Width = 60;
@@ -144,78 +206,16 @@
             this.remote.Name = "remote";
             this.remote.ReadOnly = true;
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.replayEditorToolStripMenuItem,
-            this.socketToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip2";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 70);
-            // 
-            // replayEditorToolStripMenuItem
-            // 
-            this.replayEditorToolStripMenuItem.Name = "replayEditorToolStripMenuItem";
-            this.replayEditorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.replayEditorToolStripMenuItem.Text = "In&ject";
-            this.replayEditorToolStripMenuItem.Click += new System.EventHandler(this.replayEditorToolStripMenuItem_Click);
-            // 
-            // socketToolStripMenuItem
-            // 
-            this.socketToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.shutdownToolStripMenuItem,
-            this.closeToolStripMenuItem});
-            this.socketToolStripMenuItem.Name = "socketToolStripMenuItem";
-            this.socketToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.socketToolStripMenuItem.Text = "Socket";
-            // 
-            // shutdownToolStripMenuItem
-            // 
-            this.shutdownToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sDRECVToolStripMenuItem,
-            this.sDSENDToolStripMenuItem,
-            this.sDBOTHToolStripMenuItem});
-            this.shutdownToolStripMenuItem.Name = "shutdownToolStripMenuItem";
-            this.shutdownToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.shutdownToolStripMenuItem.Text = "shutdown";
-            // 
-            // sDRECVToolStripMenuItem
-            // 
-            this.sDRECVToolStripMenuItem.Name = "sDRECVToolStripMenuItem";
-            this.sDRECVToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.sDRECVToolStripMenuItem.Text = "SD_RECEIVE";
-            this.sDRECVToolStripMenuItem.Click += new System.EventHandler(this.sDRECVToolStripMenuItem_Click);
-            // 
-            // sDSENDToolStripMenuItem
-            // 
-            this.sDSENDToolStripMenuItem.Name = "sDSENDToolStripMenuItem";
-            this.sDSENDToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.sDSENDToolStripMenuItem.Text = "SD_SEND";
-            this.sDSENDToolStripMenuItem.Click += new System.EventHandler(this.sDSENDToolStripMenuItem_Click);
-            // 
-            // sDBOTHToolStripMenuItem
-            // 
-            this.sDBOTHToolStripMenuItem.Name = "sDBOTHToolStripMenuItem";
-            this.sDBOTHToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.sDBOTHToolStripMenuItem.Text = "SD_BOTH";
-            this.sDBOTHToolStripMenuItem.Click += new System.EventHandler(this.sDBOTHToolStripMenuItem_Click);
-            // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.closeToolStripMenuItem.Text = "closesocket";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
-            // 
             // Sockets
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(682, 208);
+            this.ClientSize = new System.Drawing.Size(682, 192);
             this.Controls.Add(this.dgridSockets);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(100, 100);
+            this.MinimumSize = new System.Drawing.Size(100, 95);
             this.Name = "Sockets";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
