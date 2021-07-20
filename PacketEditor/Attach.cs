@@ -21,46 +21,6 @@ namespace PacketEditor
         private void frmAttach_Load(object sender, EventArgs e)
         {
             AddGridViewItems();
-            //int idx = 0;
-            //bool contains = false;
-
-            //foreach (Process theprocess in Process.GetProcesses())
-            //{
-            //    foreach (DataGridViewRow r in dgridAttach.Rows)
-            //    {
-            //        if (r.Cells["name"].Value.ToString() == theprocess.ProcessName)
-            //        {
-            //            contains = true;
-            //            break;
-            //        }
-            //    }
-            //    if (contains)
-            //    {
-            //        contains = false;
-            //        continue;
-            //    }
-
-            //    dgridAttach.Rows.Add();
-            //    dgridAttach.Rows[idx].Selected = false;
-            //    dgridAttach.Rows[idx].Cells["id"].Value = theprocess.Id.ToString("X8");
-            //    dgridAttach.Rows[idx].Cells["name"].Value = theprocess.ProcessName;
-            //    dgridAttach.Rows[idx].Cells["window"].Value = theprocess.MainWindowTitle;
-            //    try
-            //    {
-            //        dgridAttach.Rows[idx].Cells["path"].Value = theprocess.MainModule.FileName;
-            //    }
-            //    catch { }
-
-            //    if (dgridAttach.Rows[idx].Cells["path"].Value == null)
-            //        dgridAttach.Rows[idx].Cells["path"].Value = theprocess.StartInfo.FileName;
-
-            //    if (dgridAttach.Rows[idx].Cells["path"].Value.ToString() == string.Empty)
-            //        dgridAttach.Rows.Remove(dgridAttach.Rows[idx]);
-            //    else
-            //        idx++;
-            //}
-
-            //dgridAttach.Sort(dgridAttach.Columns["name"], ListSortDirection.Descending);
         }
 
         void AddGridViewItems()

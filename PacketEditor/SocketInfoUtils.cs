@@ -3,15 +3,8 @@ using System.Net.Sockets;
 
 namespace PacketEditor
 {
-    // TODO: Replace by C# built in enums. And make this class static
     static class SocketInfoUtils
     {
-        // Sockets.AddressFamily 19
-        static readonly string[] afamily = new string[] { "UNSPEC", "UNIX", "INET", "IMPLINK", "PUP", "CHAOS", "NS", "ISO", "ECMA", "DATAKIT", "CCITT", "SNA", "DECnet", "DLI", "LAT", "HYLINK", "APPLETALK", "NETBIOS", "MAX" };
-        // Sockets.SocketType 6
-        static readonly string[] atype = new string[] { "", "STREAM", "DGRAM", "RAW", "RDM", "SEQPACKET" };
-        // Sockets.SocketShutdown
-        static readonly string[] sdhow = new string[] { "RECEIVE", "SEND", "BOTH" };
         public const string sockIdFmt = "X4";
 
         public static string AddressFamilyName(int af)
@@ -288,9 +281,9 @@ namespace PacketEditor
             }
         }
 
-        public static string Error(int error)
+        public static string Error(int err)
         {
-            switch (error)
+            switch (err)
             {
                 case 10013:
                     return "WSAEACCES";

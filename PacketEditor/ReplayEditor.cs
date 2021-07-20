@@ -46,7 +46,7 @@ namespace PacketEditor
 
             DynamicByteProvider bytePro = hexBox1.ByteProvider as DynamicByteProvider;
             ByteCollection bcBytes = bytePro.Bytes;
-            strPipeMsgOut.command = Glob.CMD_INJECT;
+            strPipeMsgOut.command = Glob.CMD.Inject;
             strPipeMsgOut.function = Glob.FUNC_SEND;
             strPipeMsgOut.datasize = bcBytes.Count;
 

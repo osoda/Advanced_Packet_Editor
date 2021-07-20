@@ -16,49 +16,21 @@ using Microsoft.VisualBasic;
 
 namespace PacketEditor
 {
-    public delegate void delReceiveWebRequest(HttpListenerContext Context);
-
     public partial class Main : Form
     {
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private const string appName = "PacketEditor";
+        private const string AppName = "PacketEditor";
 
-        // Vars
-        NamedPipeServerStream pipeIn;
-        NamedPipeClientStream pipeOut;
-        readonly string dllFullPath = Directory.GetCurrentDirectory() + @"\WSPE.dat";
-        Thread trdPipeRead;
-        int targetPID;
-        Glob.PipeHeader strPipeMsgOut;
-        Glob.PipeHeader strPipeMsgIn;
-        bool filter = true;
-        bool monitor = true;
-        bool DNStrap; // false
-        readonly Encoding latin = Encoding.GetEncoding(28591);
-        Filters frmChFilters;
-        string reAttachPath;
+        private const string KERNEL32 = "kernel32.dll";
+        private const string ADVAPI32 = "advapi32.dll";
 
-        // Listen for requests
-        private HttpListener httpListener;
-        bool isListeningForRequests; // false
-        private bool firstRun = true;
-
-        public event delReceiveWebRequest ReceiveWebRequest;
-
-        private string externalFilterPort = "8084";
-        bool externalFilter; // false
-        // Wrap the request stream with a text-based writer
-
-        string reattacheDelayInMs = "1000";
-
-        // Flags
         /// <summary>
-        /// Process access rights.
-        /// See <see href="https://docs.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights">Process Security and Acess Rights</see>
-        /// for more information.
+        /// Process access rights. See 
+        /// <see href="https://docs.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights">
+        /// Process Security and Acess Rights</see> for more information.
         /// </summary>
         [Flags]
-        enum ProcessAccessFlags : uint
+        private enum ProcessAccessFlags : uint
         {
             All = 0x001F_0FFF,
             Terminate = 0x0000_0001,
@@ -76,7 +48,7 @@ namespace PacketEditor
             Synchronize = 0x0010_0000
         }
 
-        enum VirtualAllocExTypes : uint
+        private enum VirtualAllocExTypes : uint
         {
             MEM_COMMIT = 0x1000,
             MEM_RESERVE = 0x2000,
@@ -88,7 +60,7 @@ namespace PacketEditor
         }
 
         [Flags]
-        enum AccessProtectionFlags : uint
+        private enum AccessProtectionFlags : uint
         {
             PAGE_EXECUTE = 0x10,
             PAGE_EXECUTE_READ = 0x20,
@@ -103,7 +75,7 @@ namespace PacketEditor
             PAGE_WRITECOMBINE = 0x400
         }
 
-        enum VirtualFreeExTypes : uint
+        private enum VirtualFreeExTypes : uint
         {
             MEM_DECOMMIT = 0x4000,
             MEM_RELEASE = 0x8000
@@ -111,11 +83,13 @@ namespace PacketEditor
 
         /// <summary>
         /// The type of memory allocation. See
-        /// <see href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex#parameters">VirtualAllocEx function</see>
+        /// <see href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex#parameters">
+        /// VirtualAllocEx function
+        /// </see>
         /// for more information.
         /// </summary>
         [Flags]
-        enum AllocationType : uint
+        private enum AllocationType : uint
         {
             COMMIT = 0x1000,
             RESERVE = 0x2000,
@@ -128,10 +102,13 @@ namespace PacketEditor
         }
 
         /// <summary>
-        /// See <see href="https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection-constants#constants">Memory protection constants</see> for more information.
+        /// See 
+        /// <see href="https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection-constants#constants">
+        /// Memory protection constants
+        /// </see> for more information.
         /// </summary>
         [Flags]
-        enum MemoryProtection : uint
+        private enum MemoryProtection : uint
         {
             EXECUTE = 0x10,
             EXECUTE_READ = 0x20,
@@ -145,34 +122,6 @@ namespace PacketEditor
             NOCACHE_ModifierFlag = 0x200,
             WRITECOMBINE_ModifierFlag = 0x400
         }
-
-        // DLL Imports
-        [DllImport("kernel32.dll")]
-        static extern IntPtr CreateRemoteThread(IntPtr hProcess,
-        IntPtr lpThreadAttributes, uint dwStackSize, IntPtr
-        lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
-
-        [DllImport("kernel32.dll")]
-        static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
-
-        [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-        static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
-           uint dwSize, AllocationType flAllocationType, MemoryProtection flProtect);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out int lpNumberOfBytesWritten);
-
-        // SeDebug
-        [DllImport("advapi32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool OpenProcessToken(IntPtr ProcessHandle,
-            UInt32 DesiredAccess, out IntPtr TokenHandle);
 
         #region Useless
         private const uint STANDARD_RIGHTS_REQUIRED = 0x000F0000;
@@ -193,12 +142,41 @@ namespace PacketEditor
             TOKEN_ADJUST_SESSIONID;
         #endregion
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetCurrentProcess();
+        [DllImport(KERNEL32)]
+        private static extern IntPtr CreateRemoteThread(IntPtr hProcess,
+        IntPtr lpThreadAttributes, uint dwStackSize, IntPtr
+        lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
 
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport(KERNEL32)]
+        private static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess,
+            [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
+
+        [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+        [DllImport(KERNEL32, CharSet = CharSet.Auto)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        [DllImport(KERNEL32, SetLastError = true, ExactSpelling = true)]
+        private static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress,
+           uint dwSize, AllocationType flAllocationType, MemoryProtection flProtect);
+
+        [DllImport(KERNEL32, SetLastError = true)]
+        private static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress,
+            byte[] lpBuffer, uint nSize, out int lpNumberOfBytesWritten);
+
+        // SeDebug
+        [DllImport(ADVAPI32, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool LookupPrivilegeValue(string lpSystemName, string lpName,
+        private static extern bool OpenProcessToken(IntPtr ProcessHandle,
+            UInt32 DesiredAccess, out IntPtr TokenHandle);
+
+        [DllImport(KERNEL32, SetLastError = true)]
+        private static extern IntPtr GetCurrentProcess();
+
+        [DllImport(ADVAPI32, SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool LookupPrivilegeValue(string lpSystemName, string lpName,
             out LUID lpLuid);
 
         private const string SE_ASSIGNPRIMARYTOKEN_NAME = "SeAssignPrimaryTokenPrivilege";
@@ -238,14 +216,14 @@ namespace PacketEditor
         private const string SE_UNSOLICITED_INPUT_NAME = "SeUnsolicitedInputPrivilege";
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct LUID
+        private struct LUID
         {
             public uint LowPart;
             public int HighPart;
         }
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool CloseHandle(IntPtr hHandle);
+        [DllImport(KERNEL32, SetLastError = true)]
+        private static extern bool CloseHandle(IntPtr hHandle);
 
         private const uint SE_PRIVILEGE_ENABLED_BY_DEFAULT = 0x00000001;
         private const uint SE_PRIVILEGE_ENABLED = 0x00000002;
@@ -253,7 +231,7 @@ namespace PacketEditor
         private const uint SE_PRIVILEGE_USED_FOR_ACCESS = 0x80000000;
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct TOKEN_PRIVILEGES
+        private struct TOKEN_PRIVILEGES
         {
             public uint PrivilegeCount;
             public LUID Luid;
@@ -261,14 +239,14 @@ namespace PacketEditor
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct LUID_AND_ATTRIBUTES
+        private struct LUID_AND_ATTRIBUTES
         {
             public LUID Luid;
             public uint Attributes;
         }
 
         // Use this signature if you do not want the previous state
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport(ADVAPI32, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool AdjustTokenPrivileges(IntPtr TokenHandle,
            [MarshalAs(UnmanagedType.Bool)] bool DisableAllPrivileges,
@@ -276,6 +254,35 @@ namespace PacketEditor
            uint Zero,
            IntPtr Null1,
            IntPtr Null2);
+
+        #region Fields
+        NamedPipeServerStream pipeIn;
+        NamedPipeClientStream pipeOut;
+        readonly string dllFullPath = Directory.GetCurrentDirectory() + @"\WSPE.dat";
+        Thread trdPipeRead;
+        int targetPID;
+        Glob.PipeHeader strPipeMsgOut;
+        Glob.PipeHeader strPipeMsgIn;
+        bool filter = true;
+        bool monitor = true;
+        bool DNStrap;
+        readonly Encoding latin = Encoding.GetEncoding(28591);
+        Filters frmChFilters;
+        string reAttachPath;
+
+        // Listen for requests
+        private HttpListener httpListener;
+        bool isListeningForRequests;
+        private bool firstRun = true;
+
+        private delegate void delReceiveWebRequest(HttpListenerContext context);
+        private event delReceiveWebRequest ReceiveWebRequest;
+
+        private string externalFilterPort = "8084";
+        bool externalFilter;
+
+        string reattacheDelayInMs = "1000";
+        #endregion
 
         public Main()
         {
@@ -296,16 +303,14 @@ namespace PacketEditor
             }
         }
 
-        // Functions
         /// <summary>
-        /// Initialize NamedPipe and thread. Invoke necessary dll files to make sure we can call functions in there.
+        /// Initialize NamedPipes and a thread. Call functions invoked Invoke dll files to make sure we can call functions in there.
         /// </summary>
         /// <returns><c>true</c> if the process done successfully; otherwise, <c>false</c>.</returns>
-        bool InvokeDLL()
+        private bool InvokeDLL()
         {
             logger.Trace("Invoke dlls");
 
-            // Named Pipes
             pipeOut = new NamedPipeClientStream(".", "wspe.send." + targetPID.ToString("X8"), PipeDirection.Out, PipeOptions.Asynchronous);
             try
             {
@@ -313,7 +318,9 @@ namespace PacketEditor
             }
             catch
             {
-                MessageBox.Show("Cannot attach to process!\n\nA previous instance could still be loaded in the targets memory waiting to unload.\nTry flushing sockets by sending/receiving data to clear blocking sockets.",
+                MessageBox.Show("Cannot attach to process!\n\nA previous instance could still be " +
+                    "loaded in the targets memory waiting to unload.\nTry flushing sockets by " +
+                    "sending/receiving data to clear blocking sockets.",
                     "Error!",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -323,7 +330,6 @@ namespace PacketEditor
 
             // Inject WSPE.dat from current directory
             IntPtr hProc = OpenProcess(ProcessAccessFlags.All, false, targetPID);
-
             if (hProc == IntPtr.Zero)
             {
                 MessageBox.Show("Cannot open process.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -382,15 +388,14 @@ namespace PacketEditor
 
         string HexStringToAddr(string s)
         {
-            string r = "";
-            // TODO: optimize for loop
+            var r = new StringBuilder();
             for (int i = 0; i < s.Length; i += 2)
             {
-                r += byte.Parse(s.Substring(i, 2), NumberStyles.HexNumber).ToString();
+                r.Append(byte.Parse(s.Substring(i, 2), NumberStyles.HexNumber).ToString());
                 if (i != 6)
-                    r += ".";
+                    r.Append('.');
             }
-            return r;
+            return r.ToString();
         }
 
         string BytesToAddr(byte[] bytes)
@@ -472,11 +477,11 @@ namespace PacketEditor
         void UpdateMainGrid(byte[] data)
         {
             int dgridIdx = 0;
-            bool changed_by_internal_filter = false;
-            bool changed_by_external_filter = false;
+            bool changedByInternalFilter = false;
+            bool changedByExternalFilter = false;
             //backup because it will changed later
             bool monitor_original = monitor; // TODO: need optimal
-            DataGridViewCellStyle dvs = new DataGridViewCellStyle();
+            var dvs = new DataGridViewCellStyle();
 
             // If ExternalFilter is true, it will added the line later, after verify the monitor flag
             if ((!externalFilter || !filter) && monitor)
@@ -488,15 +493,16 @@ namespace PacketEditor
                 try
                 {
                     // send to external filter
-                    WebRequest req = WebRequest.Create($"http://127.0.0.1:{externalFilterPort}/?func={SocketInfoUtils.Msg(strPipeMsgIn.function)}&sockid={strPipeMsgIn.sockid}");
+                    var req = WebRequest.Create($"http://127.0.0.1:{externalFilterPort}/" +
+                        $"?func={SocketInfoUtils.Msg(strPipeMsgIn.function)}" +
+                        $"&sockid={strPipeMsgIn.sockid}");
                     //req.Proxy = WebProxy.GetDefaultProxy(); // Enable if using proxy
                     req.Method = "POST";
-                    // Write the text into the stream
+
                     using (var writer = new StreamWriter(req.GetRequestStream()))
                     {
                         writer.WriteLine(latin.GetString(data));
                     }
-
 
                     string rspText;
                     // Send the data to the webserver and read the response
@@ -508,11 +514,10 @@ namespace PacketEditor
                     rsp.Close();
 
                     // check monitor (the first) flag
-                    if (rspText[0] == '0')// || !monitor)
+                    if (rspText[0] == '0')
                         monitor = false;
                     else if (monitor)
                     {
-                        //monitor = true;
                         dgridIdx = dgridMain.Rows.Add();
                     }
 
@@ -535,8 +540,8 @@ namespace PacketEditor
                     string subRspText = rspText.Substring(2, rspText.Length - 4);
                     if (subRspText != latin.GetString(data))
                     {
-                        changed_by_external_filter = true;
-                        strPipeMsgOut.command = Glob.CMD_FILTER;
+                        changedByExternalFilter = true;
+                        strPipeMsgOut.command = Glob.CMD.Filter;
                     }
 
                     data = latin.GetBytes(subRspText);
@@ -556,7 +561,7 @@ namespace PacketEditor
             if (filter)
             {
                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                strPipeMsgOut.command = Glob.CMD_FILTER;
+                strPipeMsgOut.command = Glob.CMD.Filter;
 
                 foreach (var row in rows)
                 {
@@ -567,15 +572,15 @@ namespace PacketEditor
                             continue;
                         }
 
-                        switch ((byte)row["MsgAction"])
+                        switch ((Glob.Action)row["MsgAction"])
                         {
-                            case Glob.ActionReplaceString:
+                            case Glob.Action.ReplaceString:
                                 if (Regex.IsMatch(latin.GetString(data), row["MsgCatch"].ToString()))
                                 {
                                     try
                                     {
                                         data = latin.GetBytes(Regex.Replace(latin.GetString(data), row["MsgCatch"].ToString(), row["MsgReplace"].ToString(), RegexOptions.Multiline | RegexOptions.Compiled));
-                                        changed_by_internal_filter = true;
+                                        changedByInternalFilter = true;
                                     }
                                     catch
                                     {
@@ -585,13 +590,13 @@ namespace PacketEditor
                                     }
                                 }
                                 break;
-                            case Glob.ActionReplaceStringH: // Convert result to bytes of valid data, not hex
+                            case Glob.Action.ReplaceStringHex: // Convert result to bytes of valid data, not hex
                                 if (Regex.IsMatch(BytesToHexString(data), row["MsgCatch"].ToString()))
                                 {
                                     try
                                     {
                                         data = HexStringToBytes(Regex.Replace(BytesToHexString(data), row["MsgCatch"].ToString(), row["MsgReplace"].ToString(), RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnoreCase));
-                                        changed_by_internal_filter = true;
+                                        changedByInternalFilter = true;
                                     }
                                     catch
                                     {
@@ -601,7 +606,7 @@ namespace PacketEditor
                                     }
                                 }
                                 break;
-                            case Glob.ActionError:
+                            case Glob.Action.Error:
                                 if (Regex.IsMatch(latin.GetString(data), row["MsgCatch"].ToString()))
                                 {
                                     strPipeMsgOut.extra = (int)row["MsgError"];
@@ -613,7 +618,7 @@ namespace PacketEditor
                                     goto skipfilter;
                                 }
                                 break;
-                            case Glob.ActionErrorH:
+                            case Glob.Action.ErrorHex:
                                 if (Regex.IsMatch(BytesToHexString(data), row["MsgCatch"].ToString()))
                                 {
                                     strPipeMsgOut.extra = (int)row["MsgError"];
@@ -630,7 +635,7 @@ namespace PacketEditor
                 }
             }
 
-            if (!changed_by_internal_filter && !changed_by_external_filter)
+            if (!changedByInternalFilter && !changedByExternalFilter)
             {
                 strPipeMsgOut.datasize = 0;
                 strPipeMsgOut.extra = 0; // Error
@@ -642,7 +647,7 @@ namespace PacketEditor
                 strPipeMsgOut.extra = 0;
                 WritePipe();
                 pipeOut.Write(data, 0, data.Length);
-                if (changed_by_internal_filter)
+                if (changedByInternalFilter)
                 {
                     dvs.ForeColor = Color.Green;
                     if (monitor)
@@ -714,7 +719,7 @@ namespace PacketEditor
             //Glob.RawDeserializeEx();
             switch (strPipeMsgIn.command)
             {
-                case Glob.CMD_STRUCTDATA:
+                case Glob.CMD.StructData:
                     string socklr; // local or remote
                     switch (strPipeMsgIn.function)
                     {
@@ -769,20 +774,11 @@ namespace PacketEditor
                                 IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, sockAddr.sin_port);
                                 addrPort = ipEndPoint.ToString();
                                 hexAddrPort = ipAddress.MapToIPv6().ToString() + ipEndPoint.Port.ToString("X2");
-                                //addrPort = sockAddr.s_b1.ToString() + "." + sockAddr.s_b2.ToString() + "." + sockAddr.s_b3.ToString() + "." + sockAddr.s_b4.ToString() + ":" + sockAddr.sin_port.ToString();
-                                //hexAddrPort = sockAddr.s_b1.ToString("X2") + sockAddr.s_b2.ToString("X2") + sockAddr.s_b3.ToString("X2") + sockAddr.s_b4.ToString("X2") + sockAddr.sin_port.ToString("X4");
                                 drsock[socklr] = addrPort;
-                                //if ((sockAddr.sin_family >= 0) && (sockAddr.sin_family <= SocketInfoUtils.afamily.Length - 1))
-                                //{
-                                //    rootnode.Nodes.Add("family: " + sockAddr.sin_family.ToString() + " (" + SocketInfoUtils.afamily[sockAddr.sin_family] + ")");
-                                //}
-                                //else
-                                //{
-                                //    rootnode.Nodes.Add("family: " + sockAddr.sin_family.ToString());
-                                //}
+
                                 rootNode.Nodes.Add($"family: {ipEndPoint.AddressFamily} ( {Enum.GetName(typeof(AddressFamily), ipEndPoint.AddressFamily) ?? string.Empty} )");
                                 rootNode.Nodes.Add("port: " + ipEndPoint.Port.ToString());
-                                //addr = sockAddr.s_b1.ToString() + "." + sockAddr.s_b2.ToString() + "." + sockAddr.s_b3.ToString() + "." + sockAddr.s_b4.ToString();
+
                                 addr = ipAddress.ToString();
                                 drsock = dsMain.Tables["dns"].Rows.Find(addr);
                                 if (drsock != null)
@@ -791,9 +787,9 @@ namespace PacketEditor
                                 }
                                 rootNode.Nodes.Add("addr: " + addr);
                             }
-                            else
+                            else // IPv6
                             {
-                                // IPv6
+                                // Useless?
                                 sockAddr = Glob.RawDeserializeEx<Glob.Sockaddr_in>(data);
                             }
 
@@ -801,7 +797,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -812,9 +808,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["APIAction"])
+                                        switch ((Glob.Action)row["APIAction"])
                                         {
-                                            case Glob.ActionReplaceString:
+                                            case Glob.Action.ReplaceString:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(addrPort, row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -839,7 +835,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.ActionReplaceStringH:
+                                            case Glob.Action.ReplaceStringHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(hexAddrPort, row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -864,7 +860,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.ActionError:
+                                            case Glob.Action.Error:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToAddr(data), row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -882,7 +878,7 @@ namespace PacketEditor
                                                     rootNode.ForeColor = Color.Red;
                                                 }
                                                 break;
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.ErrorHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToHexString(data), row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -931,7 +927,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
                                 foreach (var row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
@@ -941,10 +937,10 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["APIAction"])
+                                        switch ((Glob.Action)row["APIAction"])
                                         {
-                                            case Glob.ActionError:
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.Error:
+                                            case Glob.Action.ErrorHex:
                                                 strPipeMsgOut.extra = (int)row["APIError"];
                                                 strPipeMsgOut.datasize = 0;
                                                 WritePipe();
@@ -973,12 +969,9 @@ namespace PacketEditor
                             rootNode.Nodes.Add($"type: {socketType} ({SocketInfoUtils.SocketTypeName(socketType)})");
                             rootNode.Nodes.Add($"protocol: {protocolType} ({SocketInfoUtils.ProtocolName(protocolType)})");
                             break;
-                            //case Glob.FUNC_WSASOCKETW_OUT:
-                            //case Glob.FUNC_SOCKET_OUT:
-                            //    break;
                     }
                     break;
-                case Glob.CMD_NODATA:
+                case Glob.CMD.NoData:
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.FUNC_WSAACCEPT:
@@ -991,7 +984,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
                                 foreach (var row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
@@ -1001,10 +994,10 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["APIAction"])
+                                        switch ((Glob.Action)row["APIAction"])
                                         {
-                                            case Glob.ActionError:
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.Error:
+                                            case Glob.Action.ErrorHex:
                                                 strPipeMsgOut.extra = (int)row["APIError"];
                                                 strPipeMsgOut.datasize = 0;
                                                 WritePipe();
@@ -1047,7 +1040,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
                                 foreach (var row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
@@ -1057,10 +1050,10 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["APIAction"])
+                                        switch ((Glob.Action)row["APIAction"])
                                         {
-                                            case Glob.ActionError:
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.Error:
+                                            case Glob.Action.ErrorHex:
                                                 strPipeMsgOut.extra = (int)row["APIError"];
                                                 strPipeMsgOut.datasize = 0;
                                                 WritePipe();
@@ -1087,7 +1080,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
                                 foreach (DataRow row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
@@ -1097,10 +1090,10 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["APIAction"])
+                                        switch ((Glob.Action)row["APIAction"])
                                         {
-                                            case Glob.ActionError:
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.Error:
+                                            case Glob.Action.ErrorHex:
                                                 strPipeMsgOut.extra = (int)row["APIError"];
                                                 strPipeMsgOut.datasize = 0;
                                                 WritePipe();
@@ -1129,7 +1122,7 @@ namespace PacketEditor
                             break;
                     }
                     break;
-                case Glob.CMD_DNS_STRUCTDATA:
+                case Glob.CMD.DnsStructData:
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.DNS_GETHOSTBYNAME_IN:
@@ -1168,7 +1161,7 @@ namespace PacketEditor
                             break;
                     }
                     break;
-                case Glob.CMD_DNS_DATA:
+                case Glob.CMD.DnsData:
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.DNS_GETHOSTBYNAME_OUT:
@@ -1185,7 +1178,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -1196,9 +1189,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["DNSAction"])
+                                        switch ((Glob.Action)row["DNSAction"])
                                         {
-                                            case Glob.ActionReplaceString:
+                                            case Glob.Action.ReplaceString:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1217,7 +1210,7 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.ActionReplaceStringH:
+                                            case Glob.Action.ReplaceStringHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1236,7 +1229,7 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.ActionError:
+                                            case Glob.Action.Error:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
@@ -1247,7 +1240,7 @@ namespace PacketEditor
                                                     goto skipfilterdns1;
                                                 }
                                                 break;
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.ErrorHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
@@ -1294,7 +1287,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -1305,9 +1298,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["DNSAction"])
+                                        switch ((Glob.Action)row["DNSAction"])
                                         {
-                                            case Glob.ActionReplaceString:
+                                            case Glob.Action.ReplaceString:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToAddr(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1328,7 +1321,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.ActionReplaceStringH:
+                                            case Glob.Action.ReplaceStringHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1349,7 +1342,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.ActionError:
+                                            case Glob.Action.Error:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToAddr(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1367,7 +1360,7 @@ namespace PacketEditor
                                                     rootNode.ForeColor = Color.Red;
                                                 }
                                                 break;
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.ErrorHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1418,7 +1411,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD_FILTER;
+                                strPipeMsgOut.command = Glob.CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -1429,9 +1422,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((byte)row["DNSAction"])
+                                        switch ((Glob.Action)row["DNSAction"])
                                         {
-                                            case Glob.ActionReplaceString:
+                                            case Glob.Action.ReplaceString:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1450,7 +1443,7 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.ActionReplaceStringH:
+                                            case Glob.Action.ReplaceStringHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1469,7 +1462,7 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.ActionError:
+                                            case Glob.Action.Error:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
@@ -1480,7 +1473,7 @@ namespace PacketEditor
                                                     goto skipfilterdns3;
                                                 }
                                                 break;
-                                            case Glob.ActionErrorH:
+                                            case Glob.Action.ErrorHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
@@ -1518,7 +1511,7 @@ namespace PacketEditor
             }
             if (filter && !changed_by_internal_filter)
             {
-                strPipeMsgOut.command = Glob.CMD_FILTER;
+                strPipeMsgOut.command = Glob.CMD.Filter;
                 strPipeMsgOut.datasize = 0;
                 strPipeMsgOut.extra = 0; // Error
                 WritePipe();
@@ -1611,7 +1604,7 @@ namespace PacketEditor
                 }
                 else
                 {
-                    if (strPipeMsgIn.command == Glob.CMD_INIT)
+                    if (strPipeMsgIn.command == Glob.CMD.Init)
                     {
                         if (strPipeMsgIn.function == Glob.INIT_DECRYPT)
                         {
@@ -1626,14 +1619,14 @@ namespace PacketEditor
                                 strPipeMsgOut.datasize = 0;
                                 if (monitor)
                                 {
-                                    strPipeMsgOut.command = Glob.CMD_ENABLE_MONITOR;
+                                    strPipeMsgOut.command = Glob.CMD.EnableMonitor;
                                     strPipeMsgOut.datasize = 0;
                                     WritePipe();
                                 }
 
                                 if (filter)
                                 {
-                                    strPipeMsgOut.command = Glob.CMD_ENABLE_FILTER;
+                                    strPipeMsgOut.command = Glob.CMD.EnableFilter;
                                     strPipeMsgOut.datasize = 0;
                                     WritePipe();
                                 }
@@ -1677,7 +1670,7 @@ namespace PacketEditor
                             default: // Useless data call with no data
                                 if (filter)
                                 {
-                                    strPipeMsgOut.command = Glob.CMD_FILTER;
+                                    strPipeMsgOut.command = Glob.CMD.Filter;
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
                                     WritePipe();
@@ -1705,14 +1698,12 @@ namespace PacketEditor
             }
         }
 
-
-
         private void mnuFileExit_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        #region Global Variables for Attach
+        #region Fields for Attach
         string processPath;
         int processID;
         #endregion
@@ -1732,7 +1723,7 @@ namespace PacketEditor
 
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -1758,7 +1749,7 @@ namespace PacketEditor
                 pipeIn.Close();
                 pipeOut.Close();
                 targetPID = 0;
-                this.Text = appName;
+                this.Text = AppName;
                 mnuFileDetach.Enabled = false;
             }
 
@@ -1791,7 +1782,7 @@ namespace PacketEditor
             if (targetPID != 0 && InvokeDLL())
             {
                 reAttachPath = path;
-                this.Text = appName + " - " + reAttachPath;
+                this.Text = AppName + " - " + reAttachPath;
                 mnuFileDetach.Enabled = true;
                 reAttachToolStripMenuItem.Enabled = true;
                 return true;
@@ -1823,7 +1814,7 @@ namespace PacketEditor
                 {
                     if (pipeOut.IsConnected)
                     {
-                        strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                        strPipeMsgOut.command = Glob.CMD.UnloadDll;
                         try
                         {
                             WritePipe();
@@ -1859,7 +1850,7 @@ namespace PacketEditor
             {
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -1878,7 +1869,7 @@ namespace PacketEditor
                 pipeIn.Close();
                 pipeOut.Close();
                 targetPID = 0;
-                this.Text = appName;
+                this.Text = AppName;
                 mnuFileDetach.Enabled = false;
                 reAttachToolStripMenuItem.Enabled = true;
             }
@@ -1892,7 +1883,7 @@ namespace PacketEditor
                 DNStrap = false;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD_ENABLE_MONITOR;
+                    strPipeMsgOut.command = Glob.CMD.EnableMonitor;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -1903,20 +1894,11 @@ namespace PacketEditor
                 DNStrap = false;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD_DISABLE_MONITOR;
+                    strPipeMsgOut.command = Glob.CMD.DisableMonitor;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
             }
-        }
-
-        private void frmMain_Resize(object sender, EventArgs e)
-        {
-            //if (FormWindowState.Minimized == WindowState)
-            //{
-            //icoNotify.Visible = true;
-            //Hide();
-            //}
         }
 
         private void icoNotify_DoubleClick(object sender, EventArgs e)
@@ -1960,7 +1942,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD_INJECT;
+                strPipeMsgOut.command = Glob.CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Receive;
@@ -1973,7 +1955,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD_INJECT;
+                strPipeMsgOut.command = Glob.CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Send;
@@ -1986,7 +1968,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD_INJECT;
+                strPipeMsgOut.command = Glob.CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Both;
@@ -1999,7 +1981,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD_INJECT;
+                strPipeMsgOut.command = Glob.CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_CLOSESOCKET;
                 strPipeMsgOut.datasize = 0;
@@ -2014,7 +1996,7 @@ namespace PacketEditor
                 filter = true;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD_ENABLE_FILTER;
+                    strPipeMsgOut.command = Glob.CMD.EnableFilter;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -2024,7 +2006,7 @@ namespace PacketEditor
                 filter = false;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD_DISABLE_FILTER;
+                    strPipeMsgOut.command = Glob.CMD.DisableFilter;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -2071,7 +2053,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD_INJECT;
+                strPipeMsgOut.command = Glob.CMD.Inject;
                 strPipeMsgOut.function = Glob.FUNC_SEND;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.datasize = ((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value).Length;
@@ -2101,14 +2083,14 @@ namespace PacketEditor
             if (mnuInvokeFreeze.Text == freezeState)
             {
                 mnuInvokeFreeze.Text = "Unfreeze";
-                strPipeMsgOut.command = Glob.CMD_FREEZE;
+                strPipeMsgOut.command = Glob.CMD.Freeze;
                 strPipeMsgOut.datasize = 0;
                 WritePipe();
             }
             else
             {
                 mnuInvokeFreeze.Text = freezeState;
-                strPipeMsgOut.command = Glob.CMD_UNFREEZE;
+                strPipeMsgOut.command = Glob.CMD.Unfreeze;
                 strPipeMsgOut.datasize = 0;
                 WritePipe();
             }
@@ -2129,7 +2111,7 @@ namespace PacketEditor
 
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -2148,7 +2130,7 @@ namespace PacketEditor
                 pipeIn.Close();
                 pipeOut.Close();
                 targetPID = 0;
-                this.Text = appName;
+                this.Text = AppName;
                 mnuFileDetach.Enabled = false;
             }
 
@@ -2172,7 +2154,7 @@ namespace PacketEditor
                 processPath = ofd.FileName;
                 if (InvokeDLL())
                 {
-                    this.Text = appName + " - " + ofd.FileName;
+                    this.Text = AppName + " - " + ofd.FileName;
                     mnuFileDetach.Enabled = true;
                 }
             }
@@ -2181,7 +2163,6 @@ namespace PacketEditor
         private void mnuHelpHelp_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Currently not available");
-            //Process.Start("https://appsec-labs.com/Advanced_Packet_Editor");
         }
 
         private void mnuHelpWebsite_Click(object sender, EventArgs e)
@@ -2260,7 +2241,7 @@ namespace PacketEditor
 
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD_UNLOAD_DLL;
+                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -2279,7 +2260,7 @@ namespace PacketEditor
                 pipeIn.Close();
                 pipeOut.Close();
                 targetPID = 0;
-                this.Text = appName;
+                this.Text = AppName;
                 mnuFileDetach.Enabled = false;
             }
 
@@ -2287,7 +2268,7 @@ namespace PacketEditor
             {
                 try
                 {
-                    if (process.MainModule.FileName == reAttachPath)
+                    if (process.MainModule.FileName == reAttachPath) // TODO: Need to fix
                     {
                         targetPID = process.Id;
                         break;
@@ -2305,7 +2286,7 @@ namespace PacketEditor
 
             if (targetPID != 0 && InvokeDLL())
             {
-                this.Text = appName + " - " + reAttachPath;
+                this.Text = AppName + " - " + reAttachPath;
                 mnuFileDetach.Enabled = true;
             }
         }
@@ -2426,7 +2407,6 @@ DATA_TO_SEND";
         /// Overridable method that can be used to implement a custom handler
         /// </summary>
         /// <param name="context"></param>
-
         protected void ProcessRequest(HttpListenerContext context)
         {
             HttpListenerRequest request = context.Request;
@@ -2498,7 +2478,7 @@ DATA_TO_SEND";
                 {
                     byte[] bcBytes = latin.GetBytes(bodyText);
 
-                    strPipeMsgOut.command = Glob.CMD_INJECT;
+                    strPipeMsgOut.command = Glob.CMD.Inject;
                     strPipeMsgOut.function = SocketInfoUtils.MsgNum(method); // Glob.FUNC_SEND;
                     strPipeMsgOut.datasize = bcBytes.Length;
                     WritePipe();
@@ -2694,7 +2674,7 @@ DATA_TO_SEND";
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD_INJECT;
+                strPipeMsgOut.command = Glob.CMD.Inject;
                 strPipeMsgOut.function = Glob.FUNC_SEND;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.datasize = ((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value).Length;

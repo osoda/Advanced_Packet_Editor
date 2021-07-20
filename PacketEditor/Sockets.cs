@@ -70,7 +70,7 @@ namespace PacketEditor
             {
                 Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
                 {
-                    command = Glob.CMD_INJECT,
+                    command = Glob.CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_SHUTDOWN,
                     extra = (int)SocketShutdown.Receive,
@@ -86,7 +86,7 @@ namespace PacketEditor
             {
                 Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
                 {
-                    command = Glob.CMD_INJECT,
+                    command = Glob.CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_SHUTDOWN,
                     extra = (int)SocketShutdown.Send,
@@ -102,7 +102,7 @@ namespace PacketEditor
             {
                 Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
                 {
-                    command = Glob.CMD_INJECT,
+                    command = Glob.CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_SHUTDOWN,
                     extra = (int)SocketShutdown.Both,
@@ -119,7 +119,7 @@ namespace PacketEditor
             {
                 Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
                 {
-                    command = Glob.CMD_INJECT,
+                    command = Glob.CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_CLOSESOCKET,
                     datasize = 0

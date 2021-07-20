@@ -49,19 +49,19 @@ namespace PacketEditor
                     chkMsg.SetItemChecked(chkMsg.FindStringExact(SocketInfoUtils.Msg(b)), true);
                 }
                 txtMsgCatch.Text = dr["MsgCatch"].ToString();
-                switch ((byte)dr["MsgAction"])
+                switch ((Glob.Action)dr["MsgAction"])
                 {
-                    case Glob.ActionReplaceString:
+                    case Glob.Action.ReplaceString:
                         rdoMsgActionR.Checked = true;
                         break;
-                    case Glob.ActionReplaceStringH:
+                    case Glob.Action.ReplaceStringHex:
                         rdoMsgActionR.Checked = true;
                         rdoMsgMethodH.Checked = true;
                         break;
-                    case Glob.ActionError:
+                    case Glob.Action.Error:
                         rdoMsgActionE.Checked = true;
                         break;
-                    case Glob.ActionErrorH:
+                    case Glob.Action.ErrorHex:
                         rdoMsgActionE.Checked = true;
                         rdoMsgMethodH.Checked = true;
                         break;
@@ -76,19 +76,19 @@ namespace PacketEditor
                     chkAPI.SetItemChecked(chkAPI.FindStringExact(SocketInfoUtils.Api(b)), true);
                 }
                 txtAPICatch.Text = dr["APICatch"].ToString();
-                switch ((byte)dr["APIAction"])
+                switch ((Glob.Action)dr["APIAction"])
                 {
-                    case Glob.ActionReplaceString:
+                    case Glob.Action.ReplaceString:
                         rdoAPIActionR.Checked = true;
                         break;
-                    case Glob.ActionReplaceStringH:
+                    case Glob.Action.ReplaceStringHex:
                         rdoAPIActionR.Checked = true;
                         rdoAPIMethodH.Checked = true;
                         break;
-                    case Glob.ActionError:
+                    case Glob.Action.Error:
                         rdoAPIActionE.Checked = true;
                         break;
-                    case Glob.ActionErrorH:
+                    case Glob.Action.ErrorHex:
                         rdoAPIActionE.Checked = true;
                         rdoAPIMethodH.Checked = true;
                         break;
@@ -103,19 +103,19 @@ namespace PacketEditor
                     chkDNS.SetItemChecked(chkDNS.FindStringExact(SocketInfoUtils.Api(b)), true);
                 }
                 txtDNSCatch.Text = dr["DNSCatch"].ToString();
-                switch ((byte)dr["DNSAction"])
+                switch ((Glob.Action)dr["DNSAction"])
                 {
-                    case Glob.ActionReplaceString:
+                    case Glob.Action.ReplaceString:
                         rdoDNSActionR.Checked = true;
                         break;
-                    case Glob.ActionReplaceStringH:
+                    case Glob.Action.ReplaceStringHex:
                         rdoDNSActionR.Checked = true;
                         rdoDNSMethodH.Checked = true;
                         break;
-                    case Glob.ActionError:
+                    case Glob.Action.Error:
                         rdoDNSActionE.Checked = true;
                         break;
-                    case Glob.ActionErrorH:
+                    case Glob.Action.ErrorHex:
                         rdoDNSActionE.Checked = true;
                         rdoDNSMethodH.Checked = true;
                         break;
@@ -156,9 +156,9 @@ namespace PacketEditor
             dr["MsgCatch"] = txtMsgCatch.Text;
             byte actionByte;
             if (rdoMsgActionR.Checked)
-                actionByte = Glob.ActionReplaceString;
+                actionByte = (byte)Glob.Action.ReplaceString;
             else
-                actionByte = Glob.ActionError;
+                actionByte = (byte)Glob.Action.Error;
 
             if (rdoMsgMethodH.Checked)
                 actionByte++;
@@ -178,9 +178,9 @@ namespace PacketEditor
             dr["APICatch"] = txtAPICatch.Text;
 
             if (rdoAPIActionR.Checked)
-                actionByte = Glob.ActionReplaceString;
+                actionByte = (byte)Glob.Action.ReplaceString;
             else
-                actionByte = Glob.ActionError;
+                actionByte = (byte)Glob.Action.Error;
 
             if (rdoAPIMethodH.Checked)
                 actionByte++;
@@ -199,9 +199,9 @@ namespace PacketEditor
             dr["DNSFunction"] = bytes;
             dr["DNSCatch"] = txtDNSCatch.Text;
             if (rdoDNSActionR.Checked)
-                actionByte = Glob.ActionReplaceString;
+                actionByte = (byte)Glob.Action.ReplaceString;
             else
-                actionByte = Glob.ActionError;
+                actionByte = (byte)Glob.Action.Error;
 
             if (rdoDNSMethodH.Checked)
                 actionByte++;

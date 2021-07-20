@@ -850,7 +850,7 @@
             // mnuInvokeFreeze
             // 
             this.mnuInvokeFreeze.Name = "mnuInvokeFreeze";
-            this.mnuInvokeFreeze.Size = new System.Drawing.Size(180, 22);
+            this.mnuInvokeFreeze.Size = new System.Drawing.Size(111, 22);
             this.mnuInvokeFreeze.Text = "Freeze";
             this.mnuInvokeFreeze.Click += new System.EventHandler(this.mnuInvokeFreeze_Click);
             // 
@@ -946,7 +946,7 @@
             // 
             this.mnuOptionsOntop.CheckOnClick = true;
             this.mnuOptionsOntop.Name = "mnuOptionsOntop";
-            this.mnuOptionsOntop.Size = new System.Drawing.Size(180, 22);
+            this.mnuOptionsOntop.Size = new System.Drawing.Size(117, 22);
             this.mnuOptionsOntop.Text = "On Top";
             this.mnuOptionsOntop.CheckedChanged += new System.EventHandler(this.mnuOptionsOntop_CheckedChanged);
             // 
@@ -1008,12 +1008,11 @@
             this.Name = "Main";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Advanced Packet Editor - AppSec Labs";
+            this.Text = "Advanced Packet Editor";
             this.Activated += new System.EventHandler(this.frmMain_Activated);
             this.Deactivate += new System.EventHandler(this.frmMain_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.Load += new System.EventHandler(this.frmMain_Load);
-            this.Resize += new System.EventHandler(this.frmMain_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dgridMain)).EndInit();
             this.mnuMsg.ResumeLayout(false);
             this.mnuNotify.ResumeLayout(false);
