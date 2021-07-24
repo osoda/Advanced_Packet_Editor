@@ -1,8 +1,8 @@
 import os
-import cgi
 import sys
-import urlparse
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+import urllib.parse
+from http.server import HTTPServer, BaseHTTPRequestHandler
+#import cgi
 
 # Settings
 address = '127.0.0.1'
@@ -25,7 +25,7 @@ if 'log_path' in globals():
 	sys.stderr = logger
 	logger.clean()
 
-filter_path = os.path.dirname(os.path.realpath( __file__ )) + "\\filter.py"
+filter_path = os.path.dirname(os.path.realpath(__file__)) + "\\filter.py"
 
 class externalFilterHTTPServer(BaseHTTPRequestHandler):
 	def do_GET(self):
@@ -33,7 +33,7 @@ class externalFilterHTTPServer(BaseHTTPRequestHandler):
 		self.send_header('Content-type', 'text/html')
 		self.end_headers()
 		self.wfile.write('<HTML><body>Get!</body></HTML>')
-		return 
+		return
 
 	def do_POST(self):
 		length = int(self.headers.getheader('content-length'))
@@ -43,8 +43,8 @@ class externalFilterHTTPServer(BaseHTTPRequestHandler):
 		self.end_headers()
 		
 		qs = urlparse.parse_qs(self.path.split('?', 1)[1])
-		function = qs['func'][0][:-2]
-		sockid = qs['sockid'][0]
+		#function = qs['func'][0][:-2]
+		#sockid = qs['sockid'][0]
 		
 		monitor = 1 # 0=hidden, 1=displayd
 		monitor_color = 0 # 0=black, 1=dark_green, 2=red
@@ -74,5 +74,5 @@ def main():
 		print('^C received, shutting down server')
 		server.socket.close()
 
-if __name__=='__main__':
+if __name__ == '__main__':
 	main()
