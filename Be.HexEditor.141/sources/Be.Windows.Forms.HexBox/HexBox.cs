@@ -114,8 +114,14 @@ namespace Be.Windows.Forms
             }
 
             #region IKeyInterpreter Members
-            public void Activate() { }
-            public void Deactivate() { }
+            public void Activate()
+            {
+                throw new NotImplementedException();
+            }
+            public void Deactivate()
+            {
+                throw new NotImplementedException();
+            }
 
             public bool PreProcessWmKeyUp(ref Message m)
             { return _hexBox.BasePreProcessMessage(ref m); }
@@ -787,7 +793,7 @@ namespace Be.Windows.Forms
                         sNewCb = sCb.Substring(0, 1) + sNewCb;
                     byte newcb = byte.Parse(sNewCb, System.Globalization.NumberStyles.AllowHexSpecifier, System.Threading.Thread.CurrentThread.CurrentCulture);
                     if (isInsertMode)
-                        _hexBox._byteProvider.InsertBytes(pos, new byte[] { newcb });
+                        _hexBox._byteProvider.InsertBytes(pos, new[] { newcb });
                     else
                         _hexBox._byteProvider.WriteByte(pos, newcb);
 
@@ -819,13 +825,9 @@ namespace Be.Windows.Forms
 
                 Keys keyData = vc | Control.ModifierKeys;
 
-                switch (keyData)
+                if ((keyData == Keys.ShiftKey || keyData == Keys.Insert) && RaiseKeyUp(keyData))
                 {
-                    case Keys.ShiftKey:
-                    case Keys.Insert:
-                        if (RaiseKeyUp(keyData))
-                            return true;
-                        break;
+                    return true;
                 }
 
                 switch (keyData)
@@ -1391,7 +1393,7 @@ namespace Be.Windows.Forms
             SetStyle(ControlStyles.ResizeRedraw, true);
 
             _thumbTrackTimer.Interval = 50;
-            _thumbTrackTimer.Tick += new EventHandler(PerformScrollThumbTrack);
+            _thumbTrackTimer.Tick += PerformScrollThumbTrack;
         }
 
         #endregion
@@ -2209,51 +2211,49 @@ namespace Be.Windows.Forms
             switch (_borderStyle)
             {
                 case BorderStyle.Fixed3D:
+                    if (TextBoxRenderer.IsSupported)
                     {
-                        if (TextBoxRenderer.IsSupported)
+                        VisualStyleElement state = VisualStyleElement.TextBox.TextEdit.Normal;
+                        Color backColor = this.BackColor;
+
+                        if (this.Enabled)
                         {
-                            VisualStyleElement state = VisualStyleElement.TextBox.TextEdit.Normal;
-                            Color backColor = this.BackColor;
-
-                            if (this.Enabled)
-                            {
-                                if (this.ReadOnly)
-                                    state = VisualStyleElement.TextBox.TextEdit.ReadOnly;
-                                else if (this.Focused)
-                                    state = VisualStyleElement.TextBox.TextEdit.Focused;
-                            }
-                            else
-                            {
-                                state = VisualStyleElement.TextBox.TextEdit.Disabled;
-                                backColor = this.BackColorDisabled;
-                            }
-
-                            VisualStyleRenderer vsr = new VisualStyleRenderer(state);
-                            vsr.DrawBackground(e.Graphics, this.ClientRectangle);
-
-                            Rectangle rectContent = vsr.GetBackgroundContentRectangle(e.Graphics, this.ClientRectangle);
-                            e.Graphics.FillRectangle(new SolidBrush(backColor), rectContent);
+                            if (this.ReadOnly)
+                                state = VisualStyleElement.TextBox.TextEdit.ReadOnly;
+                            else if (this.Focused)
+                                state = VisualStyleElement.TextBox.TextEdit.Focused;
                         }
                         else
                         {
-                            // draw background
-                            e.Graphics.FillRectangle(new SolidBrush(BackColor), ClientRectangle);
-
-                            // draw default border
-                            ControlPaint.DrawBorder3D(e.Graphics, ClientRectangle, Border3DStyle.Sunken);
+                            state = VisualStyleElement.TextBox.TextEdit.Disabled;
+                            backColor = this.BackColorDisabled;
                         }
 
-                        break;
+                        VisualStyleRenderer vsr = new VisualStyleRenderer(state);
+                        vsr.DrawBackground(e.Graphics, this.ClientRectangle);
+
+                        Rectangle rectContent = vsr.GetBackgroundContentRectangle(e.Graphics, this.ClientRectangle);
+                        e.Graphics.FillRectangle(new SolidBrush(backColor), rectContent);
                     }
-                case BorderStyle.FixedSingle:
+                    else
                     {
                         // draw background
                         e.Graphics.FillRectangle(new SolidBrush(BackColor), ClientRectangle);
 
-                        // draw fixed single border
-                        ControlPaint.DrawBorder(e.Graphics, ClientRectangle, Color.Black, ButtonBorderStyle.Solid);
-                        break;
+                        // draw default border
+                        ControlPaint.DrawBorder3D(e.Graphics, ClientRectangle, Border3DStyle.Sunken);
                     }
+
+                    break;
+
+                case BorderStyle.FixedSingle:
+                    // draw background
+                    e.Graphics.FillRectangle(new SolidBrush(BackColor), ClientRectangle);
+
+                    // draw fixed single border
+                    ControlPaint.DrawBorder(e.Graphics, ClientRectangle, Color.Black, ButtonBorderStyle.Solid);
+                    break;
+
             }
         }
 

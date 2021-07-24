@@ -21,6 +21,7 @@ namespace PacketEditor
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private const string AppName = "PacketEditor";
 
+        #region Import dll functions
         private const string KERNEL32 = "kernel32.dll";
         private const string ADVAPI32 = "advapi32.dll";
 
@@ -248,42 +249,50 @@ namespace PacketEditor
         // Use this signature if you do not want the previous state
         [DllImport(ADVAPI32, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool AdjustTokenPrivileges(IntPtr TokenHandle,
+        private static extern bool AdjustTokenPrivileges(IntPtr TokenHandle,
            [MarshalAs(UnmanagedType.Bool)] bool DisableAllPrivileges,
            ref TOKEN_PRIVILEGES NewState,
            uint Zero,
            IntPtr Null1,
            IntPtr Null2);
+        #endregion
 
         #region Fields
-        NamedPipeServerStream pipeIn;
-        NamedPipeClientStream pipeOut;
-        readonly string dllFullPath = Directory.GetCurrentDirectory() + @"\WSPE.dat";
-        Thread trdPipeRead;
-        int targetPID;
-        Glob.PipeHeader strPipeMsgOut;
-        Glob.PipeHeader strPipeMsgIn;
-        bool filter = true;
-        bool monitor = true;
-        bool DNStrap;
-        readonly Encoding latin = Encoding.GetEncoding(28591);
-        Filters frmChFilters;
-        string reAttachPath;
+        private readonly string dllFullPath = Directory.GetCurrentDirectory() + @"\WSPE.dat";
+        private readonly Encoding latin = Encoding.GetEncoding(28591);
+
+        private NamedPipeServerStream pipeIn;
+        private NamedPipeClientStream pipeOut;
+
+        private Thread trdPipeRead;
+        private int targetPID;
+        private PipeHeader strPipeMsgOut;
+        private PipeHeader strPipeMsgIn;
+        private bool filter = true;
+        private bool monitor = true;
+        private bool dnsTrap;
+
+        private Filters frmChFilters;
+        private string reAttachPath;
 
         // Listen for requests
         private HttpListener httpListener;
-        bool isListeningForRequests;
+        private bool isListeningForRequests;
         private bool firstRun = true;
 
-        private delegate void delReceiveWebRequest(HttpListenerContext context);
-        private event delReceiveWebRequest ReceiveWebRequest;
-
         private string externalFilterPort = "8084";
-        bool externalFilter;
+        private bool externalFilter;
 
-        string reattacheDelayInMs = "1000";
+        #region For Attach
+        private string processPath;
+        private int processID;
         #endregion
 
+        private Process procExternalFilter;
+        private FrmPython Python;
+        #endregion
+
+        #region Constructor
         public Main()
         {
             InitializeComponent();
@@ -302,7 +311,21 @@ namespace PacketEditor
                 CloseHandle(hToken);
             }
         }
+        #endregion
 
+        #region Delegates
+        private delegate void delReceiveWebRequest(HttpListenerContext context);
+        private delegate void UpdateMainGridDelegate(byte[] data);
+        private delegate void UpdateTreeDelegate(byte[] data);
+        private delegate void ProcessExitedDelegate();
+        private delegate void CurrentProcessExited();
+        #endregion
+
+        #region Event
+        private event delReceiveWebRequest ReceiveWebRequest;
+        #endregion
+
+        #region Methods
         /// <summary>
         /// Initialize NamedPipes and a thread. Call functions invoked Invoke dll files to make sure we can call functions in there.
         /// </summary>
@@ -400,14 +423,14 @@ namespace PacketEditor
 
         string BytesToAddr(byte[] bytes)
         {
-            string r = "";
+            var r = new StringBuilder();
             for (int i = 0; i < bytes.Length; i++)
             {
-                r += bytes[i].ToString();
+                r.Append(bytes[i]);
                 if (i != 3)
-                    r += ".";
+                    r.Append('.');
             }
-            return r;
+            return r.ToString();
         }
 
         string BytesToHexString(byte[] bytes)
@@ -424,19 +447,19 @@ namespace PacketEditor
             {
                 for (int i = 0; i < newLength; i++)
                 {
-                    output[i] = byte.Parse(new string(new char[2] { (char)sr.Read(), (char)sr.Read() }), NumberStyles.HexNumber);
+                    output[i] = byte.Parse(new string(new [] { (char)sr.Read(), (char)sr.Read() }), NumberStyles.HexNumber);
                 }
             }
 
             return output;
         }
 
-        Glob.Sockaddr_in AddrPortToSockAddr(string s)
+        Sockaddr_in AddrPortToSockAddr(string s)
         {
             int colonIdx = s.IndexOf(":");
             IPAddress ip = IPAddress.Parse(s.Substring(0, colonIdx));
             byte[] ipb = ip.GetAddressBytes();
-            Glob.Sockaddr_in sa = new Glob.Sockaddr_in
+            Sockaddr_in sa = new Sockaddr_in
             {
                 s_b1 = ipb[0],
                 s_b2 = ipb[1],
@@ -447,7 +470,7 @@ namespace PacketEditor
             return sa;
         }
 
-        Glob.Sockaddr_in HexAddrPortToSockAddr(string s)
+        Sockaddr_in HexAddrPortToSockAddr(string s)
         {
             IPAddress ip = IPAddress.Parse(
                 int.Parse(s.Substring(0, 2), NumberStyles.HexNumber).ToString() + "."
@@ -455,7 +478,7 @@ namespace PacketEditor
                 + int.Parse(s.Substring(4, 2), NumberStyles.HexNumber).ToString() + "."
                 + int.Parse(s.Substring(6, 2), NumberStyles.HexNumber).ToString());
             byte[] ipb = ip.GetAddressBytes();
-            Glob.Sockaddr_in sa = new Glob.Sockaddr_in
+            Sockaddr_in sa = new Sockaddr_in
             {
                 s_b1 = ipb[0],
                 s_b2 = ipb[1],
@@ -524,15 +547,15 @@ namespace PacketEditor
                     // check color (the second) flag
                     if (monitor)
                     {
-                        switch (rspText[1])
+                        if (rspText[1] == '1')
                         {
-                            case '1':
-                                dvs.ForeColor = Color.Green;
-                                break;
-                            case '2':
-                                dvs.ForeColor = Color.Red;
-                                break;
+                            dvs.ForeColor = Color.Green;
                         }
+                        else if (rspText[1] == '2')
+                        {
+                            dvs.ForeColor = Color.Red;
+                        }
+
                         dgridMain.Rows[dgridIdx].Cells["data"].Style = dvs;
                     }
 
@@ -541,7 +564,7 @@ namespace PacketEditor
                     if (subRspText != latin.GetString(data))
                     {
                         changedByExternalFilter = true;
-                        strPipeMsgOut.command = Glob.CMD.Filter;
+                        strPipeMsgOut.command = CMD.Filter;
                     }
 
                     data = latin.GetBytes(subRspText);
@@ -561,7 +584,7 @@ namespace PacketEditor
             if (filter)
             {
                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                strPipeMsgOut.command = Glob.CMD.Filter;
+                strPipeMsgOut.command = CMD.Filter;
 
                 foreach (var row in rows)
                 {
@@ -572,9 +595,9 @@ namespace PacketEditor
                             continue;
                         }
 
-                        switch ((Glob.Action)row["MsgAction"])
+                        switch ((Action)row["MsgAction"])
                         {
-                            case Glob.Action.ReplaceString:
+                            case Action.ReplaceString:
                                 if (Regex.IsMatch(latin.GetString(data), row["MsgCatch"].ToString()))
                                 {
                                     try
@@ -590,7 +613,7 @@ namespace PacketEditor
                                     }
                                 }
                                 break;
-                            case Glob.Action.ReplaceStringHex: // Convert result to bytes of valid data, not hex
+                            case Action.ReplaceStringHex: // Convert result to bytes of valid data, not hex
                                 if (Regex.IsMatch(BytesToHexString(data), row["MsgCatch"].ToString()))
                                 {
                                     try
@@ -606,7 +629,7 @@ namespace PacketEditor
                                     }
                                 }
                                 break;
-                            case Glob.Action.Error:
+                            case Action.Error:
                                 if (Regex.IsMatch(latin.GetString(data), row["MsgCatch"].ToString()))
                                 {
                                     strPipeMsgOut.extra = (int)row["MsgError"];
@@ -618,7 +641,7 @@ namespace PacketEditor
                                     goto skipfilter;
                                 }
                                 break;
-                            case Glob.Action.ErrorHex:
+                            case Action.ErrorHex:
                                 if (Regex.IsMatch(BytesToHexString(data), row["MsgCatch"].ToString()))
                                 {
                                     strPipeMsgOut.extra = (int)row["MsgError"];
@@ -675,14 +698,12 @@ namespace PacketEditor
             {
                 string method = SocketInfoUtils.Msg(strPipeMsgIn.function).ToLower();
                 // "ecv" catch recv & Recv, "end" catch send & Send. to catch all methods (like sendto).
-                if (method.Contains("recv") && showrecvRecvAllToolStripMenuItem.Checked
-                    || method.Contains("send") && showToolStripMenuItem.Checked)
-                {
-                }
-                else
+                if ((!method.Contains("recv") || !showrecvRecvAllToolStripMenuItem.Checked)
+                    && (!method.Contains("send") || !showToolStripMenuItem.Checked))
                 {
                     dgridMain.Rows[dgridIdx].Visible = false;
                 }
+
 
                 dgridMain.Rows[dgridIdx].Cells["time"].Value = DateTime.Now.ToLongTimeString();
                 dgridMain.Rows[dgridIdx].Cells["socket"].Value = strPipeMsgIn.sockid.ToString(SocketInfoUtils.sockIdFmt);
@@ -698,8 +719,8 @@ namespace PacketEditor
         void UpdateTree(byte[] data)
         {
             TreeNode rootNode;
-            Glob.Sockaddr_in sockAddr;
-            bool changed_by_internal_filter = false;
+            Sockaddr_in sockAddr;
+            bool changedByInternalFilter = false;
             string addr;
 
             DataRow drsock = dsMain.Tables["sockets"].Rows.Find(strPipeMsgIn.sockid);
@@ -719,7 +740,7 @@ namespace PacketEditor
             //Glob.RawDeserializeEx();
             switch (strPipeMsgIn.command)
             {
-                case Glob.CMD.StructData:
+                case CMD.StructData:
                     string socklr; // local or remote
                     switch (strPipeMsgIn.function)
                     {
@@ -769,7 +790,7 @@ namespace PacketEditor
                             {
                                 (data[2], data[3]) = (data[3], data[2]); // adjust port byte?
 
-                                sockAddr = Glob.RawDeserializeEx<Glob.Sockaddr_in>(data);
+                                sockAddr = Glob.RawDeserializeEx<Sockaddr_in>(data);
                                 IPAddress ipAddress = new IPAddress(new byte[] { sockAddr.s_b1, sockAddr.s_b2, sockAddr.s_b3, sockAddr.s_b4 });
                                 IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, sockAddr.sin_port);
                                 addrPort = ipEndPoint.ToString();
@@ -790,14 +811,14 @@ namespace PacketEditor
                             else // IPv6
                             {
                                 // Useless?
-                                sockAddr = Glob.RawDeserializeEx<Glob.Sockaddr_in>(data);
+                                sockAddr = Glob.RawDeserializeEx<Sockaddr_in>(data);
                             }
 
 
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -808,9 +829,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["APIAction"])
+                                        switch ((Action)row["APIAction"])
                                         {
-                                            case Glob.Action.ReplaceString:
+                                            case Action.ReplaceString:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(addrPort, row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -826,7 +847,7 @@ namespace PacketEditor
 
                                                         rootNode.Nodes.Add("new port: " + sockAddr.sin_port.ToString()).ForeColor = Color.Green;
                                                         rootNode.Nodes.Add("new addr: " + addr).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                 }
                                                 catch
@@ -835,7 +856,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.Action.ReplaceStringHex:
+                                            case Action.ReplaceStringHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(hexAddrPort, row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -851,7 +872,7 @@ namespace PacketEditor
 
                                                         rootNode.Nodes.Add("new port: " + sockAddr.sin_port.ToString()).ForeColor = Color.Green;
                                                         rootNode.Nodes.Add("new addr: " + addr).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                 }
                                                 catch
@@ -860,7 +881,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.Action.Error:
+                                            case Action.Error:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToAddr(data), row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -869,7 +890,7 @@ namespace PacketEditor
                                                         strPipeMsgOut.datasize = 0;
                                                         WritePipe();
                                                         rootNode.ForeColor = Color.DarkGray;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                         goto skipfilterAPI2;
                                                     }
                                                 }
@@ -878,7 +899,7 @@ namespace PacketEditor
                                                     rootNode.ForeColor = Color.Red;
                                                 }
                                                 break;
-                                            case Glob.Action.ErrorHex:
+                                            case Action.ErrorHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToHexString(data), row["APICatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -887,7 +908,7 @@ namespace PacketEditor
                                                         strPipeMsgOut.datasize = 0;
                                                         WritePipe();
                                                         rootNode.ForeColor = Color.DarkGray;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                         goto skipfilterAPI2;
                                                     }
                                                 }
@@ -899,12 +920,12 @@ namespace PacketEditor
                                         }
                                     }
                                 }
-                                if (!changed_by_internal_filter)
+                                if (!changedByInternalFilter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
                                     WritePipe();
-                                    changed_by_internal_filter = true;
+                                    changedByInternalFilter = true;
                                 }
                                 else
                                 {
@@ -927,33 +948,32 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+
+                                strPipeMsgOut.command = CMD.Filter;
+                                
                                 foreach (var row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
                                     {
-                                        if (bf != strPipeMsgIn.function)
+                                        if (bf != strPipeMsgIn.function
+                                            || (Action)row["APIAction"] != Action.Error && (Action)row["APIAction"] != Action.ErrorHex)
                                         {
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["APIAction"])
-                                        {
-                                            case Glob.Action.Error:
-                                            case Glob.Action.ErrorHex:
-                                                strPipeMsgOut.extra = (int)row["APIError"];
-                                                strPipeMsgOut.datasize = 0;
-                                                WritePipe();
-                                                rootNode.ForeColor = Color.DarkGray;
-                                                changed_by_internal_filter = true;
-                                                goto skipfilterAPI1;
-                                        }
+                                        strPipeMsgOut.extra = (int)row["APIError"];
+                                        strPipeMsgOut.datasize = 0;
+                                        WritePipe();
+                                        rootNode.ForeColor = Color.DarkGray;
+                                        changedByInternalFilter = true;
+                                        goto skipfilterAPI1;
                                     }
                                 }
+
                                 strPipeMsgOut.datasize = 0;
                                 strPipeMsgOut.extra = 0; // Error
                                 WritePipe();
-                                changed_by_internal_filter = true;
+                                changedByInternalFilter = true;
                             }
                         skipfilterAPI1:
                             int addressFamily = Convert.ToInt32(data[0]);
@@ -971,7 +991,7 @@ namespace PacketEditor
                             break;
                     }
                     break;
-                case Glob.CMD.NoData:
+                case CMD.NoData:
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.FUNC_WSAACCEPT:
@@ -984,7 +1004,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
                                 foreach (var row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
@@ -994,15 +1014,15 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["APIAction"])
+                                        switch ((Action)row["APIAction"])
                                         {
-                                            case Glob.Action.Error:
-                                            case Glob.Action.ErrorHex:
+                                            case Action.Error:
+                                            case Action.ErrorHex:
                                                 strPipeMsgOut.extra = (int)row["APIError"];
                                                 strPipeMsgOut.datasize = 0;
                                                 WritePipe();
                                                 rootNode.ForeColor = Color.DarkGray;
-                                                changed_by_internal_filter = true;
+                                                changedByInternalFilter = true;
                                                 goto skipfilterAPI1;
                                         }
                                     }
@@ -1010,7 +1030,7 @@ namespace PacketEditor
                                 strPipeMsgOut.datasize = 0;
                                 strPipeMsgOut.extra = 0; // Error
                                 WritePipe();
-                                changed_by_internal_filter = true;
+                                changedByInternalFilter = true;
                             }
                         skipfilterAPI1:
                             rootNode.Nodes.Add("socket: " + strPipeMsgIn.sockid.ToString(SocketInfoUtils.sockIdFmt));
@@ -1040,7 +1060,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
                                 foreach (var row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
@@ -1050,15 +1070,15 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["APIAction"])
+                                        switch ((Action)row["APIAction"])
                                         {
-                                            case Glob.Action.Error:
-                                            case Glob.Action.ErrorHex:
+                                            case Action.Error:
+                                            case Action.ErrorHex:
                                                 strPipeMsgOut.extra = (int)row["APIError"];
                                                 strPipeMsgOut.datasize = 0;
                                                 WritePipe();
                                                 rootNode.ForeColor = Color.DarkGray;
-                                                changed_by_internal_filter = true;
+                                                changedByInternalFilter = true;
                                                 goto skipfilterAPI2;
                                         }
                                     }
@@ -1066,7 +1086,7 @@ namespace PacketEditor
                                 strPipeMsgOut.datasize = 0;
                                 strPipeMsgOut.extra = 0; // Error
                                 WritePipe();
-                                changed_by_internal_filter = true;
+                                changedByInternalFilter = true;
                             }
                         skipfilterAPI2:
                             rootNode.Nodes.Add("socket: " + strPipeMsgIn.sockid.ToString(SocketInfoUtils.sockIdFmt));
@@ -1080,33 +1100,29 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
                                 foreach (DataRow row in rows)
                                 {
                                     foreach (byte bf in (byte[])row["APIFunction"])
                                     {
-                                        if (bf != strPipeMsgIn.function)
+                                        if (bf != strPipeMsgIn.function
+                                            || ((Action)row["APIAction"] != Action.Error && (Action)row["APIAction"] != Action.ErrorHex))
                                         {
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["APIAction"])
-                                        {
-                                            case Glob.Action.Error:
-                                            case Glob.Action.ErrorHex:
-                                                strPipeMsgOut.extra = (int)row["APIError"];
-                                                strPipeMsgOut.datasize = 0;
-                                                WritePipe();
-                                                rootNode.ForeColor = Color.DarkGray;
-                                                changed_by_internal_filter = true;
-                                                goto skipfilterAPI3;
-                                        }
+                                        strPipeMsgOut.extra = (int)row["APIError"];
+                                        strPipeMsgOut.datasize = 0;
+                                        WritePipe();
+                                        rootNode.ForeColor = Color.DarkGray;
+                                        changedByInternalFilter = true;
+                                        goto skipfilterAPI3;
                                     }
                                 }
                                 strPipeMsgOut.datasize = 0;
                                 strPipeMsgOut.extra = 0; // Error
                                 WritePipe();
-                                changed_by_internal_filter = true;
+                                changedByInternalFilter = true;
                             }
                         skipfilterAPI3:
                             rootNode.Nodes.Add("socket: " + strPipeMsgIn.sockid.ToString(SocketInfoUtils.sockIdFmt));
@@ -1122,14 +1138,14 @@ namespace PacketEditor
                             break;
                     }
                     break;
-                case Glob.CMD.DnsStructData:
+                case CMD.DnsStructData:
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.DNS_GETHOSTBYNAME_IN:
-                            if (DNStrap)
+                            if (dnsTrap)
                             {
                                 rootNode = treeDNS.Nodes[treeDNS.Nodes.Count - 1];
-                                DNStrap = false;
+                                dnsTrap = false;
                             }
                             else
                                 rootNode = new TreeNode();
@@ -1153,22 +1169,22 @@ namespace PacketEditor
                             }
                             break;
                         case Glob.DNS_GETHOSTBYADDR_IN:
-                            if (data.Length > 4 && DNStrap)
+                            if (data.Length > 4 && dnsTrap)
                             {
                                 treeDNS.Nodes[treeDNS.Nodes.Count - 1].Nodes.Add("name: " + latin.GetString(data));
-                                DNStrap = false;
+                                dnsTrap = false;
                             }
                             break;
                     }
                     break;
-                case Glob.CMD.DnsData:
+                case CMD.DnsData:
                     switch (strPipeMsgIn.function)
                     {
                         case Glob.DNS_GETHOSTBYNAME_OUT:
                             if (monitor)
                             {
                                 rootNode = treeDNS.Nodes.Add(DateTime.Now.ToLongTimeString() + " gethostbyname()");
-                                DNStrap = true;
+                                dnsTrap = true;
                             }
                             else
                                 rootNode = new TreeNode();
@@ -1178,7 +1194,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -1189,9 +1205,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["DNSAction"])
+                                        switch ((Action)row["DNSAction"])
                                         {
-                                            case Glob.Action.ReplaceString:
+                                            case Action.ReplaceString:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1202,7 +1218,7 @@ namespace PacketEditor
                                                             RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
                                                         data = latin.GetBytes(replacedString + '\0');
                                                         rootNode.Nodes.Add("new name: " + latin.GetString(data)).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                     catch
                                                     {
@@ -1210,7 +1226,7 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.Action.ReplaceStringHex:
+                                            case Action.ReplaceStringHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1221,7 +1237,7 @@ namespace PacketEditor
                                                             RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
                                                         data = HexStringToBytes(replacedString + '\0');
                                                         rootNode.Nodes.Add("new name: " + latin.GetString(data)).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                     catch
                                                     {
@@ -1229,25 +1245,25 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.Action.Error:
+                                            case Action.Error:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
                                                     strPipeMsgOut.datasize = 0;
                                                     WritePipe();
                                                     rootNode.ForeColor = Color.DarkGray;
-                                                    changed_by_internal_filter = true;
+                                                    changedByInternalFilter = true;
                                                     goto skipfilterdns1;
                                                 }
                                                 break;
-                                            case Glob.Action.ErrorHex:
+                                            case Action.ErrorHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
                                                     strPipeMsgOut.datasize = 0;
                                                     WritePipe();
                                                     rootNode.ForeColor = Color.DarkGray;
-                                                    changed_by_internal_filter = true;
+                                                    changedByInternalFilter = true;
                                                     goto skipfilterdns1;
                                                 }
                                                 break;
@@ -1255,12 +1271,12 @@ namespace PacketEditor
                                     }
                                 }
 
-                                if (!changed_by_internal_filter)
+                                if (!changedByInternalFilter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
                                     WritePipe();
-                                    changed_by_internal_filter = true;
+                                    changedByInternalFilter = true;
                                 }
                                 else
                                 {
@@ -1277,7 +1293,7 @@ namespace PacketEditor
                             if (monitor)
                             {
                                 rootNode = treeDNS.Nodes.Add(DateTime.Now.ToLongTimeString() + " gethostbyaddr()");
-                                DNStrap = true;
+                                dnsTrap = true;
                             }
                             else
                                 rootNode = new TreeNode();
@@ -1287,7 +1303,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -1298,9 +1314,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["DNSAction"])
+                                        switch ((Action)row["DNSAction"])
                                         {
-                                            case Glob.Action.ReplaceString:
+                                            case Action.ReplaceString:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToAddr(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1312,7 +1328,7 @@ namespace PacketEditor
                                                         IPAddress addy = IPAddress.Parse(replacedString);
                                                         data = addy.GetAddressBytes();
                                                         rootNode.Nodes.Add("new addr: " + addy.ToString()).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                 }
                                                 catch
@@ -1321,7 +1337,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.Action.ReplaceStringHex:
+                                            case Action.ReplaceStringHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1333,7 +1349,7 @@ namespace PacketEditor
                                                         IPAddress addy = IPAddress.Parse(HexStringToAddr(replacedString));
                                                         data = addy.GetAddressBytes();
                                                         rootNode.Nodes.Add("new addr: " + addy.ToString()).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                 }
                                                 catch
@@ -1342,7 +1358,7 @@ namespace PacketEditor
                                                 }
 
                                                 break;
-                                            case Glob.Action.Error:
+                                            case Action.Error:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToAddr(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1351,7 +1367,7 @@ namespace PacketEditor
                                                         strPipeMsgOut.datasize = 0;
                                                         WritePipe();
                                                         rootNode.ForeColor = Color.DarkGray;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                         goto skipfilterdns2;
                                                     }
                                                 }
@@ -1360,7 +1376,7 @@ namespace PacketEditor
                                                     rootNode.ForeColor = Color.Red;
                                                 }
                                                 break;
-                                            case Glob.Action.ErrorHex:
+                                            case Action.ErrorHex:
                                                 try
                                                 {
                                                     if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
@@ -1369,7 +1385,7 @@ namespace PacketEditor
                                                         strPipeMsgOut.datasize = 0;
                                                         WritePipe();
                                                         rootNode.ForeColor = Color.DarkGray;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                         goto skipfilterdns2;
                                                     }
                                                 }
@@ -1382,12 +1398,12 @@ namespace PacketEditor
                                     }
                                 }
 
-                                if (!changed_by_internal_filter)
+                                if (!changedByInternalFilter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
                                     WritePipe();
-                                    changed_by_internal_filter = true;
+                                    changedByInternalFilter = true;
                                 }
                                 else
                                 {
@@ -1411,7 +1427,7 @@ namespace PacketEditor
                             if (filter)
                             {
                                 DataRow[] rows = dsMain.Tables["filters"].Select("enabled = true");
-                                strPipeMsgOut.command = Glob.CMD.Filter;
+                                strPipeMsgOut.command = CMD.Filter;
 
                                 foreach (var row in rows)
                                 {
@@ -1422,9 +1438,9 @@ namespace PacketEditor
                                             continue;
                                         }
 
-                                        switch ((Glob.Action)row["DNSAction"])
+                                        switch ((Action)row["DNSAction"])
                                         {
-                                            case Glob.Action.ReplaceString:
+                                            case Action.ReplaceString:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1435,7 +1451,7 @@ namespace PacketEditor
                                                             RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
                                                         data = latin.GetBytes(replacedString + '\0');
                                                         rootNode.Nodes.Add("new name: " + latin.GetString(data)).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                     catch
                                                     {
@@ -1443,7 +1459,7 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.Action.ReplaceStringHex:
+                                            case Action.ReplaceStringHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     try
@@ -1454,7 +1470,7 @@ namespace PacketEditor
                                                             RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase);
                                                         data = HexStringToBytes(replacedString + "\0");
                                                         rootNode.Nodes.Add("new name: " + latin.GetString(data)).ForeColor = Color.Green;
-                                                        changed_by_internal_filter = true;
+                                                        changedByInternalFilter = true;
                                                     }
                                                     catch
                                                     {
@@ -1462,25 +1478,25 @@ namespace PacketEditor
                                                     }
                                                 }
                                                 break;
-                                            case Glob.Action.Error:
+                                            case Action.Error:
                                                 if (Regex.IsMatch(latin.GetString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
                                                     strPipeMsgOut.datasize = 0;
                                                     WritePipe();
                                                     rootNode.ForeColor = Color.DarkGray;
-                                                    changed_by_internal_filter = true;
+                                                    changedByInternalFilter = true;
                                                     goto skipfilterdns3;
                                                 }
                                                 break;
-                                            case Glob.Action.ErrorHex:
+                                            case Action.ErrorHex:
                                                 if (Regex.IsMatch(BytesToHexString(data), row["DNSCatch"].ToString(), RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.IgnoreCase))
                                                 {
                                                     strPipeMsgOut.extra = (int)row["DNSError"];
                                                     strPipeMsgOut.datasize = 0;
                                                     WritePipe();
                                                     rootNode.ForeColor = Color.DarkGray;
-                                                    changed_by_internal_filter = true;
+                                                    changedByInternalFilter = true;
                                                     goto skipfilterdns3;
                                                 }
                                                 break;
@@ -1488,12 +1504,12 @@ namespace PacketEditor
                                     }
                                 }
 
-                                if (!changed_by_internal_filter)
+                                if (!changedByInternalFilter)
                                 {
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
                                     WritePipe();
-                                    changed_by_internal_filter = true;
+                                    changedByInternalFilter = true;
                                 }
                                 else
                                 {
@@ -1509,9 +1525,9 @@ namespace PacketEditor
                     }
                     break;
             }
-            if (filter && !changed_by_internal_filter)
+            if (filter && !changedByInternalFilter)
             {
-                strPipeMsgOut.command = Glob.CMD.Filter;
+                strPipeMsgOut.command = CMD.Filter;
                 strPipeMsgOut.datasize = 0;
                 strPipeMsgOut.extra = 0; // Error
                 WritePipe();
@@ -1523,14 +1539,9 @@ namespace PacketEditor
             pipeIn.Close();
             pipeOut.Close();
             targetPID = 0;
-            this.Text = "PacketEditor";
+            this.Text = AppName;
             mnuFileDetach.Enabled = false;
         }
-
-        delegate void UpdateMainGridDelegate(byte[] data);
-        delegate void UpdateTreeDelegate(byte[] data);
-        delegate void ProcessExitedDelegate();
-        delegate void CurrentProcessExited();
 
         private void PipeRead()
         {
@@ -1543,7 +1554,7 @@ namespace PacketEditor
 
             while (pipeIn.Read(pipeMsgInBuffer, 0, 14) != 0 || pipeIn.IsConnected)
             {
-                strPipeMsgIn = Glob.RawDeserializeEx<Glob.PipeHeader>(pipeMsgInBuffer);
+                strPipeMsgIn = Glob.RawDeserializeEx<PipeHeader>(pipeMsgInBuffer);
                 if (strPipeMsgIn.datasize != 0)
                 {
                     byte[] pipeMsgInDataBuffer = new byte[strPipeMsgIn.datasize];
@@ -1604,7 +1615,7 @@ namespace PacketEditor
                 }
                 else
                 {
-                    if (strPipeMsgIn.command == Glob.CMD.Init)
+                    if (strPipeMsgIn.command == CMD.Init)
                     {
                         if (strPipeMsgIn.function == Glob.INIT_DECRYPT)
                         {
@@ -1619,14 +1630,14 @@ namespace PacketEditor
                                 strPipeMsgOut.datasize = 0;
                                 if (monitor)
                                 {
-                                    strPipeMsgOut.command = Glob.CMD.EnableMonitor;
+                                    strPipeMsgOut.command = CMD.EnableMonitor;
                                     strPipeMsgOut.datasize = 0;
                                     WritePipe();
                                 }
 
                                 if (filter)
                                 {
-                                    strPipeMsgOut.command = Glob.CMD.EnableFilter;
+                                    strPipeMsgOut.command = CMD.EnableFilter;
                                     strPipeMsgOut.datasize = 0;
                                     WritePipe();
                                 }
@@ -1670,7 +1681,7 @@ namespace PacketEditor
                             default: // Useless data call with no data
                                 if (filter)
                                 {
-                                    strPipeMsgOut.command = Glob.CMD.Filter;
+                                    strPipeMsgOut.command = CMD.Filter;
                                     strPipeMsgOut.datasize = 0;
                                     strPipeMsgOut.extra = 0; // Error
                                     WritePipe();
@@ -1703,11 +1714,6 @@ namespace PacketEditor
             Application.Exit();
         }
 
-        #region Fields for Attach
-        string processPath;
-        int processID;
-        #endregion
-
         private void mnuFileAttach_Click(object sender, EventArgs e)
         {
             if (targetPID != 0)
@@ -1723,7 +1729,7 @@ namespace PacketEditor
 
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
+                    strPipeMsgOut.command = CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -1778,7 +1784,6 @@ namespace PacketEditor
         private bool TryAttach(int pID, string path)
         {
             targetPID = pID;
-            //this.Enabled = true;
             if (targetPID != 0 && InvokeDLL())
             {
                 reAttachPath = path;
@@ -1814,7 +1819,7 @@ namespace PacketEditor
                 {
                     if (pipeOut.IsConnected)
                     {
-                        strPipeMsgOut.command = Glob.CMD.UnloadDll;
+                        strPipeMsgOut.command = CMD.UnloadDll;
                         try
                         {
                             WritePipe();
@@ -1850,7 +1855,7 @@ namespace PacketEditor
             {
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
+                    strPipeMsgOut.command = CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -1880,10 +1885,10 @@ namespace PacketEditor
             if (mnuToolsMonitor.Checked)
             {
                 monitor = true;
-                DNStrap = false;
+                dnsTrap = false;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD.EnableMonitor;
+                    strPipeMsgOut.command = CMD.EnableMonitor;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -1891,10 +1896,10 @@ namespace PacketEditor
             else
             {
                 monitor = false;
-                DNStrap = false;
+                dnsTrap = false;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD.DisableMonitor;
+                    strPipeMsgOut.command = CMD.DisableMonitor;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -1942,7 +1947,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD.Inject;
+                strPipeMsgOut.command = CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Receive;
@@ -1955,7 +1960,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD.Inject;
+                strPipeMsgOut.command = CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Send;
@@ -1968,7 +1973,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD.Inject;
+                strPipeMsgOut.command = CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_SHUTDOWN;
                 strPipeMsgOut.extra = (int)SocketShutdown.Both;
@@ -1981,7 +1986,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD.Inject;
+                strPipeMsgOut.command = CMD.Inject;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.function = Glob.FUNC_CLOSESOCKET;
                 strPipeMsgOut.datasize = 0;
@@ -1996,7 +2001,7 @@ namespace PacketEditor
                 filter = true;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD.EnableFilter;
+                    strPipeMsgOut.command = CMD.EnableFilter;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -2006,7 +2011,7 @@ namespace PacketEditor
                 filter = false;
                 if (targetPID != 0)
                 {
-                    strPipeMsgOut.command = Glob.CMD.DisableFilter;
+                    strPipeMsgOut.command = CMD.DisableFilter;
                     strPipeMsgOut.datasize = 0;
                     WritePipe();
                 }
@@ -2053,7 +2058,7 @@ namespace PacketEditor
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD.Inject;
+                strPipeMsgOut.command = CMD.Inject;
                 strPipeMsgOut.function = Glob.FUNC_SEND;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.datasize = ((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value).Length;
@@ -2083,14 +2088,14 @@ namespace PacketEditor
             if (mnuInvokeFreeze.Text == freezeState)
             {
                 mnuInvokeFreeze.Text = "Unfreeze";
-                strPipeMsgOut.command = Glob.CMD.Freeze;
+                strPipeMsgOut.command = CMD.Freeze;
                 strPipeMsgOut.datasize = 0;
                 WritePipe();
             }
             else
             {
                 mnuInvokeFreeze.Text = freezeState;
-                strPipeMsgOut.command = Glob.CMD.Unfreeze;
+                strPipeMsgOut.command = CMD.Unfreeze;
                 strPipeMsgOut.datasize = 0;
                 WritePipe();
             }
@@ -2111,7 +2116,7 @@ namespace PacketEditor
 
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
+                    strPipeMsgOut.command = CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -2190,24 +2195,24 @@ namespace PacketEditor
 
         private void mnuMsgCopyASCII_Click(object sender, EventArgs e)
         {
-            string data = "";
-            for (int i = 0; i < dgridMain.SelectedRows.Count; i++)
-                data += dgridMain.SelectedRows[i].Cells["data"].Value;
+            var data = new StringBuilder();
+            foreach (DataGridViewRow row in dgridMain.SelectedRows)
+                data.Append(row.Cells["data"].Value);
 
-            if (data != string.Empty)
-                Clipboard.SetData(DataFormats.Text, data.Replace("\0", "\\0"));
+            if (data.Length != 0)
+                Clipboard.SetData(DataFormats.Text, data.Replace("\0", "\\0").ToString());
         }
 
         private void mnuMsgCopyHex_Click(object sender, EventArgs e)
         {
-            string data = "";
+            var data = new StringBuilder();
             try
             {
-                for (int i = 0; i < dgridMain.SelectedRows.Count; i++)
-                    data += BytesToHexString((byte[])dgridMain.SelectedRows[i].Cells["rawdata"].Value);
+                foreach (DataGridViewRow row in dgridMain.SelectedRows)
+                    data.Append(BytesToHexString((byte[])row.Cells["rawdata"].Value));
 
-                if (data != string.Empty)
-                    Clipboard.SetData(DataFormats.Text, data);
+                if (data.Length != 0)
+                    Clipboard.SetData(DataFormats.Text, data.ToString());
             }
             catch (Exception ex)
             {
@@ -2222,8 +2227,8 @@ namespace PacketEditor
 
         private void reAttachToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            reattacheDelayInMs = Interaction.InputBox("Delay in milliseconds (1000 = 1 second)", "Reattach delay", reattacheDelayInMs);
-            if (reattacheDelayInMs == string.Empty || !int.TryParse(reattacheDelayInMs, out int ms))
+            string reattachDelayInMs = Interaction.InputBox("Delay in milliseconds (1000 = 1 second)", "Reattach delay", "1000");
+            if (reattachDelayInMs == string.Empty || !int.TryParse(reattachDelayInMs, out int ms))
                 return;
 
             Thread.Sleep(ms);
@@ -2241,7 +2246,7 @@ namespace PacketEditor
 
                 if (pipeOut.IsConnected)
                 {
-                    strPipeMsgOut.command = Glob.CMD.UnloadDll;
+                    strPipeMsgOut.command = CMD.UnloadDll;
                     try
                     {
                         WritePipe();
@@ -2478,7 +2483,7 @@ DATA_TO_SEND";
                 {
                     byte[] bcBytes = latin.GetBytes(bodyText);
 
-                    strPipeMsgOut.command = Glob.CMD.Inject;
+                    strPipeMsgOut.command = CMD.Inject;
                     strPipeMsgOut.function = SocketInfoUtils.MsgNum(method); // Glob.FUNC_SEND;
                     strPipeMsgOut.datasize = bcBytes.Length;
                     WritePipe();
@@ -2564,12 +2569,9 @@ DATA_TO_SEND";
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                txbRecordText.Text = dgridMain.SelectedRows[0].Cells["data"].Value.ToString();
+                txbRecordText.Text = dgridMain.SelectedRows[0].Cells["data"].Value.ToString().Replace("\0", "\\0");
             }
         }
-
-        private Process procExternalFilter;
-        private FrmPython Python;
 
         private void ActivateExtenalFilter()
         {
@@ -2674,7 +2676,7 @@ DATA_TO_SEND";
         {
             if (dgridMain.SelectedRows.Count != 0)
             {
-                strPipeMsgOut.command = Glob.CMD.Inject;
+                strPipeMsgOut.command = CMD.Inject;
                 strPipeMsgOut.function = Glob.FUNC_SEND;
                 strPipeMsgOut.sockid = int.Parse(dgridMain.SelectedRows[0].Cells["socket"].Value.ToString(), NumberStyles.AllowHexSpecifier);
                 strPipeMsgOut.datasize = ((byte[])dgridMain.SelectedRows[0].Cells["rawdata"].Value).Length;
@@ -2692,19 +2694,14 @@ DATA_TO_SEND";
 
         private void timerPython_Tick(object sender, EventArgs e)
         {
-            try
-            {
-                if (procExternalFilter.HasExited)
-                    tsExternalFilter.BackColor = Color.Red;
-                else
-                    tsExternalFilter.BackColor = Color.Green;
-            }
-            catch (Exception ex)
+            if (procExternalFilter is null || procExternalFilter.HasExited)
             {
                 tsExternalFilter.BackColor = Color.Red;
                 timerPython.Stop();
-
-                logger.Error(ex);
+            }
+            else if (tsExternalFilter.BackColor != Color.Green)
+            {
+                tsExternalFilter.BackColor = Color.Green;
             }
         }
 
@@ -2727,5 +2724,23 @@ Connection: Keep-Alive
                 new FrmBurpCode(req).ShowDialog();
             }
         }
+        #endregion
+
+        #region Struct
+        [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+        private struct Sockaddr_in
+        {
+            [MarshalAs(UnmanagedType.I2)]
+            public short sin_family;
+            public ushort sin_port;
+            [MarshalAs(UnmanagedType.I1)]
+            public byte s_b1;
+            public byte s_b2;
+            public byte s_b3;
+            public byte s_b4;
+            [MarshalAs(UnmanagedType.I8)]
+            public long sin_zero;
+        }
+        #endregion
     }
 }

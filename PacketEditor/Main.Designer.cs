@@ -31,13 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.dgridMain = new System.Windows.Forms.DataGridView();
-            this.time = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.socket = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.proto = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.method = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.size = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.data = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rawdata = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.mnuMsg = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuMsgCopy = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuMsgCopyASCII = new System.Windows.Forms.ToolStripMenuItem();
@@ -134,6 +127,13 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsExternalFilter = new System.Windows.Forms.ToolStripStatusLabel();
             this.timerPython = new System.Windows.Forms.Timer(this.components);
+            this.time = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.socket = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.proto = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.method = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.size = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.data = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rawdata = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgridMain)).BeginInit();
             this.mnuMsg.SuspendLayout();
             this.mnuNotify.SuspendLayout();
@@ -185,60 +185,11 @@
             this.dgridMain.RowHeadersVisible = false;
             this.dgridMain.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridMain.ShowCellErrors = false;
-            this.dgridMain.Size = new System.Drawing.Size(812, 163);
+            this.dgridMain.Size = new System.Drawing.Size(812, 153);
             this.dgridMain.TabIndex = 1;
             this.dgridMain.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgridMain_CellContentClick);
             this.dgridMain.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgridMain_CellDoubleClick);
             this.dgridMain.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dgridMain_RowsAdded);
-            // 
-            // time
-            // 
-            this.time.HeaderText = "Timestamp";
-            this.time.Name = "time";
-            this.time.ReadOnly = true;
-            this.time.Width = 65;
-            // 
-            // socket
-            // 
-            this.socket.HeaderText = "Socket";
-            this.socket.Name = "socket";
-            this.socket.ReadOnly = true;
-            this.socket.Width = 50;
-            // 
-            // proto
-            // 
-            this.proto.HeaderText = "Proto";
-            this.proto.Name = "proto";
-            this.proto.ReadOnly = true;
-            this.proto.Width = 50;
-            // 
-            // method
-            // 
-            this.method.HeaderText = "Method";
-            this.method.Name = "method";
-            this.method.ReadOnly = true;
-            this.method.Width = 75;
-            // 
-            // size
-            // 
-            this.size.HeaderText = "Size";
-            this.size.Name = "size";
-            this.size.ReadOnly = true;
-            this.size.Width = 50;
-            // 
-            // data
-            // 
-            this.data.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.data.HeaderText = "Data";
-            this.data.Name = "data";
-            this.data.ReadOnly = true;
-            // 
-            // rawdata
-            // 
-            this.rawdata.HeaderText = "RawData";
-            this.rawdata.Name = "rawdata";
-            this.rawdata.ReadOnly = true;
-            this.rawdata.Visible = false;
             // 
             // mnuMsg
             // 
@@ -457,7 +408,7 @@
             this.treeAPI.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeAPI.Location = new System.Drawing.Point(0, 0);
             this.treeAPI.Name = "treeAPI";
-            this.treeAPI.Size = new System.Drawing.Size(321, 213);
+            this.treeAPI.Size = new System.Drawing.Size(323, 201);
             this.treeAPI.TabIndex = 3;
             // 
             // mnuAPI
@@ -489,8 +440,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(812, 382);
-            this.splitContainer1.SplitterDistance = 163;
+            this.splitContainer1.Size = new System.Drawing.Size(812, 360);
+            this.splitContainer1.SplitterDistance = 153;
             this.splitContainer1.TabIndex = 4;
             // 
             // splitContainer2
@@ -507,8 +458,8 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.treeAPI);
-            this.splitContainer2.Size = new System.Drawing.Size(812, 215);
-            this.splitContainer2.SplitterDistance = 485;
+            this.splitContainer2.Size = new System.Drawing.Size(812, 203);
+            this.splitContainer2.SplitterDistance = 483;
             this.splitContainer2.TabIndex = 4;
             // 
             // splitContainer3
@@ -524,8 +475,8 @@
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.txbRecordText);
-            this.splitContainer3.Size = new System.Drawing.Size(483, 213);
-            this.splitContainer3.SplitterDistance = 160;
+            this.splitContainer3.Size = new System.Drawing.Size(481, 201);
+            this.splitContainer3.SplitterDistance = 158;
             this.splitContainer3.TabIndex = 0;
             // 
             // treeDNS
@@ -535,7 +486,7 @@
             this.treeDNS.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeDNS.Location = new System.Drawing.Point(0, 0);
             this.treeDNS.Name = "treeDNS";
-            this.treeDNS.Size = new System.Drawing.Size(160, 213);
+            this.treeDNS.Size = new System.Drawing.Size(158, 201);
             this.treeDNS.TabIndex = 3;
             // 
             // txbRecordText
@@ -546,7 +497,7 @@
             this.txbRecordText.Multiline = true;
             this.txbRecordText.Name = "txbRecordText";
             this.txbRecordText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txbRecordText.Size = new System.Drawing.Size(319, 213);
+            this.txbRecordText.Size = new System.Drawing.Size(319, 201);
             this.txbRecordText.TabIndex = 0;
             // 
             // mnuReplay
@@ -795,19 +746,19 @@
             // 
             this.mnuFileOpen.Name = "mnuFileOpen";
             this.mnuFileOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.mnuFileOpen.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileOpen.Size = new System.Drawing.Size(180, 22);
             this.mnuFileOpen.Text = "&Open";
             this.mnuFileOpen.Click += new System.EventHandler(this.mnuFileOpen_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // mnuFileAttach
             // 
             this.mnuFileAttach.Name = "mnuFileAttach";
-            this.mnuFileAttach.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileAttach.Size = new System.Drawing.Size(180, 22);
             this.mnuFileAttach.Text = "&Attach";
             this.mnuFileAttach.Click += new System.EventHandler(this.mnuFileAttach_Click);
             // 
@@ -815,7 +766,7 @@
             // 
             this.mnuFileDetach.Enabled = false;
             this.mnuFileDetach.Name = "mnuFileDetach";
-            this.mnuFileDetach.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileDetach.Size = new System.Drawing.Size(180, 22);
             this.mnuFileDetach.Text = "&Detach";
             this.mnuFileDetach.Click += new System.EventHandler(this.mnuFileDetach_Click);
             // 
@@ -823,19 +774,19 @@
             // 
             this.reAttachToolStripMenuItem.Enabled = false;
             this.reAttachToolStripMenuItem.Name = "reAttachToolStripMenuItem";
-            this.reAttachToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.reAttachToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.reAttachToolStripMenuItem.Text = "reAttach";
             this.reAttachToolStripMenuItem.Click += new System.EventHandler(this.reAttachToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
             // 
             // mnuFileExit
             // 
             this.mnuFileExit.Name = "mnuFileExit";
-            this.mnuFileExit.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileExit.Size = new System.Drawing.Size(180, 22);
             this.mnuFileExit.Text = "E&xit";
             this.mnuFileExit.Click += new System.EventHandler(this.mnuFileExit_Click);
             // 
@@ -946,8 +897,8 @@
             // 
             this.mnuOptionsOntop.CheckOnClick = true;
             this.mnuOptionsOntop.Name = "mnuOptionsOntop";
-            this.mnuOptionsOntop.Size = new System.Drawing.Size(117, 22);
-            this.mnuOptionsOntop.Text = "On Top";
+            this.mnuOptionsOntop.Size = new System.Drawing.Size(180, 22);
+            this.mnuOptionsOntop.Text = "Move On Top";
             this.mnuOptionsOntop.CheckedChanged += new System.EventHandler(this.mnuOptionsOntop_CheckedChanged);
             // 
             // helpToolStripMenuItem
@@ -987,6 +938,7 @@
             // 
             // tsExternalFilter
             // 
+            this.tsExternalFilter.BackColor = System.Drawing.Color.Red;
             this.tsExternalFilter.Name = "tsExternalFilter";
             this.tsExternalFilter.Size = new System.Drawing.Size(80, 17);
             this.tsExternalFilter.Text = "External filter";
@@ -996,14 +948,63 @@
             this.timerPython.Interval = 1000;
             this.timerPython.Tick += new System.EventHandler(this.timerPython_Tick);
             // 
+            // time
+            // 
+            this.time.HeaderText = "Timestamp";
+            this.time.Name = "time";
+            this.time.ReadOnly = true;
+            this.time.Width = 65;
+            // 
+            // socket
+            // 
+            this.socket.HeaderText = "Socket";
+            this.socket.Name = "socket";
+            this.socket.ReadOnly = true;
+            this.socket.Width = 50;
+            // 
+            // proto
+            // 
+            this.proto.HeaderText = "Protocol";
+            this.proto.Name = "proto";
+            this.proto.ReadOnly = true;
+            this.proto.Width = 60;
+            // 
+            // method
+            // 
+            this.method.HeaderText = "Method";
+            this.method.Name = "method";
+            this.method.ReadOnly = true;
+            this.method.Width = 75;
+            // 
+            // size
+            // 
+            this.size.HeaderText = "Size";
+            this.size.Name = "size";
+            this.size.ReadOnly = true;
+            this.size.Width = 50;
+            // 
+            // data
+            // 
+            this.data.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.data.HeaderText = "Data";
+            this.data.Name = "data";
+            this.data.ReadOnly = true;
+            // 
+            // rawdata
+            // 
+            this.rawdata.HeaderText = "RawData";
+            this.rawdata.Name = "rawdata";
+            this.rawdata.ReadOnly = true;
+            this.rawdata.Visible = false;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(812, 406);
-            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.mnuMain);
+            this.Controls.Add(this.statusStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Main";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -1071,13 +1072,6 @@
         private System.Data.DataColumn dataColumn5;
         private System.Data.DataColumn dataColumn6;
         private System.Data.DataTable filters;
-        private System.Windows.Forms.DataGridViewTextBoxColumn time;
-        private System.Windows.Forms.DataGridViewTextBoxColumn socket;
-        private System.Windows.Forms.DataGridViewTextBoxColumn proto;
-        private System.Windows.Forms.DataGridViewTextBoxColumn method;
-        private System.Windows.Forms.DataGridViewTextBoxColumn size;
-        private System.Windows.Forms.DataGridViewTextBoxColumn data;
-        private System.Windows.Forms.DataGridViewTextBoxColumn rawdata;
         private System.Windows.Forms.MenuStrip mnuMain;
         private System.Windows.Forms.ToolStripMenuItem mnuFile;
         private System.Windows.Forms.ToolStripMenuItem mnuFileAttach;
@@ -1151,6 +1145,13 @@
         private System.Windows.Forms.ToolStripMenuItem MIReplay;
         private System.Windows.Forms.Timer timerPython;
         private System.Windows.Forms.ToolStripMenuItem copyForListenerToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn time;
+        private System.Windows.Forms.DataGridViewTextBoxColumn socket;
+        private System.Windows.Forms.DataGridViewTextBoxColumn proto;
+        private System.Windows.Forms.DataGridViewTextBoxColumn method;
+        private System.Windows.Forms.DataGridViewTextBoxColumn size;
+        private System.Windows.Forms.DataGridViewTextBoxColumn data;
+        private System.Windows.Forms.DataGridViewTextBoxColumn rawdata;
     }
 }
 

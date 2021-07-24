@@ -9,8 +9,7 @@ namespace PacketEditor
 {
     public partial class Sockets : Form
     {
-
-        readonly NamedPipeClientStream pipeOut;
+        private readonly NamedPipeClientStream pipeOut;
 
         public Sockets(DataTable dtSockets, NamedPipeClientStream pOut)
         {
@@ -68,9 +67,9 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
+                PipeHeader strPipeMsgOut = new PipeHeader
                 {
-                    command = Glob.CMD.Inject,
+                    command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_SHUTDOWN,
                     extra = (int)SocketShutdown.Receive,
@@ -84,9 +83,9 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
+                PipeHeader strPipeMsgOut = new PipeHeader
                 {
-                    command = Glob.CMD.Inject,
+                    command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_SHUTDOWN,
                     extra = (int)SocketShutdown.Send,
@@ -100,16 +99,15 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
+                PipeHeader strPipeMsgOut = new PipeHeader
                 {
-                    command = Glob.CMD.Inject,
+                    command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_SHUTDOWN,
                     extra = (int)SocketShutdown.Both,
                     datasize = 0
                 };
                 pipeOut.Write(Glob.RawSerializeEx(strPipeMsgOut), 0, Marshal.SizeOf(strPipeMsgOut));
-
             }
         }
 
@@ -117,9 +115,9 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader
+                PipeHeader strPipeMsgOut = new PipeHeader
                 {
-                    command = Glob.CMD.Inject,
+                    command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
                     function = Glob.FUNC_CLOSESOCKET,
                     datasize = 0

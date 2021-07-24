@@ -30,12 +30,12 @@ namespace PacketEditor
         void UpdateUI(DataRow dr)
         {
             #region Remove controls EventHandler
-            this.txtMsgReplace.TextChanged -= new EventHandler(this.txtMsgReplace_TextChanged);
-            this.txtAPIReplace.TextChanged -= new EventHandler(this.txtAPIReplace_TextChanged);
-            this.txtDNSReplace.TextChanged -= new EventHandler(this.txtMsgReplace_TextChanged);
-            this.cmbMsgActionE.SelectedIndexChanged -= new EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
-            this.cmbAPIActionE.SelectedIndexChanged -= new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
-            this.cmbDNSActionE.SelectedIndexChanged -= new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
+            this.txtMsgReplace.TextChanged -= txtMsgReplace_TextChanged;
+            this.txtAPIReplace.TextChanged -= txtAPIReplace_TextChanged;
+            this.txtDNSReplace.TextChanged -= txtMsgReplace_TextChanged;
+            this.cmbMsgActionE.SelectedIndexChanged -= cmbMsgActionE_SelectedIndexChanged;
+            this.cmbAPIActionE.SelectedIndexChanged -= cmbAPIActionE_SelectedIndexChanged;
+            this.cmbDNSActionE.SelectedIndexChanged -= cmbDNSActionE_SelectedIndexChanged;
             #endregion
 
             if (dr["id"].ToString() != string.Empty)
@@ -49,19 +49,19 @@ namespace PacketEditor
                     chkMsg.SetItemChecked(chkMsg.FindStringExact(SocketInfoUtils.Msg(b)), true);
                 }
                 txtMsgCatch.Text = dr["MsgCatch"].ToString();
-                switch ((Glob.Action)dr["MsgAction"])
+                switch ((Action)dr["MsgAction"])
                 {
-                    case Glob.Action.ReplaceString:
+                    case Action.ReplaceString:
                         rdoMsgActionR.Checked = true;
                         break;
-                    case Glob.Action.ReplaceStringHex:
+                    case Action.ReplaceStringHex:
                         rdoMsgActionR.Checked = true;
                         rdoMsgMethodH.Checked = true;
                         break;
-                    case Glob.Action.Error:
+                    case Action.Error:
                         rdoMsgActionE.Checked = true;
                         break;
-                    case Glob.Action.ErrorHex:
+                    case Action.ErrorHex:
                         rdoMsgActionE.Checked = true;
                         rdoMsgMethodH.Checked = true;
                         break;
@@ -76,19 +76,19 @@ namespace PacketEditor
                     chkAPI.SetItemChecked(chkAPI.FindStringExact(SocketInfoUtils.Api(b)), true);
                 }
                 txtAPICatch.Text = dr["APICatch"].ToString();
-                switch ((Glob.Action)dr["APIAction"])
+                switch ((Action)dr["APIAction"])
                 {
-                    case Glob.Action.ReplaceString:
+                    case Action.ReplaceString:
                         rdoAPIActionR.Checked = true;
                         break;
-                    case Glob.Action.ReplaceStringHex:
+                    case Action.ReplaceStringHex:
                         rdoAPIActionR.Checked = true;
                         rdoAPIMethodH.Checked = true;
                         break;
-                    case Glob.Action.Error:
+                    case Action.Error:
                         rdoAPIActionE.Checked = true;
                         break;
-                    case Glob.Action.ErrorHex:
+                    case Action.ErrorHex:
                         rdoAPIActionE.Checked = true;
                         rdoAPIMethodH.Checked = true;
                         break;
@@ -103,19 +103,19 @@ namespace PacketEditor
                     chkDNS.SetItemChecked(chkDNS.FindStringExact(SocketInfoUtils.Api(b)), true);
                 }
                 txtDNSCatch.Text = dr["DNSCatch"].ToString();
-                switch ((Glob.Action)dr["DNSAction"])
+                switch ((Action)dr["DNSAction"])
                 {
-                    case Glob.Action.ReplaceString:
+                    case Action.ReplaceString:
                         rdoDNSActionR.Checked = true;
                         break;
-                    case Glob.Action.ReplaceStringHex:
+                    case Action.ReplaceStringHex:
                         rdoDNSActionR.Checked = true;
                         rdoDNSMethodH.Checked = true;
                         break;
-                    case Glob.Action.Error:
+                    case Action.Error:
                         rdoDNSActionE.Checked = true;
                         break;
-                    case Glob.Action.ErrorHex:
+                    case Action.ErrorHex:
                         rdoDNSActionE.Checked = true;
                         rdoDNSMethodH.Checked = true;
                         break;
@@ -132,12 +132,12 @@ namespace PacketEditor
             #endregion
 
             #region Reasign controls EventHandler
-            this.txtMsgReplace.TextChanged += new EventHandler(this.txtMsgReplace_TextChanged);
-            this.txtAPIReplace.TextChanged += new EventHandler(this.txtAPIReplace_TextChanged);
-            this.txtDNSReplace.TextChanged += new EventHandler(this.txtMsgReplace_TextChanged);
-            this.cmbMsgActionE.SelectedIndexChanged += new EventHandler(this.cmbMsgActionE_SelectedIndexChanged);
-            this.cmbAPIActionE.SelectedIndexChanged += new EventHandler(this.cmbAPIActionE_SelectedIndexChanged);
-            this.cmbDNSActionE.SelectedIndexChanged += new EventHandler(this.cmbDNSActionE_SelectedIndexChanged);
+            this.txtMsgReplace.TextChanged += txtMsgReplace_TextChanged;
+            this.txtAPIReplace.TextChanged += txtAPIReplace_TextChanged;
+            this.txtDNSReplace.TextChanged += txtMsgReplace_TextChanged;
+            this.cmbMsgActionE.SelectedIndexChanged += cmbMsgActionE_SelectedIndexChanged;
+            this.cmbAPIActionE.SelectedIndexChanged += cmbAPIActionE_SelectedIndexChanged;
+            this.cmbDNSActionE.SelectedIndexChanged += cmbDNSActionE_SelectedIndexChanged;
             #endregion
         }
 
@@ -156,9 +156,9 @@ namespace PacketEditor
             dr["MsgCatch"] = txtMsgCatch.Text;
             byte actionByte;
             if (rdoMsgActionR.Checked)
-                actionByte = (byte)Glob.Action.ReplaceString;
+                actionByte = (byte)Action.ReplaceString;
             else
-                actionByte = (byte)Glob.Action.Error;
+                actionByte = (byte)Action.Error;
 
             if (rdoMsgMethodH.Checked)
                 actionByte++;
@@ -178,9 +178,9 @@ namespace PacketEditor
             dr["APICatch"] = txtAPICatch.Text;
 
             if (rdoAPIActionR.Checked)
-                actionByte = (byte)Glob.Action.ReplaceString;
+                actionByte = (byte)Action.ReplaceString;
             else
-                actionByte = (byte)Glob.Action.Error;
+                actionByte = (byte)Action.Error;
 
             if (rdoAPIMethodH.Checked)
                 actionByte++;
@@ -199,9 +199,9 @@ namespace PacketEditor
             dr["DNSFunction"] = bytes;
             dr["DNSCatch"] = txtDNSCatch.Text;
             if (rdoDNSActionR.Checked)
-                actionByte = (byte)Glob.Action.ReplaceString;
+                actionByte = (byte)Action.ReplaceString;
             else
-                actionByte = (byte)Glob.Action.Error;
+                actionByte = (byte)Action.Error;
 
             if (rdoDNSMethodH.Checked)
                 actionByte++;

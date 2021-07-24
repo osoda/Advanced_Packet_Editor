@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO.Pipes;
 using Be.Windows.Forms;
+using System.Globalization;
 
 namespace PacketEditor
 {
@@ -31,12 +32,7 @@ namespace PacketEditor
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            Glob.PipeHeader strPipeMsgOut = new Glob.PipeHeader();
-            try
-            {
-                strPipeMsgOut.sockid = int.Parse(txtSockID.Text, System.Globalization.NumberStyles.HexNumber);
-            }
-            catch
+            if (!int.TryParse(txtSockID.Text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int socketId))
             {
                 MessageBox.Show("Invalid socket ID.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtSockID.SelectAll();
@@ -44,11 +40,14 @@ namespace PacketEditor
                 return;
             }
 
-            DynamicByteProvider bytePro = hexBox1.ByteProvider as DynamicByteProvider;
-            ByteCollection bcBytes = bytePro.Bytes;
-            strPipeMsgOut.command = Glob.CMD.Inject;
-            strPipeMsgOut.function = Glob.FUNC_SEND;
-            strPipeMsgOut.datasize = bcBytes.Count;
+            ByteCollection bcBytes = (hexBox1.ByteProvider as DynamicByteProvider).Bytes;
+            PipeHeader strPipeMsgOut = new PipeHeader
+            {
+                sockid = socketId,
+                command = CMD.Inject,
+                function = Glob.FUNC_SEND,
+                datasize = bcBytes.Count
+            };
 
             byte[] buf = Glob.RawSerializeEx(strPipeMsgOut);
             int size = Marshal.SizeOf(strPipeMsgOut);
