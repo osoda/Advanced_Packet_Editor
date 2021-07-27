@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace PacketEditor
 {
-    static class SocketInfoUtils
+    internal static class SocketInfoUtils
     {
         public const string sockIdFmt = "X4";
 
@@ -275,7 +275,6 @@ namespace PacketEditor
                     return 10093;
                 case "WSATRY_AGAIN":
                     return 11002;
-                case "NO_ERROR":
                 default:
                     return 0;
             }
@@ -359,7 +358,6 @@ namespace PacketEditor
                     return "WSANOTINITIALISED";
                 case 11002:
                     return "WSATRY_AGAIN";
-                case 0:
                 default:
                     return "NO_ERROR";
             }

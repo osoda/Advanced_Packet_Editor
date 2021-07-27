@@ -111,7 +111,7 @@ namespace PacketEditor
 
         private void dgridFilters_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if ((e.ColumnIndex != 0) && (e.RowIndex != -1))
+            if (e.ColumnIndex != 0 && e.RowIndex != -1)
             {
                 DataRow dr = dtFilters.Rows[e.RowIndex];
                 var frmChReplay = new EditFilter(dr, dtFilters, dgridFilters, e.RowIndex);
@@ -123,8 +123,8 @@ namespace PacketEditor
 
         private void dgridFilters_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if ((e.ColumnIndex == 0) && (e.RowIndex != -1)
-                && dgridFilters[e.ColumnIndex, e.RowIndex].GetContentBounds(e.RowIndex).Contains(e.Location))
+            if (e.ColumnIndex == 0 && e.RowIndex != -1
+                                   && dgridFilters[e.ColumnIndex, e.RowIndex].GetContentBounds(e.RowIndex).Contains(e.Location))
             {
                 if (!(bool)dgridFilters.Rows[e.RowIndex].Cells[e.ColumnIndex].Value)
                 {

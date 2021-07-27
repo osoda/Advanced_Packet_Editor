@@ -67,7 +67,7 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                PipeHeader strPipeMsgOut = new PipeHeader
+                var strPipeMsgOut = new PipeHeader
                 {
                     command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
@@ -83,7 +83,7 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                PipeHeader strPipeMsgOut = new PipeHeader
+                var strPipeMsgOut = new PipeHeader
                 {
                     command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
@@ -99,7 +99,7 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                PipeHeader strPipeMsgOut = new PipeHeader
+                var strPipeMsgOut = new PipeHeader
                 {
                     command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),
@@ -115,7 +115,7 @@ namespace PacketEditor
         {
             if (dgridSockets.SelectedRows.Count != 0)
             {
-                PipeHeader strPipeMsgOut = new PipeHeader
+                var strPipeMsgOut = new PipeHeader
                 {
                     command = CMD.Inject,
                     sockid = int.Parse(dgridSockets.SelectedRows[0].Cells["socket"].Value.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier),

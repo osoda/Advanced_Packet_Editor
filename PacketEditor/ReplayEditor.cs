@@ -20,7 +20,7 @@ namespace PacketEditor
             txtSockID.Text = socket.ToString("X4");
         }
 
-        void CloseForm()
+        private void CloseForm()
         {
             Close();
         }
@@ -41,7 +41,7 @@ namespace PacketEditor
             }
 
             ByteCollection bcBytes = (hexBox1.ByteProvider as DynamicByteProvider).Bytes;
-            PipeHeader strPipeMsgOut = new PipeHeader
+            var strPipeMsgOut = new PipeHeader
             {
                 sockid = socketId,
                 command = CMD.Inject,

@@ -8,7 +8,7 @@ namespace PacketEditor
 {
     public partial class Attach : Form
     {
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public int PID { get; private set; }
         public string ProcPath { get; private set; } = "";
@@ -50,7 +50,7 @@ namespace PacketEditor
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "Get Process.MainModule failed");
+                    Logger.Error(ex, "Get Process.MainModule failed");
                 }
 
                 if (dgridAttach.Rows[idx].Cells["path"].Value.ToString() == string.Empty)
@@ -60,7 +60,7 @@ namespace PacketEditor
             dgridAttach.Sort(dgridAttach.Columns["name"], ListSortDirection.Ascending);
         }
 
-        void CloseForm()
+        private void CloseForm()
         {
             Close();
         }

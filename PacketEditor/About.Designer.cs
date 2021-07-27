@@ -1,6 +1,6 @@
 ﻿namespace PacketEditor
 {
-    partial class frmAbout
+    partial class FrmAbout
     {
         /// <summary>
         /// Required designer variable.

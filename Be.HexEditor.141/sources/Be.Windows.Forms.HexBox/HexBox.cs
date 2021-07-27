@@ -239,8 +239,8 @@ namespace Be.Windows.Forms
                 if (realselStart != _hexBox._bytePos || realselLength != _hexBox._selectionLength)
                 {
                     _hexBox.InternalSelect(realselStart, realselLength);
-                    _hexBox.ScrollByteIntoView(_bpi.Index); /// <--- This line is added
-				}
+                    _hexBox.ScrollByteIntoView(_bpi.Index); // <--- This line is added
+                }
             }
 
             void EndMouseSelection(object sender, MouseEventArgs e)
@@ -2243,17 +2243,15 @@ namespace Be.Windows.Forms
                         // draw default border
                         ControlPaint.DrawBorder3D(e.Graphics, ClientRectangle, Border3DStyle.Sunken);
                     }
-
                     break;
-
                 case BorderStyle.FixedSingle:
                     // draw background
                     e.Graphics.FillRectangle(new SolidBrush(BackColor), ClientRectangle);
 
                     // draw fixed single border
                     ControlPaint.DrawBorder(e.Graphics, ClientRectangle, Color.Black, ButtonBorderStyle.Solid);
-                    break;
 
+                    break;
             }
         }
 
