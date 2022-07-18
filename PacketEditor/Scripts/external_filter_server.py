@@ -1,11 +1,13 @@
 import os
 import sys
-import urllib.parse
+import urllib.parse as urlparse
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import filter
 #import cgi
 
 # Settings
 address = '127.0.0.1'
+count = 0
 port = int(sys.argv[1])
 if(len(sys.argv) > 2):
 	log_path = sys.argv[2]
@@ -36,8 +38,11 @@ class externalFilterHTTPServer(BaseHTTPRequestHandler):
 		return
 
 	def do_POST(self):
-		length = int(self.headers.getheader('content-length'))
+		global count
+		print(count)
+		length = int(self.headers['content-length'])
 		data = self.rfile.read(length)
+		print((data))
 		data = data[0:-2]
 		self.send_response(200)
 		self.end_headers()
@@ -47,13 +52,16 @@ class externalFilterHTTPServer(BaseHTTPRequestHandler):
 		#sockid = qs['sockid'][0]
 		
 		monitor = 1 # 0=hidden, 1=displayd
-		monitor_color = 0 # 0=black, 1=dark_green, 2=red
+		monitor_color = 1 # 0=black, 1=dark_green, 2=red
 		
-		exec(open(filter_path).read())
+		# exec(open(filter_path).read())
+		monitor, monitor_color, data= filter.filter(monitor, monitor_color, data)
 		
-		#execfile( filter_path )
-		data = str(monitor) + str(monitor_color) + data
-		self.wfile.write(data + "\r\n")
+		# execfile( filter_path )
+		data = str(monitor) + str(monitor_color) + data.decode('UTF-8') + "\r\n" 
+		data = str.encode(data)
+		print(data)
+		self.wfile.write(data)
 		
 	def log_message(self, format, *args):
 		pass
@@ -65,6 +73,7 @@ def main():
 		print('Server started at port', port, 'and listen to', address)
 		print('--------------------------------------------------------')
 		print('Filter path:', filter_path)
+		print(count)
 		if 'log_path' in globals():
 			print('Log path:', log_path)
 		print('-------------------------------------------------------')

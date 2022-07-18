@@ -37,7 +37,8 @@ namespace PacketEditor
             {
                 int idx = dgridAttach.Rows.Add();
                 dgridAttach.Rows[idx].Selected = false;
-                dgridAttach.Rows[idx].Cells["id"].Value = proc.Id.ToString("X8");
+                dgridAttach.Rows[idx].Cells["id"].Value = proc.Id.ToString("x8");
+                dgridAttach.Rows[idx].Cells["id2"].Value = proc.Id;
                 dgridAttach.Rows[idx].Cells["name"].Value = proc.ProcessName;
                 dgridAttach.Rows[idx].Cells["window"].Value = proc.MainWindowTitle;
                 try
@@ -53,7 +54,7 @@ namespace PacketEditor
                     Logger.Error(ex, "Get Process.MainModule failed");
                 }
 
-                if (dgridAttach.Rows[idx].Cells["path"].Value.ToString() == string.Empty)
+                if (dgridAttach.Rows[idx]?.Cells["path"]?.Value == null || dgridAttach.Rows[idx]?.Cells["path"]?.Value?.ToString() == string.Empty)
                     dgridAttach.Rows.Remove(dgridAttach.Rows[idx]);
             }
 

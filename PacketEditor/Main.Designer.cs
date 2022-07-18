@@ -121,6 +121,7 @@
             this.mnuToolsFilter = new System.Windows.Forms.ToolStripMenuItem();
             this.MnuToolsProxy = new System.Windows.Forms.ToolStripMenuItem();
             this.toolToggleFilter = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolToggleFilterPrivate = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuToolsSockets = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -185,7 +186,7 @@
             this.dgridMain.RowHeadersVisible = false;
             this.dgridMain.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgridMain.ShowCellErrors = false;
-            this.dgridMain.Size = new System.Drawing.Size(812, 153);
+            this.dgridMain.Size = new System.Drawing.Size(812, 167);
             this.dgridMain.TabIndex = 1;
             this.dgridMain.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgridMain_CellContentClick);
             this.dgridMain.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgridMain_CellDoubleClick);
@@ -193,7 +194,7 @@
             // 
             // time
             // 
-            this.time.HeaderText = "Timestamp";
+            this.time.HeaderText = "tiempo";
             this.time.Name = "time";
             this.time.ReadOnly = true;
             this.time.Width = 65;
@@ -253,7 +254,7 @@
             this.viewToolStripMenuItem,
             this.mnuMsgClear});
             this.mnuMsg.Name = "contextMenuStrip2";
-            this.mnuMsg.Size = new System.Drawing.Size(147, 164);
+            this.mnuMsg.Size = new System.Drawing.Size(141, 164);
             // 
             // mnuMsgCopy
             // 
@@ -262,41 +263,41 @@
             this.mnuMsgCopyHex,
             this.copyForListenerToolStripMenuItem});
             this.mnuMsgCopy.Name = "mnuMsgCopy";
-            this.mnuMsgCopy.Size = new System.Drawing.Size(146, 22);
+            this.mnuMsgCopy.Size = new System.Drawing.Size(140, 22);
             this.mnuMsgCopy.Text = "&Copy";
             // 
             // mnuMsgCopyASCII
             // 
             this.mnuMsgCopyASCII.Name = "mnuMsgCopyASCII";
-            this.mnuMsgCopyASCII.Size = new System.Drawing.Size(166, 22);
+            this.mnuMsgCopyASCII.Size = new System.Drawing.Size(161, 22);
             this.mnuMsgCopyASCII.Text = "&ASCII";
             this.mnuMsgCopyASCII.Click += new System.EventHandler(this.mnuMsgCopyASCII_Click);
             // 
             // mnuMsgCopyHex
             // 
             this.mnuMsgCopyHex.Name = "mnuMsgCopyHex";
-            this.mnuMsgCopyHex.Size = new System.Drawing.Size(166, 22);
+            this.mnuMsgCopyHex.Size = new System.Drawing.Size(161, 22);
             this.mnuMsgCopyHex.Text = "HE&X";
             this.mnuMsgCopyHex.Click += new System.EventHandler(this.mnuMsgCopyHex_Click);
             // 
             // copyForListenerToolStripMenuItem
             // 
             this.copyForListenerToolStripMenuItem.Name = "copyForListenerToolStripMenuItem";
-            this.copyForListenerToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.copyForListenerToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.copyForListenerToolStripMenuItem.Text = "Copy for listener";
             this.copyForListenerToolStripMenuItem.Click += new System.EventHandler(this.copyForListenerToolStripMenuItem_Click);
             // 
             // injectToolStripMenuItem
             // 
             this.injectToolStripMenuItem.Name = "injectToolStripMenuItem";
-            this.injectToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.injectToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.injectToolStripMenuItem.Text = "In&ject";
             this.injectToolStripMenuItem.Click += new System.EventHandler(this.injectToolStripMenuItem_Click);
             // 
             // mnuMsgReplay
             // 
             this.mnuMsgReplay.Name = "mnuMsgReplay";
-            this.mnuMsgReplay.Size = new System.Drawing.Size(146, 22);
+            this.mnuMsgReplay.Size = new System.Drawing.Size(140, 22);
             this.mnuMsgReplay.Text = "&Edit / Replay";
             this.mnuMsgReplay.Click += new System.EventHandler(this.mnuMsgReplay_Click);
             // 
@@ -306,7 +307,7 @@
             this.mnuMsgSocketSD,
             this.mnuMsgSocketClose});
             this.mnuMsgSocket.Name = "mnuMsgSocket";
-            this.mnuMsgSocket.Size = new System.Drawing.Size(146, 22);
+            this.mnuMsgSocket.Size = new System.Drawing.Size(140, 22);
             this.mnuMsgSocket.Text = "&Socket";
             // 
             // mnuMsgSocketSD
@@ -316,47 +317,49 @@
             this.mnuMsgSocketSDsend,
             this.mnuMsgSocketSDboth});
             this.mnuMsgSocketSD.Name = "mnuMsgSocketSD";
-            this.mnuMsgSocketSD.Size = new System.Drawing.Size(139, 22);
+            this.mnuMsgSocketSD.Size = new System.Drawing.Size(135, 22);
             this.mnuMsgSocketSD.Text = "shutdown";
             // 
             // mnuMsgSocketSDrecv
             // 
             this.mnuMsgSocketSDrecv.Name = "mnuMsgSocketSDrecv";
-            this.mnuMsgSocketSDrecv.Size = new System.Drawing.Size(143, 22);
+            this.mnuMsgSocketSDrecv.Size = new System.Drawing.Size(136, 22);
             this.mnuMsgSocketSDrecv.Text = "SD_RECEIVE";
             this.mnuMsgSocketSDrecv.Click += new System.EventHandler(this.mnuMsgSocketSDrecv_Click);
             // 
             // mnuMsgSocketSDsend
             // 
             this.mnuMsgSocketSDsend.Name = "mnuMsgSocketSDsend";
-            this.mnuMsgSocketSDsend.Size = new System.Drawing.Size(143, 22);
+            this.mnuMsgSocketSDsend.Size = new System.Drawing.Size(136, 22);
             this.mnuMsgSocketSDsend.Text = "SD_SEND";
             this.mnuMsgSocketSDsend.Click += new System.EventHandler(this.mnuMsgSocketSDsend_Click);
             // 
             // mnuMsgSocketSDboth
             // 
             this.mnuMsgSocketSDboth.Name = "mnuMsgSocketSDboth";
-            this.mnuMsgSocketSDboth.Size = new System.Drawing.Size(143, 22);
+            this.mnuMsgSocketSDboth.Size = new System.Drawing.Size(136, 22);
             this.mnuMsgSocketSDboth.Text = "SD_BOTH";
             this.mnuMsgSocketSDboth.Click += new System.EventHandler(this.mnuMsgSocketSDboth_Click);
             // 
             // mnuMsgSocketClose
             // 
             this.mnuMsgSocketClose.Name = "mnuMsgSocketClose";
-            this.mnuMsgSocketClose.Size = new System.Drawing.Size(139, 22);
+            this.mnuMsgSocketClose.Size = new System.Drawing.Size(135, 22);
             this.mnuMsgSocketClose.Text = "closesocket";
             this.mnuMsgSocketClose.Click += new System.EventHandler(this.mnuMsgSocketClose_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(137, 6);
             // 
             // mnuAutoScroll
             // 
+            this.mnuAutoScroll.Checked = true;
             this.mnuAutoScroll.CheckOnClick = true;
+            this.mnuAutoScroll.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mnuAutoScroll.Name = "mnuAutoScroll";
-            this.mnuAutoScroll.Size = new System.Drawing.Size(146, 22);
+            this.mnuAutoScroll.Size = new System.Drawing.Size(140, 22);
             this.mnuAutoScroll.Text = "&Auto scroll";
             // 
             // viewToolStripMenuItem
@@ -365,7 +368,7 @@
             this.showToolStripMenuItem,
             this.showrecvRecvAllToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.viewToolStripMenuItem.Text = "&Filter view";
             // 
             // showToolStripMenuItem
@@ -374,7 +377,7 @@
             this.showToolStripMenuItem.CheckOnClick = true;
             this.showToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.showToolStripMenuItem.Name = "showToolStripMenuItem";
-            this.showToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.showToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.showToolStripMenuItem.Text = "&Send methods";
             this.showToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showToolStripMenuItem_CheckedChanged);
             // 
@@ -384,14 +387,14 @@
             this.showrecvRecvAllToolStripMenuItem.CheckOnClick = true;
             this.showrecvRecvAllToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.showrecvRecvAllToolStripMenuItem.Name = "showrecvRecvAllToolStripMenuItem";
-            this.showrecvRecvAllToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.showrecvRecvAllToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.showrecvRecvAllToolStripMenuItem.Text = "&Recv methods";
             this.showrecvRecvAllToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showrecvRecvAllToolStripMenuItem_CheckedChanged);
             // 
             // mnuMsgClear
             // 
             this.mnuMsgClear.Name = "mnuMsgClear";
-            this.mnuMsgClear.Size = new System.Drawing.Size(146, 22);
+            this.mnuMsgClear.Size = new System.Drawing.Size(140, 22);
             this.mnuMsgClear.Text = "Clear &view";
             this.mnuMsgClear.Click += new System.EventHandler(this.mnuMsgClear_Click);
             // 
@@ -412,26 +415,26 @@
             this.mnuNotifyExit});
             this.mnuNotify.Name = "contextMenuStrip1";
             this.mnuNotify.ShowImageMargin = false;
-            this.mnuNotify.Size = new System.Drawing.Size(82, 70);
+            this.mnuNotify.Size = new System.Drawing.Size(81, 70);
             // 
             // mnuNotifyRestore
             // 
             this.mnuNotifyRestore.Name = "mnuNotifyRestore";
-            this.mnuNotifyRestore.Size = new System.Drawing.Size(81, 22);
+            this.mnuNotifyRestore.Size = new System.Drawing.Size(80, 22);
             this.mnuNotifyRestore.Text = "&Main";
             this.mnuNotifyRestore.Click += new System.EventHandler(this.icoNotify_DoubleClick);
             // 
             // filtersToolStripMenuItem
             // 
             this.filtersToolStripMenuItem.Name = "filtersToolStripMenuItem";
-            this.filtersToolStripMenuItem.Size = new System.Drawing.Size(81, 22);
+            this.filtersToolStripMenuItem.Size = new System.Drawing.Size(80, 22);
             this.filtersToolStripMenuItem.Text = "&Filters";
             this.filtersToolStripMenuItem.Click += new System.EventHandler(this.filtersToolStripMenuItem_Click);
             // 
             // mnuNotifyExit
             // 
             this.mnuNotifyExit.Name = "mnuNotifyExit";
-            this.mnuNotifyExit.Size = new System.Drawing.Size(81, 22);
+            this.mnuNotifyExit.Size = new System.Drawing.Size(80, 22);
             this.mnuNotifyExit.Text = "E&xit";
             this.mnuNotifyExit.Click += new System.EventHandler(this.mnuNotifyExit_Click);
             // 
@@ -441,12 +444,12 @@
             this.mnuDNS.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuDNSClear});
             this.mnuDNS.Name = "mnuDNS";
-            this.mnuDNS.Size = new System.Drawing.Size(132, 26);
+            this.mnuDNS.Size = new System.Drawing.Size(129, 26);
             // 
             // mnuDNSClear
             // 
             this.mnuDNSClear.Name = "mnuDNSClear";
-            this.mnuDNSClear.Size = new System.Drawing.Size(131, 22);
+            this.mnuDNSClear.Size = new System.Drawing.Size(128, 22);
             this.mnuDNSClear.Text = "Clear &view";
             this.mnuDNSClear.Click += new System.EventHandler(this.mnuDNSClear_Click);
             // 
@@ -457,7 +460,7 @@
             this.treeAPI.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeAPI.Location = new System.Drawing.Point(0, 0);
             this.treeAPI.Name = "treeAPI";
-            this.treeAPI.Size = new System.Drawing.Size(323, 201);
+            this.treeAPI.Size = new System.Drawing.Size(323, 221);
             this.treeAPI.TabIndex = 3;
             // 
             // mnuAPI
@@ -466,12 +469,12 @@
             this.mnuAPI.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuAPIClear});
             this.mnuAPI.Name = "mnuAPI";
-            this.mnuAPI.Size = new System.Drawing.Size(132, 26);
+            this.mnuAPI.Size = new System.Drawing.Size(129, 26);
             // 
             // mnuAPIClear
             // 
             this.mnuAPIClear.Name = "mnuAPIClear";
-            this.mnuAPIClear.Size = new System.Drawing.Size(131, 22);
+            this.mnuAPIClear.Size = new System.Drawing.Size(128, 22);
             this.mnuAPIClear.Text = "Clear &view";
             this.mnuAPIClear.Click += new System.EventHandler(this.mnuAPIClear_Click);
             // 
@@ -489,8 +492,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(812, 360);
-            this.splitContainer1.SplitterDistance = 153;
+            this.splitContainer1.Size = new System.Drawing.Size(812, 394);
+            this.splitContainer1.SplitterDistance = 167;
             this.splitContainer1.TabIndex = 4;
             // 
             // splitContainer2
@@ -507,7 +510,7 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.treeAPI);
-            this.splitContainer2.Size = new System.Drawing.Size(812, 203);
+            this.splitContainer2.Size = new System.Drawing.Size(812, 223);
             this.splitContainer2.SplitterDistance = 483;
             this.splitContainer2.TabIndex = 4;
             // 
@@ -524,7 +527,7 @@
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.txbRecordText);
-            this.splitContainer3.Size = new System.Drawing.Size(481, 201);
+            this.splitContainer3.Size = new System.Drawing.Size(481, 221);
             this.splitContainer3.SplitterDistance = 158;
             this.splitContainer3.TabIndex = 0;
             // 
@@ -535,7 +538,7 @@
             this.treeDNS.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeDNS.Location = new System.Drawing.Point(0, 0);
             this.treeDNS.Name = "treeDNS";
-            this.treeDNS.Size = new System.Drawing.Size(158, 201);
+            this.treeDNS.Size = new System.Drawing.Size(158, 221);
             this.treeDNS.TabIndex = 3;
             // 
             // txbRecordText
@@ -546,7 +549,7 @@
             this.txbRecordText.Multiline = true;
             this.txbRecordText.Name = "txbRecordText";
             this.txbRecordText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txbRecordText.Size = new System.Drawing.Size(319, 201);
+            this.txbRecordText.Size = new System.Drawing.Size(319, 221);
             this.txbRecordText.TabIndex = 0;
             // 
             // mnuReplay
@@ -555,12 +558,12 @@
             this.mnuReplay.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MIReplay});
             this.mnuReplay.Name = "mnuReplay";
-            this.mnuReplay.Size = new System.Drawing.Size(114, 26);
+            this.mnuReplay.Size = new System.Drawing.Size(110, 26);
             // 
             // MIReplay
             // 
             this.MIReplay.Name = "MIReplay";
-            this.MIReplay.Size = new System.Drawing.Size(113, 22);
+            this.MIReplay.Size = new System.Drawing.Size(109, 22);
             this.MIReplay.Text = "Replay";
             this.MIReplay.Click += new System.EventHandler(this.MIReplay_Click);
             // 
@@ -788,26 +791,26 @@
             this.toolStripSeparator3,
             this.mnuFileExit});
             this.mnuFile.Name = "mnuFile";
-            this.mnuFile.Size = new System.Drawing.Size(38, 20);
+            this.mnuFile.Size = new System.Drawing.Size(37, 20);
             this.mnuFile.Text = "&File";
             // 
             // mnuFileOpen
             // 
             this.mnuFileOpen.Name = "mnuFileOpen";
             this.mnuFileOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.mnuFileOpen.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileOpen.Size = new System.Drawing.Size(146, 22);
             this.mnuFileOpen.Text = "&Open";
             this.mnuFileOpen.Click += new System.EventHandler(this.mnuFileOpen_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(143, 6);
             // 
             // mnuFileAttach
             // 
             this.mnuFileAttach.Name = "mnuFileAttach";
-            this.mnuFileAttach.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileAttach.Size = new System.Drawing.Size(146, 22);
             this.mnuFileAttach.Text = "&Attach";
             this.mnuFileAttach.Click += new System.EventHandler(this.mnuFileAttach_Click);
             // 
@@ -815,7 +818,7 @@
             // 
             this.mnuFileDetach.Enabled = false;
             this.mnuFileDetach.Name = "mnuFileDetach";
-            this.mnuFileDetach.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileDetach.Size = new System.Drawing.Size(146, 22);
             this.mnuFileDetach.Text = "&Detach";
             this.mnuFileDetach.Click += new System.EventHandler(this.mnuFileDetach_Click);
             // 
@@ -823,19 +826,19 @@
             // 
             this.reAttachToolStripMenuItem.Enabled = false;
             this.reAttachToolStripMenuItem.Name = "reAttachToolStripMenuItem";
-            this.reAttachToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.reAttachToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.reAttachToolStripMenuItem.Text = "reAttach";
             this.reAttachToolStripMenuItem.Click += new System.EventHandler(this.reAttachToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(148, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(143, 6);
             // 
             // mnuFileExit
             // 
             this.mnuFileExit.Name = "mnuFileExit";
-            this.mnuFileExit.Size = new System.Drawing.Size(151, 22);
+            this.mnuFileExit.Size = new System.Drawing.Size(146, 22);
             this.mnuFileExit.Text = "E&xit";
             this.mnuFileExit.Click += new System.EventHandler(this.mnuFileExit_Click);
             // 
@@ -844,13 +847,13 @@
             this.mnuInvoke.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuInvokeFreeze});
             this.mnuInvoke.Name = "mnuInvoke";
-            this.mnuInvoke.Size = new System.Drawing.Size(56, 20);
+            this.mnuInvoke.Size = new System.Drawing.Size(54, 20);
             this.mnuInvoke.Text = "&Invoke";
             // 
             // mnuInvokeFreeze
             // 
             this.mnuInvokeFreeze.Name = "mnuInvokeFreeze";
-            this.mnuInvokeFreeze.Size = new System.Drawing.Size(111, 22);
+            this.mnuInvokeFreeze.Size = new System.Drawing.Size(107, 22);
             this.mnuInvokeFreeze.Text = "Freeze";
             this.mnuInvokeFreeze.Click += new System.EventHandler(this.mnuInvokeFreeze_Click);
             // 
@@ -861,13 +864,14 @@
             this.mnuToolsFilter,
             this.MnuToolsProxy,
             this.toolToggleFilter,
+            this.toolToggleFilterPrivate,
             this.toolStripSeparator1,
             this.mnuToolsSockets,
             this.toolStripSeparator5,
             this.mnuToolsFilters,
             this.toolStripSeparator6});
             this.mnuTools.Name = "mnuTools";
-            this.mnuTools.Size = new System.Drawing.Size(50, 20);
+            this.mnuTools.Size = new System.Drawing.Size(46, 20);
             this.mnuTools.Text = "&Tools";
             // 
             // mnuToolsMonitor
@@ -876,7 +880,7 @@
             this.mnuToolsMonitor.CheckOnClick = true;
             this.mnuToolsMonitor.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mnuToolsMonitor.Name = "mnuToolsMonitor";
-            this.mnuToolsMonitor.Size = new System.Drawing.Size(191, 22);
+            this.mnuToolsMonitor.Size = new System.Drawing.Size(222, 22);
             this.mnuToolsMonitor.Text = "Enable &monitor";
             this.mnuToolsMonitor.CheckedChanged += new System.EventHandler(this.mnuToolsMonitor_CheckedChanged);
             // 
@@ -886,7 +890,7 @@
             this.mnuToolsFilter.CheckOnClick = true;
             this.mnuToolsFilter.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mnuToolsFilter.Name = "mnuToolsFilter";
-            this.mnuToolsFilter.Size = new System.Drawing.Size(191, 22);
+            this.mnuToolsFilter.Size = new System.Drawing.Size(222, 22);
             this.mnuToolsFilter.Text = "Enable &filters";
             this.mnuToolsFilter.CheckedChanged += new System.EventHandler(this.mnuToolsFilter_CheckedChanged);
             // 
@@ -894,59 +898,66 @@
             // 
             this.MnuToolsProxy.CheckOnClick = true;
             this.MnuToolsProxy.Name = "MnuToolsProxy";
-            this.MnuToolsProxy.Size = new System.Drawing.Size(191, 22);
+            this.MnuToolsProxy.Size = new System.Drawing.Size(222, 22);
             this.MnuToolsProxy.Text = "&Listen for requests";
             this.MnuToolsProxy.Click += new System.EventHandler(this.MnuToolsProxy_Click);
             // 
             // toolToggleFilter
             // 
             this.toolToggleFilter.Name = "toolToggleFilter";
-            this.toolToggleFilter.Size = new System.Drawing.Size(191, 22);
+            this.toolToggleFilter.Size = new System.Drawing.Size(222, 22);
             this.toolToggleFilter.Text = "Enable &External Filter";
             this.toolToggleFilter.Click += new System.EventHandler(this.toolToggleFilter_Click);
+            // 
+            // toolToggleFilterPrivate
+            // 
+            this.toolToggleFilterPrivate.Name = "toolToggleFilterPrivate";
+            this.toolToggleFilterPrivate.Size = new System.Drawing.Size(222, 22);
+            this.toolToggleFilterPrivate.Text = "Enable External Filter Private";
+            this.toolToggleFilterPrivate.Click += new System.EventHandler(this.toolToggleFilterPrivate_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(188, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(219, 6);
             // 
             // mnuToolsSockets
             // 
             this.mnuToolsSockets.Name = "mnuToolsSockets";
-            this.mnuToolsSockets.Size = new System.Drawing.Size(191, 22);
+            this.mnuToolsSockets.Size = new System.Drawing.Size(222, 22);
             this.mnuToolsSockets.Text = "Sockets";
             this.mnuToolsSockets.Click += new System.EventHandler(this.mnuToolsSockets_Click);
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(188, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(219, 6);
             // 
             // mnuToolsFilters
             // 
             this.mnuToolsFilters.Name = "mnuToolsFilters";
-            this.mnuToolsFilters.Size = new System.Drawing.Size(191, 22);
+            this.mnuToolsFilters.Size = new System.Drawing.Size(222, 22);
             this.mnuToolsFilters.Text = "Set &internal filters";
             this.mnuToolsFilters.Click += new System.EventHandler(this.mnuToolsFilters_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(188, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(219, 6);
             // 
             // mnuOptions
             // 
             this.mnuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuOptionsOntop});
             this.mnuOptions.Name = "mnuOptions";
-            this.mnuOptions.Size = new System.Drawing.Size(64, 20);
+            this.mnuOptions.Size = new System.Drawing.Size(61, 20);
             this.mnuOptions.Text = "&Options";
             // 
             // mnuOptionsOntop
             // 
             this.mnuOptionsOntop.CheckOnClick = true;
             this.mnuOptionsOntop.Name = "mnuOptionsOntop";
-            this.mnuOptionsOntop.Size = new System.Drawing.Size(153, 22);
+            this.mnuOptionsOntop.Size = new System.Drawing.Size(145, 22);
             this.mnuOptionsOntop.Text = "Move On Top";
             this.mnuOptionsOntop.CheckedChanged += new System.EventHandler(this.mnuOptionsOntop_CheckedChanged);
             // 
@@ -956,21 +967,21 @@
             this.mnuHelpHelp,
             this.mnuHelpWebsite});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
             // 
             // mnuHelpHelp
             // 
             this.mnuHelpHelp.Name = "mnuHelpHelp";
             this.mnuHelpHelp.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.mnuHelpHelp.Size = new System.Drawing.Size(195, 22);
+            this.mnuHelpHelp.Size = new System.Drawing.Size(187, 22);
             this.mnuHelpHelp.Text = "PacketEditor &Help";
             this.mnuHelpHelp.Click += new System.EventHandler(this.mnuHelpHelp_Click);
             // 
             // mnuHelpWebsite
             // 
             this.mnuHelpWebsite.Name = "mnuHelpWebsite";
-            this.mnuHelpWebsite.Size = new System.Drawing.Size(195, 22);
+            this.mnuHelpWebsite.Size = new System.Drawing.Size(187, 22);
             this.mnuHelpWebsite.Text = "&About";
             this.mnuHelpWebsite.Click += new System.EventHandler(this.mnuHelpWebsite_Click);
             // 
@@ -979,7 +990,7 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsExternalFilter});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 384);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 418);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(812, 22);
             this.statusStrip1.TabIndex = 6;
@@ -989,7 +1000,7 @@
             // 
             this.tsExternalFilter.BackColor = System.Drawing.SystemColors.Window;
             this.tsExternalFilter.Name = "tsExternalFilter";
-            this.tsExternalFilter.Size = new System.Drawing.Size(80, 17);
+            this.tsExternalFilter.Size = new System.Drawing.Size(76, 17);
             this.tsExternalFilter.Text = "External filter";
             // 
             // timerPython
@@ -999,9 +1010,9 @@
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(812, 406);
+            this.ClientSize = new System.Drawing.Size(812, 440);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.mnuMain);
             this.Controls.Add(this.statusStrip1);
@@ -1152,6 +1163,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn size;
         private System.Windows.Forms.DataGridViewTextBoxColumn data;
         private System.Windows.Forms.DataGridViewTextBoxColumn rawdata;
+        private System.Windows.Forms.ToolStripMenuItem toolToggleFilterPrivate;
     }
 }
 

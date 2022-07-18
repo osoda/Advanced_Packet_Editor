@@ -280,6 +280,9 @@ namespace PacketEditor
 
         private string externalFilterPort = "8084";
         private bool isEnabledExternalFilter;
+        private bool isEnabledExternalFilterPrivate;
+        private byte[] dataPrivateSending;
+        private Tuple<byte[], String> dataRequestProxy = new Tuple<byte[], String>(new byte[0], "");
 
         private string processPath;
         private int processID;
@@ -515,18 +518,24 @@ namespace PacketEditor
             bool tmpMonitor = isEnabledMonitor;
             var dvs = new DataGridViewCellStyle(); // TODO: may need optimization
 
+            byte[] dataPrivate = new byte[0];
+            bool changedByExternalFilterPrivate = false;
+
             // If ExternalFilter is true, it will added the line later, after verify the monitor flag
             if ((!isEnabledExternalFilter || !isEnabledFilter) && tmpMonitor)
                 dgridIdx = dgridMain.Rows.Add();
 
             // External filter run only if the filter option in menu is also checked
-            if (isEnabledFilter)
+            // o si esta enviandose los el paquete privado
+            if (isEnabledFilter || dataPrivateSending.Length >0)
             {
                 #region Enabled external filter
                 if (isEnabledExternalFilter)
                 {
                     try
                     {
+                        handlerProxyDrawRowView();
+
                         #region Send a post request to external filter and get the response text
                         var req = WebRequest.Create($"http://127.0.0.1:{externalFilterPort}/" +
                             $"?func={SocketInfoUtils.Msg(pipeMsgIn.function)}" +
@@ -570,16 +579,20 @@ namespace PacketEditor
                                 dgridMain.Rows[dgridIdx].Cells["data"].Style = dvs;
                             }
                         }
-
+                        
+                        bool isUseFilterExternalPrivate =  handledFilterExternalPrivate(ref dataPrivate, rspText, data, ref changedByExternalFilterPrivate);
                         // cut the flags chars and the two new lines that finished the response
-                        string subRspText = rspText.Substring(2, rspText.Length - 4);
-                        if (subRspText != latin.GetString(data))
+                        if (!isEnabledExternalFilterPrivate)
                         {
-                            changedByExternalFilter = true;
-                            pipeMsgOut.command = CMD.Filter;
-                        }
+                            string subRspText = rspText.Substring(2, rspText.Length - 4);
+                            if (subRspText != latin.GetString(data))
+                            {
+                                changedByExternalFilter = true;
+                                pipeMsgOut.command = CMD.Filter;
+                            }
 
-                        data = latin.GetBytes(subRspText);
+                            data = latin.GetBytes(subRspText);
+                        }
                     }
                     catch (WebException webEx)
                     {
@@ -730,7 +743,85 @@ namespace PacketEditor
                 dgridMain.Rows[dgridIdx].Cells["rawdata"].Value = data;
                 dgridMain.Rows[dgridIdx].Cells["data"].Value = latin.GetString(data);
                 dgridMain.Rows[dgridIdx].Cells["size"].Value = data.Length;
+
+                if (isEnabledExternalFilterPrivate)
+                {
+                    sendDataPrivate(dataPrivate, pipeMsgIn.sockid);
+                }else
+                    dataPrivateSending = new byte[0];
             }
+        }
+
+        private bool handledFilterExternalPrivate(ref byte[] dataPrivate, string rspText, Byte[] data, ref bool changedByExternalFilterPrivate)
+        {
+            string packetFinalizacion = "__dd__";
+
+            if(!isEnabledExternalFilterPrivate)
+                return false;
+            
+            // cut the flags chars and the two new lines that finished the response
+            string subRspText = rspText.Substring(2, rspText.Length - 2);
+            
+            if (subRspText != latin.GetString(data))
+            {
+                changedByExternalFilterPrivate = true;
+                pipeMsgOut.command = CMD.Filter;
+            }
+
+            if (subRspText == packetFinalizacion)
+            {
+                return false;
+            }
+
+            byte[] data2 = latin.GetBytes(subRspText);
+            dataPrivate = hexAddCharactersEnd(data2);
+
+            return true;
+        }
+
+        private void sendDataPrivate(byte[]  data, int sockid)
+        {
+            pipeMsgOut.command = CMD.Inject;
+            pipeMsgOut.function = Glob.FUNC_SEND;
+            pipeMsgOut.sockid = sockid;
+            pipeMsgOut.datasize = data.Length;
+            WritePipe();
+            try
+            {
+                pipeOut.Write(data, 0, pipeMsgOut.datasize);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        }
+
+        private static byte[] hexAddCharactersEnd(byte[] data)
+        {
+            byte[] charactersEnd = new byte[] { 0x0A, 0x00};
+            System.Collections.Generic.List<byte> list = new System.Collections.Generic.List<byte>();
+            list.AddRange(data);
+            list.AddRange(charactersEnd);
+
+            data = list.ToArray();
+            return data;
+        }
+
+        private static byte[] ConvertHexStringToByteArray(string hexString)
+        {
+            if (hexString.Length % 2 != 0)
+            {
+                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "The binary key cannot have an odd number of digits: {0}", hexString));
+            }
+
+            byte[] data = new byte[hexString.Length / 2];
+            for (int index = 0; index < data.Length; index++)
+            {
+                string byteValue = hexString.Substring(index * 2, 2);
+                data[index] = byte.Parse(byteValue, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            }
+
+            return data;
         }
 
         private void UpdateTree(byte[] data)
@@ -2432,6 +2523,7 @@ DATA_TO_SEND";
                 try
                 {
                     byte[] bcBytes = latin.GetBytes(bodyText);
+                    bcBytes = hexAddCharactersEnd(bcBytes);
 
                     pipeMsgOut.command = CMD.Inject;
                     pipeMsgOut.function = SocketInfoUtils.MsgNum(method); // Glob.FUNC_SEND;
@@ -2440,6 +2532,7 @@ DATA_TO_SEND";
                     try
                     {
                         pipeOut.Write(bcBytes, 0, pipeMsgOut.datasize);
+                        dataRequestProxy = new Tuple<byte[], String>(bcBytes, GetCurrentTime());
                     }
                     catch (Exception ex)
                     {
@@ -2463,6 +2556,29 @@ DATA_TO_SEND";
             {
                 outputStream.Write(bOutput, 0, bOutput.Length);
             }
+        }
+
+        private void handlerProxyDrawRowView()
+        {
+            if (dataRequestProxy.Item1.Length == 0) return;
+
+            byte[] data = dataRequestProxy.Item1;
+            String time = dataRequestProxy.Item2;
+            dataRequestProxy = new Tuple<byte[], String>(new byte[0], "");
+
+            var dvs = new DataGridViewCellStyle();
+
+            int dgridIdx = dgridMain.Rows.Add();
+
+            dvs.ForeColor = Color.Purple;
+            dgridMain.Rows[dgridIdx].Cells["data"].Style = dvs;
+
+            dgridMain.Rows[dgridIdx].Cells["time"].Value = GetCurrentTime();
+            dgridMain.Rows[dgridIdx].Cells["socket"].Value = pipeMsgIn.sockid.ToString(SocketInfoUtils.sockIdFmt);
+            dgridMain.Rows[dgridIdx].Cells["method"].Value = SocketInfoUtils.Msg(pipeMsgIn.function);
+            dgridMain.Rows[dgridIdx].Cells["rawdata"].Value = data;
+            dgridMain.Rows[dgridIdx].Cells["data"].Value = latin.GetString(data);
+            dgridMain.Rows[dgridIdx].Cells["size"].Value = data.Length;
         }
 
         private void showToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -2515,6 +2631,20 @@ DATA_TO_SEND";
             {
                 txbRecordText.Text = dgridMain.SelectedRows[0].Cells["data"].Value.ToString().Replace("\0", "\\0");
             }
+        }
+
+        private void ActivateExternalFilterPrivate()
+        {
+            int port = GetExternalFilterPort();
+            if (port == -1)
+            {
+                isEnabledExternalFilter = false;
+                isEnabledExternalFilterPrivate = false;
+                return;
+            }
+
+            isEnabledExternalFilterPrivate = true;
+            isEnabledExternalFilter = true;
         }
 
         private void ActivateExtenalFilter()
@@ -2687,5 +2817,21 @@ Connection: Keep-Alive
             public readonly long sin_zero;
         }
         #endregion
+
+        private void toolToggleFilterPrivate_Click(object sender, EventArgs e)
+        {
+            var item = sender as ToolStripMenuItem;
+            if (!item.Checked)
+            {
+                ActivateExternalFilterPrivate();
+                item.Checked = true;
+            }
+            else
+            {
+                isEnabledExternalFilter = false;
+                isEnabledExternalFilterPrivate = false;
+                item.Checked = false;
+            }
+        }
     }
 }

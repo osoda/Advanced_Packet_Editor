@@ -657,17 +657,17 @@
         </member>
         <member name="F:Be.Windows.Forms.HexBox._recBorderLeft">
             <summary>
-            Contains the border愀 left shift
+            Contains the border´s left shift
             </summary>
         </member>
         <member name="F:Be.Windows.Forms.HexBox._recBorderRight">
             <summary>
-            Contains the border愀 right shift
+            Contains the border´s right shift
             </summary>
         </member>
         <member name="F:Be.Windows.Forms.HexBox._recBorderTop">
             <summary>
-            Contains the border愀 top shift
+            Contains the border´s top shift
             </summary>
         </member>
         <member name="F:Be.Windows.Forms.HexBox._recBorderBottom">
@@ -1013,7 +1013,7 @@
         </member>
         <member name="P:Be.Windows.Forms.HexBox.BorderStyle">
             <summary>
-            Gets or sets the hex box愀 border style.
+            Gets or sets the hex box´s border style.
             </summary>
         </member>
         <member name="P:Be.Windows.Forms.HexBox.StringViewVisible">
@@ -1313,19 +1313,19 @@
             <summary>
             Returns a value if the WriteByte methods is supported by the provider.
             </summary>
-            <returns>True, when it愀 supported.</returns>
+            <returns>True, when it´s supported.</returns>
         </member>
         <member name="M:Be.Windows.Forms.IByteProvider.SupportsInsertBytes">
             <summary>
             Returns a value if the InsertBytes methods is supported by the provider.
             </summary>
-            <returns>True, when it愀 supported.</returns>
+            <returns>True, when it´s supported.</returns>
         </member>
         <member name="M:Be.Windows.Forms.IByteProvider.SupportsDeleteBytes">
             <summary>
             Returns a value if the DeleteBytes methods is supported by the provider.
             </summary>
-            <returns>True, when it愀 supported.</returns>
+            <returns>True, when it´s supported.</returns>
         </member>
     </members>
 </doc>

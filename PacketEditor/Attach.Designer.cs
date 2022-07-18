@@ -33,12 +33,13 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Attach));
             this.dgridAttach = new System.Windows.Forms.DataGridView();
+            this.btnAttach = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.id2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.window = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.path = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnAttach = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgridAttach)).BeginInit();
             this.SuspendLayout();
             // 
@@ -61,6 +62,7 @@
             this.dgridAttach.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgridAttach.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.id,
+            this.id2,
             this.name,
             this.window,
             this.path});
@@ -73,7 +75,7 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dgridAttach.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgridAttach.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgridAttach.Location = new System.Drawing.Point(9, 8);
+            this.dgridAttach.Location = new System.Drawing.Point(9, 9);
             this.dgridAttach.Margin = new System.Windows.Forms.Padding(0);
             this.dgridAttach.MultiSelect = false;
             this.dgridAttach.Name = "dgridAttach";
@@ -85,9 +87,31 @@
             this.dgridAttach.ShowCellErrors = false;
             this.dgridAttach.ShowCellToolTips = false;
             this.dgridAttach.ShowEditingIcon = false;
-            this.dgridAttach.Size = new System.Drawing.Size(670, 199);
+            this.dgridAttach.Size = new System.Drawing.Size(670, 216);
             this.dgridAttach.TabIndex = 0;
             this.dgridAttach.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dgridAttach_KeyPress);
+            // 
+            // btnAttach
+            // 
+            this.btnAttach.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnAttach.Location = new System.Drawing.Point(523, 228);
+            this.btnAttach.Name = "btnAttach";
+            this.btnAttach.Size = new System.Drawing.Size(75, 23);
+            this.btnAttach.TabIndex = 1;
+            this.btnAttach.Text = "&Attach";
+            this.btnAttach.UseVisualStyleBackColor = true;
+            this.btnAttach.Click += new System.EventHandler(this.btnAttach_Click);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnCancel.Location = new System.Drawing.Point(604, 228);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 2;
+            this.btnCancel.Text = "&Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // id
             // 
@@ -100,6 +124,13 @@
             this.id.Name = "id";
             this.id.ReadOnly = true;
             this.id.Width = 49;
+            // 
+            // id2
+            // 
+            this.id2.HeaderText = "PID2";
+            this.id2.Name = "id2";
+            this.id2.ReadOnly = true;
+            this.id2.Width = 49;
             // 
             // name
             // 
@@ -125,33 +156,11 @@
             this.path.Name = "path";
             this.path.ReadOnly = true;
             // 
-            // btnAttach
-            // 
-            this.btnAttach.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnAttach.Location = new System.Drawing.Point(523, 210);
-            this.btnAttach.Name = "btnAttach";
-            this.btnAttach.Size = new System.Drawing.Size(75, 21);
-            this.btnAttach.TabIndex = 1;
-            this.btnAttach.Text = "&Attach";
-            this.btnAttach.UseVisualStyleBackColor = true;
-            this.btnAttach.Click += new System.EventHandler(this.btnAttach_Click);
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnCancel.Location = new System.Drawing.Point(604, 210);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 21);
-            this.btnCancel.TabIndex = 2;
-            this.btnCancel.Text = "&Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
             // Attach
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(688, 235);
+            this.ClientSize = new System.Drawing.Size(688, 255);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnAttach);
             this.Controls.Add(this.dgridAttach);
@@ -179,6 +188,7 @@
         private System.Windows.Forms.Button btnAttach;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.DataGridViewTextBoxColumn id;
+        private System.Windows.Forms.DataGridViewTextBoxColumn id2;
         private System.Windows.Forms.DataGridViewTextBoxColumn name;
         private System.Windows.Forms.DataGridViewTextBoxColumn window;
         private System.Windows.Forms.DataGridViewTextBoxColumn path;
