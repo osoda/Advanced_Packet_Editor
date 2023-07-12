@@ -23,3 +23,9 @@ Special thanks to the original developers at [Packet Editor](https://www.packete
 ## License
 
 GNU General Public License v3.0
+
+
+_dd
+- Si se quir continuar con algo parecido. Revisasr el codigo de
+-- https://www.unknowncheats.me/forum/c-/74144-creating-packet-editor-proxy.html
+-- https://github.com/DeNA/PacketProxy
